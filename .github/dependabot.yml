@@ -1,0 +1,12 @@
+# Propose chaque mois les mises à jour des actions GitHub et des dépendances Gradle.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

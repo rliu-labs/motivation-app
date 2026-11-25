@@ -1,0 +1,156 @@
+# Construit Sentier, lance les tests et publie l'APK.
+#  - Pull request : APK d'aperçu publié en pré-version « apercu-pr-N », supprimée à la fermeture.
+#  - Fusion sur main : version « vX.Y.Z » publiée avec les notes du CHANGELOG,
+#    captures d'écran du README et schéma de la base mis à jour.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+
+# Droits minimaux par défaut, élargis seulement pour les jobs qui publient.
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Clé de signature
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SENTIER_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.SENTIER_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/sentier.jks"
+            echo "SENTIER_KEYSTORE_FILE=$RUNNER_TEMP/sentier.jks" >> "$GITHUB_ENV"
+            echo "SENTIER_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "Clé fournie par les secrets du dépôt."
+          else
+            echo "::warning::Secrets SENTIER_KEYSTORE_BASE64 / SENTIER_KEYSTORE_PASSWORD absents : APK signé avec une clé de debug, il ne pourra pas mettre à jour une version déjà installée."
+          fi
+
+      - name: Tests
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Construire l'APK
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Préparer l'APK
+        id: apk
+        run: |
+          VERSION=$(sed -n 's/^val appVersion = "\(.*\)"/\1/p' app/build.gradle.kts)
+          FILE="Sentier-$VERSION.apk"
+          [ "${{ github.event_name }}" = "pull_request" ] && FILE="Sentier-$VERSION-apercu${{ github.run_number }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$FILE"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.file }}
+          path: ${{ steps.apk.outputs.file }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captures
+          path: app/build/screenshots/
+
+      - name: Rapport de tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-tests
+          path: app/build/reports/tests/
+
+      - name: Publier l'aperçu de la pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: apercu-pr-${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "$SENTIER_KEYSTORE_FILE" ]; then
+            echo "::warning::Pas de clé de signature : aperçu non publié."
+            exit 0
+          fi
+          gh release delete "$TAG" --cleanup-tag --yes || true
+          gh release create "$TAG" "${{ steps.apk.outputs.file }}" \
+            --prerelease \
+            --target "${{ github.event.pull_request.head.sha }}" \
+            --title "Aperçu de la PR #${{ github.event.pull_request.number }} (${{ steps.apk.outputs.version }}, build ${{ github.run_number }})" \
+            --notes "Version d'essai de la pull request #${{ github.event.pull_request.number }}, supprimée quand la PR est fermée. Pour l'installer, télécharge le fichier .apk ci-dessous depuis ton téléphone."
+
+      - name: Publier la version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.apk.outputs.version }}
+        run: |
+          if [ -z "$SENTIER_KEYSTORE_FILE" ]; then
+            echo "::error::Secrets de signature absents : version non publiée (elle ne pourrait pas mettre à jour l'appli installée)."
+            exit 1
+          fi
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "La version v$VERSION existe déjà : augmenter appVersion pour en publier une nouvelle."
+            exit 0
+          fi
+          awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          printf '\n---\nPour installer ou mettre à jour Sentier, télécharge le fichier .apk ci-dessous depuis ton téléphone (voir le README).\n' >> notes.md
+          gh release create "v$VERSION" "${{ steps.apk.outputs.file }}" \
+            --latest --target "${{ github.sha }}" --title "Sentier $VERSION" --notes-file notes.md
+
+      - name: Mettre à jour les captures d'écran et le schéma de la base
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p docs/screenshots
+          cp app/build/screenshots/*.png docs/screenshots/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots app/schemas
+          if git diff --cached --quiet; then
+            echo "Rien à mettre à jour."
+          else
+            git commit -m "Mise à jour des captures d'écran et du schéma de la base [skip ci]"
+            git push origin HEAD:main || echo "::warning::main a bougé pendant la construction, captures non poussées."
+          fi
+
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    if: (github.event_name == 'pull_request' && github.event.action == 'closed') || github.event_name == 'push'
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Supprimer les aperçus des pull requests fermées
+        run: |
+          for tag in $(gh release list --limit 100 --json tagName --jq '.[].tagName | select(startswith("apercu-pr-"))'); do
+            pr="${tag#apercu-pr-}"
+            state=$(gh pr view "$pr" --json state --jq .state 2>/dev/null || echo UNKNOWN)
+            if [ "$state" != "OPEN" ]; then
+              echo "Suppression de $tag (PR $state)"
+              gh release delete "$tag" --cleanup-tag --yes
+            fi
+          done
