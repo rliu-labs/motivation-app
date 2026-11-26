@@ -18,7 +18,7 @@
 Sentier (French for *path*) brings what matters in a day onto a single screen: tasks to do, habits to keep,
 and steps to walk. Every small win shows up right away, and a missed day never wipes out weeks of effort.
 
-Everything stays on the phone: no account, no ads, no tracking. The app's interface is in French.
+No account, no ads, no tracking: your data stays on your phone. The app's interface is in French.
 
 ## Screenshots
 
@@ -121,8 +121,10 @@ Without a signing key, the APK is signed with the local debug key. In CI, the ke
 
 ## Privacy
 
-Sentier works fully offline. Tasks, habits and steps are stored on the phone, are never sent anywhere,
-and require no account. Step access (Health Connect or sensor) can be revoked at any time in Android settings.
+Sentier works fully offline and requires no account. Tasks, habits and steps are stored on the phone,
+and the app itself never sends them anywhere. If Android backup is turned on, the phone's own backup may include
+Sentier's data in your Google account, like other apps' data, so it survives a phone change; you can turn this off
+in Android settings. Step access (Health Connect or sensor) can be revoked at any time in Android settings.
 
 ## License and acknowledgements
 
