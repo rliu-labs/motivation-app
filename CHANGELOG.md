@@ -5,14 +5,16 @@ et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/
 
 ## [0.5.0] - 2026-11-26
 
-Le voyage virtuel.
+Le tour du monde.
 
 ### Ajouté
-- Onglet « Voyage » : tes pas te font avancer sur de vrais itinéraires, l'un après l'autre
-  (tour du lac d'Annecy, chemin de Stevenson, canal du Midi, de Paris au Mont-Saint-Michel, environ 870 km).
-- Carte dessinée par l'appli à partir des coordonnées des étapes, sans service en ligne : chemin parcouru, position, prochaine étape.
-- Chaque étape atteinte s'annonce avec une anecdote sur le lieu et rapporte 15 XP et 3 pièces d'or.
-- 2 nouveaux badges : « En route » (5 étapes) et « Grand voyageur » (25 étapes).
+- Onglet « Voyage » : tes pas te font faire le tour du monde vers l'est, de Paris à Paris,
+  en 25 escales (environ 700 km de marche ; les premières escales sont proches).
+- Pour chaque escale : son architecture, sa culture et une anecdote « Le savais-tu ? ».
+- Un souvenir typique à rapporter de chaque pays (daruma, babouches, tapis persan, pandeiro…), réunis dans une collection.
+- Carte du monde en pointillés dessinée par l'appli, sans service en ligne : trajets en arcs, chemin parcouru, position, prochaine escale.
+- Chaque escale atteinte rapporte 15 XP et 3 pièces d'or.
+- 2 nouveaux badges : « En route » (5 escales) et « Tour du monde » (les 25 escales).
 
 ### Corrigé
 - La cloche des rappels est alignée à droite de l'écran Aujourd'hui.

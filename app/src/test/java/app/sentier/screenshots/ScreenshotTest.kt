@@ -69,7 +69,7 @@ class ScreenshotTest {
             save(scenario, "habitudes")
 
             rule.onNodeWithText("Voyage").performClick()
-            waitFor("Étapes")
+            waitFor("Dernière escale")
             save(scenario, "voyage")
 
             rule.onNodeWithText("Progrès").performClick()

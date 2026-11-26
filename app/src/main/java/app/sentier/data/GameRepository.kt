@@ -8,7 +8,7 @@ package app.sentier.data
 import app.sentier.domain.Badge
 import app.sentier.domain.Badges
 import app.sentier.domain.GameRules
-import app.sentier.domain.Journeys
+import app.sentier.domain.WorldTour
 import app.sentier.domain.GameStats
 import app.sentier.domain.LevelInfo
 import app.sentier.domain.StreakInfo
@@ -96,7 +96,7 @@ class GameRepository(
     /** Une étape du voyage est atteinte. Récompensée une seule fois ; renvoie null si déjà fait. */
     suspend fun onStopReached(key: Long, day: Long = today().toEpochDay()): Gain? {
         if (dao.countEventsEver(GameEvent.STOP, key) > 0) return null
-        val xp = Journeys.STOP_XP
+        val xp = WorldTour.STOP_XP
         val gain = Gain(xp, GameRules.goldFor(xp))
         dao.insertEvent(GameEvent(kind = GameEvent.STOP, refId = key, day = day, xp = gain.xp, gold = gain.gold))
         return gain

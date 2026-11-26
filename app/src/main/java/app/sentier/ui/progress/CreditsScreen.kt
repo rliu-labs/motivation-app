@@ -45,6 +45,10 @@ private val Credits = listOf(
         "GPL-3.0", "https://github.com/iSoron/uhabits",
     ),
     Credit(
+        "Natural Earth", "Contours des terres utilisés pour dessiner la carte du tour du monde.",
+        "Domaine public", "https://www.naturalearthdata.com",
+    ),
+    Credit(
         "Android Jetpack, Compose et icônes Material", "Bibliothèques et icônes de Google.",
         "Apache 2.0", "https://developer.android.com/jetpack",
     ),

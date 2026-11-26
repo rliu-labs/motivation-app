@@ -38,26 +38,27 @@ class JourneyRepositoryTest {
 
     @Test
     fun stepsUnlockStopsOnceWithXp() = runBlocking {
-        // 18 000 pas à 75 cm = 13,5 km : Sévrier et Duingt atteints.
+        // 18 000 pas à 75 cm = 13,5 km : Marrakech est atteinte.
         db.habitDao().putSteps(DailySteps(today.toEpochDay(), 18_000))
         journey.sync()
         journey.sync()
         var state = journey.observe().first()
         assertEquals(13.5, state.progress.km, 1e-9)
-        assertEquals(listOf("Sévrier", "Duingt"), state.unseen.map { it.stop.name })
+        assertEquals(listOf("Marrakech"), state.unseen.map { it.stop.city })
         val game1 = game.observe().first()
-        assertEquals(30, game1.totalXp)
-        assertEquals(6, game1.gold)
+        assertEquals(15, game1.totalXp)
+        assertEquals(3, game1.gold)
 
         journey.markSeen()
         state = journey.observe().first()
         assertTrue(state.unseen.isEmpty())
 
-        // Le lendemain, 8 000 pas de plus (6 km) : Bout du Lac.
-        db.habitDao().putSteps(DailySteps(today.plusDays(1).toEpochDay(), 8_000))
+        // Le lendemain, 12 000 pas de plus (9 km, total 22,5 km) : Rome.
+        db.habitDao().putSteps(DailySteps(today.plusDays(1).toEpochDay(), 12_000))
         journey.sync()
         state = journey.observe().first()
-        assertEquals(listOf("Bout du Lac"), state.unseen.map { it.stop.name })
-        assertEquals(45, game.observe().first().totalXp)
+        assertEquals(listOf("Rome"), state.unseen.map { it.stop.city })
+        assertEquals("Athènes", state.progress.nextStop?.city)
+        assertEquals(30, game.observe().first().totalXp)
     }
 }

@@ -77,9 +77,10 @@ class AppSmokeTest {
     @Test
     fun openJourney() {
         rule.onNodeWithText("Voyage").performClick()
-        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Voyage 1 sur 4")).fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Tour du monde")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Escale 0 sur 25").assertExists()
         rule.onNodeWithText("Active le comptage des pas", substring = true).assertExists()
-        rule.onNodeWithText("Dans 6 km").assertExists()
+        rule.onNodeWithText("Point de départ").assertExists()
     }
 
     @Test

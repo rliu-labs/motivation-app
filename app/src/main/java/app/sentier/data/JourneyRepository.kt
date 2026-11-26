@@ -5,22 +5,22 @@
  */
 package app.sentier.data
 
-import app.sentier.domain.JourneyProgress
-import app.sentier.domain.Journeys
 import app.sentier.domain.ReachedStop
+import app.sentier.domain.TourProgress
+import app.sentier.domain.WorldTour
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 
 data class JourneyState(
-    val progress: JourneyProgress = Journeys.progress(0.0),
-    /** Étapes atteintes pas encore annoncées à l'écran (la plus récente en dernier). */
+    val progress: TourProgress = WorldTour.progress(0.0),
+    /** Escales atteintes pas encore annoncées à l'écran (la plus récente en dernier). */
     val unseen: List<ReachedStop> = emptyList(),
     val stepLengthCm: Int = 75,
     val loading: Boolean = true,
 )
 
-/** Le voyage virtuel : tous les pas enregistrés font avancer d'étape en étape. */
+/** Le tour du monde : tous les pas enregistrés font avancer d'escale en escale. */
 class JourneyRepository(
     private val dao: HabitDao,
     private val settings: Settings,
@@ -28,20 +28,20 @@ class JourneyRepository(
 ) {
     fun observe(): Flow<JourneyState> =
         combine(dao.observeTotalSteps(), settings.steps, settings.journeySeen) { total, s, seen ->
-            val km = Journeys.kmFor(total, s.stepLengthCm)
-            val reached = Journeys.reachedStops(km)
-            JourneyState(Journeys.progress(km), reached.drop(seen.coerceAtMost(reached.size)), s.stepLengthCm, loading = false)
+            val km = WorldTour.kmFor(total, s.stepLengthCm)
+            val reached = WorldTour.reachedStops(km)
+            JourneyState(WorldTour.progress(km), reached.drop(seen.coerceAtMost(reached.size)), s.stepLengthCm, loading = false)
         }
 
-    /** Récompense les étapes atteintes (une seule fois chacune). */
+    /** Récompense les escales atteintes (une seule fois chacune). */
     suspend fun sync() {
-        val km = Journeys.kmFor(dao.observeTotalSteps().first(), settings.currentSteps().stepLengthCm)
-        for (stop in Journeys.reachedStops(km)) game?.onStopReached(stop.key)
+        val km = WorldTour.kmFor(dao.observeTotalSteps().first(), settings.currentSteps().stepLengthCm)
+        for (stop in WorldTour.reachedStops(km)) game?.onStopReached(stop.key)
     }
 
-    /** Les étapes atteintes ont été annoncées. */
+    /** Les escales atteintes ont été annoncées. */
     suspend fun markSeen() {
-        val km = Journeys.kmFor(dao.observeTotalSteps().first(), settings.currentSteps().stepLengthCm)
-        settings.setJourneySeen(Journeys.reachedStops(km).size)
+        val km = WorldTour.kmFor(dao.observeTotalSteps().first(), settings.currentSteps().stepLengthCm)
+        settings.setJourneySeen(WorldTour.reachedStops(km).size)
     }
 }

@@ -28,7 +28,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/taches.png" width="200" alt="Task list" /><br /><sub>Tasks</sub></td>
     <td align="center"><img src="docs/screenshots/detail-tache.png" width="200" alt="Task details" /><br /><sub>Task details</sub></td>
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habits and steps" /><br /><sub>Habits and steps</sub></td>
-    <td align="center"><img src="docs/screenshots/voyage.png" width="200" alt="Virtual journey map powered by steps" /><br /><sub>Journey</sub></td>
+    <td align="center"><img src="docs/screenshots/voyage.png" width="200" alt="Around-the-world journey powered by steps" /><br /><sub>World tour</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
     <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
@@ -61,11 +61,13 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Day streaks with **rest days**: one missed day does not break the streak.
 - 10 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
 
-**Journey**
-- Your steps move you along real routes drawn on a map: Lake Annecy, the Stevenson Trail in the Cévennes,
-  the Canal du Midi, then Paris to Mont-Saint-Michel (about 870 km in all).
-- Every stop unlocks a short fact about the place and earns XP and gold.
-- The map is drawn by the app from the stops' coordinates: no map service, works offline.
+**World tour**
+- Your steps take you around the world, eastward from Paris: Marrakech, Rome, Istanbul, Petra, Lalibela, Isfahan,
+  the Taj Mahal, Kathmandu, Beijing, Kyoto, Angkor, Bali, Sydney, Māori New Zealand, Cusco, Rio, Havana, Mexico City,
+  New York, Reykjavik and back (25 stops, about 700 km of walking).
+- Every stop tells you about the country's architecture and culture, with a "did you know?" fact,
+  and brings back a typical souvenir for your collection: a Daruma from Japan, babouches from Morocco, a Persian rug…
+- A dotted world map drawn by the app shows the legs travelled and where you are: no map service, works offline.
 
 **Reminders**
 - A morning notification with the plan for the day.
@@ -97,8 +99,8 @@ To update, install the new APK the same way: it replaces the previous version an
 | 2. Habits and steps | Habits with strength score, Health Connect, step goal | ✅ v0.2 |
 | 3. Game | Experience, levels, gold, reward shop, streaks with rest days, badges | ✅ v0.3 |
 | 4. Reminders | Morning summary, evening reminder, complete from the notification | ✅ v0.4 |
-| 5. Journey | Real routes drawn on a map, powered by your steps, with stops to unlock | ✅ v0.5 |
-| Next | Collectibles, challenges, widgets, backup | 💡 |
+| 5. World tour | 25 stops around the world powered by your steps, culture, architecture and souvenirs | ✅ v0.5 |
+| Next | Challenges, widgets, backup | 💡 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -118,7 +120,7 @@ Release notes are in the [changelog](CHANGELOG.md).
 ```
 app/src/main/java/app/sentier/
 ├── data/      Room entities, DAOs, repositories (tasks, habits, game), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), journeys
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), world tour
 ├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 └── ui/        Compose screens and ViewModels (today, tasks, edit, habits, journey, progress, reminders, theme)
@@ -152,4 +154,5 @@ Some ideas come from great open-source apps: the task model and recurrence optio
 [Tasks.org](https://github.com/tasks/tasks), the reward loop from [Habitica](https://github.com/HabitRPG/habitica-android),
 and the habit list and strength score formula from [Loop Habit Tracker](https://github.com/iSoron/uhabits)
 (formula © Álinson Santos Xavier, GPL-3.0). No code or artwork was copied from these projects.
-Icons are [Material Symbols](https://fonts.google.com/icons) (Apache 2.0).
+Icons are [Material Symbols](https://fonts.google.com/icons) (Apache 2.0). The world map outline is derived from
+[Natural Earth](https://www.naturalearthdata.com) (public domain).
