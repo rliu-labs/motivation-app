@@ -107,7 +107,7 @@ fun TodayScreen(
     Column(modifier.fillMaxSize().imePadding()) {
         LazyColumn(Modifier.weight(1f)) {
             item {
-                Box {
+                Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
                         Text("Aujourd'hui", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(longDate(state.today), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
