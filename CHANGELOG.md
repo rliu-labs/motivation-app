@@ -3,6 +3,22 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.6.0] - 2026-11-26
+
+Défis et trésors.
+
+### Ajouté
+- Défis de la semaine, du lundi au dimanche, dans l'onglet Progrès : 70 000 pas (« La route de la soie »),
+  sport 7 jours d'affilée (« Esprit olympique »), actif 5 jours (« Kaizen »), 10 tâches, 3 tâches difficiles
+  (« Les travaux d'Hercule ») et 15 habitudes (« Le rituel du maté »).
+- Chaque défi relevé rapporte un bonus de 30 à 80 XP, avec l'or qui va avec, versé aussitôt.
+- 17 trésors rares venus des cultures du monde (boussole portugaise, bol raku, verre de Murano, œuf de Fabergé, moaï…),
+  gagnés avec les niveaux, les séries, les badges et les défis. Rares, épiques ou légendaires, chacun a son histoire
+  et son anecdote « Le savais-tu ? ».
+- Le carnet de voyage, dans l'onglet Voyage, réunit les souvenirs des escales et les trésors.
+- Un nouveau trésor est annoncé dès qu'il est gagné, où que l'on soit dans l'appli.
+- 2 nouveaux badges : « Défi relevé » (1 défi) et « Aventurier » (10 défis).
+
 ## [0.5.0] - 2026-11-26
 
 Le tour du monde.

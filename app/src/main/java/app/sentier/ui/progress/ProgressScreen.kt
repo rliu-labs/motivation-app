@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -53,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,8 +64,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.GameState
 import app.sentier.data.Reward
 import app.sentier.domain.Badge
+import app.sentier.domain.Challenge
 import app.sentier.domain.Streaks
 import app.sentier.ui.common.SectionHeader
+import java.text.NumberFormat
+import java.util.Locale
 
 /** Couleur de l'or, lisible sur fond clair et sombre. */
 val GoldColor = Color(0xFFE0A100)
@@ -74,6 +79,7 @@ fun ProgressScreen(
     vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val challenges by vm.challenges.collectAsStateWithLifecycle()
     var buying by remember { mutableStateOf<Reward?>(null) }
     var editing by remember { mutableStateOf<Reward?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -87,6 +93,21 @@ fun ProgressScreen(
         )
         LevelCard(state)
         StreakCard(state)
+
+        challenges?.let { week ->
+            SectionHeader("Défis de la semaine (${week.doneCount} sur ${week.list.size})")
+            Text(
+                when (week.daysLeft) {
+                    0 -> "Dernier jour pour les relever ! De nouveaux défis arrivent lundi."
+                    1 -> "Encore 2 jours, aujourd'hui compris. De nouveaux défis arrivent lundi."
+                    else -> "Encore ${week.daysLeft + 1} jours, aujourd'hui compris. De nouveaux défis arrivent lundi."
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            for (c in week.list) ChallengeCard(c)
+        }
 
         SectionHeader("Boutique de récompenses")
         Text(
@@ -211,6 +232,65 @@ private fun StreakCard(state: GameState) {
         }
     }
 }
+
+@Composable
+private fun ChallengeCard(c: Challenge) {
+    val colors = MaterialTheme.colorScheme
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = (if (c.done) "Défi relevé : " else "Défi : ") + "${c.title}, ${c.goalText}"
+            },
+        colors = CardDefaults.cardColors(containerColor = if (c.done) colors.secondaryContainer else colors.surfaceContainerLow),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(if (c.done) colors.primary else colors.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    if (c.done) Icons.Filled.Check else GameIcons.of(c.icon),
+                    contentDescription = null,
+                    tint = if (c.done) colors.onPrimary else colors.primary,
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(c.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    Text("+${c.xp} XP", style = MaterialTheme.typography.labelLarge, color = colors.primary)
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Filled.Paid, contentDescription = null, tint = GoldColor, modifier = Modifier.size(16.dp))
+                    Text("${c.gold}", style = MaterialTheme.typography.labelLarge)
+                }
+                Text(c.goalText, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    c.flavor,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontStyle = FontStyle.Italic,
+                    color = colors.onSurfaceVariant,
+                )
+                LinearProgressIndicator(
+                    progress = { c.progress },
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(6.dp).clip(CircleShape),
+                )
+                Text(
+                    when {
+                        c.done -> "Relevé ! Bonus versé."
+                        c.hint != null -> c.hint
+                        else -> "${formatCount(c.current)} / ${formatCount(c.goal)}"
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (c.done) colors.primary else colors.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+private fun formatCount(n: Long): String = NumberFormat.getIntegerInstance(Locale.FRANCE).format(n)
 
 @Composable
 private fun RewardRow(reward: Reward, affordable: Boolean, onBuy: () -> Unit, onEdit: () -> Unit) {

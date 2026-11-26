@@ -3,11 +3,14 @@ package app.sentier.screenshots
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -71,10 +74,16 @@ class ScreenshotTest {
             rule.onNodeWithText("Voyage").performClick()
             waitFor("Dernière escale")
             save(scenario, "voyage")
+            rule.onNode(hasScrollAction()).performScrollToNode(hasText("Trésors rares", substring = true))
+            waitFor("Trésors rares")
+            save(scenario, "carnet")
 
             rule.onNodeWithText("Progrès").performClick()
             waitFor("Boutique de récompenses")
             save(scenario, "progres")
+            rule.onNodeWithText("Défis de la semaine", substring = true).performScrollTo()
+            waitFor("Défis de la semaine")
+            save(scenario, "defis")
         }
     }
 

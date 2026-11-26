@@ -39,9 +39,12 @@ interface GameDao {
     @Query("SELECT COALESCE(SUM(gold), 0) FROM game_event")
     suspend fun gold(): Int
 
-    /** Jours avec au moins une action (les achats ne comptent pas). */
-    @Query("SELECT DISTINCT day FROM game_event WHERE kind != 4 ORDER BY day")
+    /** Jours avec au moins une action (les achats et les bonus de défi ne comptent pas). */
+    @Query("SELECT DISTINCT day FROM game_event WHERE kind NOT IN (4, 6) ORDER BY day")
     fun observeActiveDays(): Flow<List<Long>>
+
+    @Query("SELECT * FROM game_event WHERE day >= :fromDay ORDER BY day")
+    fun observeEventsSince(fromDay: Long): Flow<List<GameEvent>>
 
     @Query("SELECT kind, COUNT(*) AS count FROM game_event GROUP BY kind")
     fun observeCounts(): Flow<List<KindCount>>

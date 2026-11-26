@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.sentier.MainActivity
@@ -81,6 +82,23 @@ class AppSmokeTest {
         rule.onNodeWithText("Escale 0 sur 25").assertExists()
         rule.onNodeWithText("Active le comptage des pas", substring = true).assertExists()
         rule.onNodeWithText("Point de départ").assertExists()
+    }
+
+    @Test
+    fun openChallengesAndTreasures() {
+        rule.onNodeWithText("Progrès").performClick()
+        rule.onNodeWithText("Défis de la semaine (0 sur 6)").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("La route de la soie").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("Ajoute l'habitude « Faire du sport » pour relever ce défi.").assertExists()
+
+        rule.onNodeWithText("Voyage").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Tour du monde")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNode(androidx.compose.ui.test.hasScrollAction())
+            .performScrollToNode(androidx.compose.ui.test.hasText("Trésors rares", substring = true))
+        rule.onNodeWithText("Trésors rares (0 sur 17)").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Trésor à gagner : Atteindre le niveau 3").performClick()
+        rule.onNodeWithText("Boussole de marin").assertIsDisplayed()
+        rule.onNodeWithText("Fermer").performClick()
     }
 
     @Test

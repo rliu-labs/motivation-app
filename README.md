@@ -29,7 +29,9 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/detail-tache.png" width="200" alt="Task details" /><br /><sub>Task details</sub></td>
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habits and steps" /><br /><sub>Habits and steps</sub></td>
     <td align="center"><img src="docs/screenshots/voyage.png" width="200" alt="Around-the-world journey powered by steps" /><br /><sub>World tour</sub></td>
+    <td align="center"><img src="docs/screenshots/carnet.png" width="200" alt="Travel journal: souvenirs and rare treasures" /><br /><sub>Travel journal</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
+    <td align="center"><img src="docs/screenshots/defis.png" width="200" alt="Weekly challenges" /><br /><sub>Weekly challenges</sub></td>
     <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
   </tr>
@@ -59,7 +61,12 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Every task and habit earns experience and gold, according to its difficulty.
 - Levels, and a reward shop you fill yourself ("A dessert", "A video game night"…).
 - Day streaks with **rest days**: one missed day does not break the streak.
-- 10 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
+- 14 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
+- **Weekly challenges**, from Monday to Sunday, each with an XP and gold bonus: walk 70,000 steps (the Silk Road),
+  work out 7 days in a row (Olympic spirit), finish 3 hard tasks (the labours of Hercules)…
+- **Rare treasures** from the world's cultures, earned with levels, streaks, badges and challenges:
+  a Portuguese compass, a raku tea bowl, a Murano glass, a Fabergé egg, a moai… Rare, epic or legendary,
+  each comes with its story and a "did you know?" fact, kept in the travel journal next to your souvenirs.
 
 **World tour**
 - Your steps take you around the world, eastward from Paris: Marrakech, Rome, Istanbul, Petra, Lalibela, Isfahan,
@@ -100,7 +107,8 @@ To update, install the new APK the same way: it replaces the previous version an
 | 3. Game | Experience, levels, gold, reward shop, streaks with rest days, badges | ✅ v0.3 |
 | 4. Reminders | Morning summary, evening reminder, complete from the notification | ✅ v0.4 |
 | 5. World tour | 25 stops around the world powered by your steps, culture, architecture and souvenirs | ✅ v0.5 |
-| Next | Challenges, widgets, backup | 💡 |
+| 6. Challenges and treasures | Weekly challenges with bonuses, rare cultural treasures in the travel journal | ✅ v0.6 |
+| Next | Widgets, backup | 💡 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -119,8 +127,8 @@ Release notes are in the [changelog](CHANGELOG.md).
 
 ```
 app/src/main/java/app/sentier/
-├── data/      Room entities, DAOs, repositories (tasks, habits, game), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), world tour
+├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey), settings
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), challenges, treasures, world tour
 ├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 └── ui/        Compose screens and ViewModels (today, tasks, edit, habits, journey, progress, reminders, theme)

@@ -32,6 +32,8 @@ data class GameEvent(
         const val PURCHASE = 4
         /** Escale du tour du monde atteinte (ref_id = clé de l'escale). */
         const val STOP = 5
+        /** Défi de la semaine relevé (ref_id = clé du défi). */
+        const val CHALLENGE = 6
     }
 }
 

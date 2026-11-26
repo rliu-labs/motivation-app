@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.JourneyState
 import app.sentier.domain.Stop
+import app.sentier.domain.Treasure
 import app.sentier.domain.WorldTour
 import app.sentier.ui.common.SectionHeader
 import java.text.NumberFormat
@@ -70,7 +71,9 @@ import java.util.Locale
 @Composable
 fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewModel(factory = JourneyViewModel.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val treasures by vm.treasures.collectAsStateWithLifecycle()
     var opened by remember { mutableStateOf<Stop?>(null) }
+    var openedTreasure by remember { mutableStateOf<Treasure?>(null) }
 
     LifecycleResumeEffect(vm) {
         vm.refresh()
@@ -95,9 +98,23 @@ fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewMode
             StopCard(p.current, Modifier.padding(horizontal = 16.dp))
         }
         item {
+            Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp)) {
+                Text("Carnet de voyage", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "Les souvenirs rapportés de chaque escale, et les trésors rares gagnés avec tes niveaux, tes séries, tes badges et tes défis.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        item {
             val owned = p.reached.size
             SectionHeader("Souvenirs ($owned sur ${WorldTour.stops.size})")
             SouvenirGrid(p.currentIndex, onOpen = { opened = it })
+        }
+        item {
+            SectionHeader("Trésors rares (${treasures.count { it.owned }} sur ${treasures.size})")
+            TreasureGrid(treasures, onOpen = { openedTreasure = it })
         }
         item { SectionHeader("Itinéraire") }
         itemsIndexed(WorldTour.stops, key = { i, _ -> "stop-$i" }) { i, stop ->
@@ -137,11 +154,15 @@ fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewMode
         item { Spacer(Modifier.height(16.dp)) }
     }
 
+    openedTreasure?.let { t ->
+        TreasureDialog(t, title = t.name, footer = null, onDismiss = { openedTreasure = null })
+    }
+
     opened?.let { stop ->
         StopDialog(stop, title = "${stop.city}, ${stop.country}", footer = null, onDismiss = { opened = null })
     }
 
-    if (state.unseen.isNotEmpty() && opened == null) {
+    if (state.unseen.isNotEmpty() && opened == null && openedTreasure == null) {
         val latest = state.unseen.last().stop
         val n = state.unseen.size
         val xp = WorldTour.STOP_XP * n

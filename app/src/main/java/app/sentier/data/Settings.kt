@@ -14,6 +14,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -60,6 +61,14 @@ class Settings(private val context: Context) {
         val eveningOn = booleanPreferencesKey("reminder_evening_on")
         val eveningMinute = intPreferencesKey("reminder_evening_minute")
         val journeySeen = intPreferencesKey("journey_seen_stops")
+        val treasuresSeen = stringSetPreferencesKey("treasures_seen")
+    }
+
+    /** Trésors déjà annoncés à l'écran. */
+    val treasuresSeen: Flow<Set<String>> = context.dataStore.data.map { it[Keys.treasuresSeen] ?: emptySet() }
+
+    suspend fun addTreasuresSeen(ids: Collection<String>) = context.dataStore.edit {
+        it[Keys.treasuresSeen] = (it[Keys.treasuresSeen] ?: emptySet()) + ids
     }
 
     /** Nombre d'étapes du voyage déjà annoncées à l'écran. */

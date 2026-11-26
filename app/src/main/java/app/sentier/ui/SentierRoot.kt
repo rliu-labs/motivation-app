@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,11 +35,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import app.sentier.ui.edit.TaskEditScreen
 import app.sentier.ui.habits.HabitEditScreen
 import app.sentier.ui.habits.HabitsScreen
 import app.sentier.ui.journey.JourneyScreen
+import app.sentier.ui.journey.TreasureDialog
 import app.sentier.ui.progress.CreditsScreen
 import app.sentier.ui.progress.ProgressScreen
 import app.sentier.ui.reminders.RemindersScreen
@@ -57,6 +61,13 @@ private enum class Tab(val route: String, val label: String, val icon: ImageVect
 @Composable
 fun SentierRoot(nav: NavHostController = rememberNavController()) {
     val snackbar = remember { SnackbarHostState() }
+    val rewards: RewardsViewModel = viewModel(factory = RewardsViewModel.Factory)
+    val newTreasures by rewards.newTreasures.collectAsStateWithLifecycle()
+    LaunchedEffect(rewards) {
+        rewards.challengeDone.collect { c ->
+            snackbar.showSnackbar("Défi relevé : ${c.title} ! +${c.xp} XP, +${c.gold} or")
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
     val tabRoute = Tab.entries.firstOrNull { it.route == route }
@@ -135,5 +146,20 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
                 CreditsScreen(onBack = { nav.popBackStack() })
             }
         }
+    }
+
+    if (newTreasures.isNotEmpty()) {
+        val best = newTreasures.maxBy { it.rarity.ordinal }
+        val others = newTreasures.size - 1
+        TreasureDialog(
+            best,
+            title = "Nouveau trésor : ${best.name}",
+            footer = when (others) {
+                0 -> "Il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                1 -> "Avec 1 autre trésor, il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                else -> "Avec $others autres trésors, il rejoint ton carnet de voyage, dans l'onglet Voyage."
+            },
+            onDismiss = { rewards.markSeen(newTreasures) },
+        )
     }
 }

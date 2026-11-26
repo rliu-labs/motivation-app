@@ -12,6 +12,8 @@ import app.sentier.domain.WorldTour
 import app.sentier.domain.GameStats
 import app.sentier.domain.LevelInfo
 import app.sentier.domain.StreakInfo
+import app.sentier.domain.Treasure
+import app.sentier.domain.Treasures
 import app.sentier.domain.Streaks
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -27,6 +29,8 @@ data class GameState(
     val streak: StreakInfo = StreakInfo(),
     val badges: List<Badge> = Badges.of(GameStats()),
     val rewards: List<Reward> = emptyList(),
+    /** Objets rares du carnet. */
+    val treasures: List<Treasure> = Treasures.of(GameStats(), 0),
 )
 
 class GameRepository(
@@ -52,10 +56,12 @@ class GameRepository(
                 stepGoals = byKind[GameEvent.STEPS] ?: 0,
                 rewardsTaken = byKind[GameEvent.PURCHASE] ?: 0,
                 stops = byKind[GameEvent.STOP] ?: 0,
+                challenges = byKind[GameEvent.CHALLENGE] ?: 0,
                 level = level.level,
                 bestStreak = streak.best,
             )
-            GameState(level, totals.xp, totals.gold, streak, Badges.of(stats), rewards)
+            val badges = Badges.of(stats)
+            GameState(level, totals.xp, totals.gold, streak, badges, rewards, Treasures.of(stats, badges.count { it.unlocked }))
         }
     }
 
@@ -99,6 +105,14 @@ class GameRepository(
         val xp = WorldTour.STOP_XP
         val gain = Gain(xp, GameRules.goldFor(xp))
         dao.insertEvent(GameEvent(kind = GameEvent.STOP, refId = key, day = day, xp = gain.xp, gold = gain.gold))
+        return gain
+    }
+
+    /** Un défi de la semaine est relevé. Son bonus n'est versé qu'une fois ; renvoie null si déjà fait. */
+    suspend fun onChallengeDone(key: Long, xp: Int, day: Long = today().toEpochDay()): Gain? {
+        if (dao.countEventsEver(GameEvent.CHALLENGE, key) > 0) return null
+        val gain = Gain(xp, GameRules.goldFor(xp))
+        dao.insertEvent(GameEvent(kind = GameEvent.CHALLENGE, refId = key, day = day, xp = gain.xp, gold = gain.gold))
         return gain
     }
 

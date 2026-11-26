@@ -100,6 +100,8 @@ data class GameStats(
     val bestStreak: Int = 0,
     /** Escales du tour du monde atteintes. */
     val stops: Int = 0,
+    /** Défis de la semaine relevés. */
+    val challenges: Int = 0,
 )
 
 data class Badge(
@@ -128,5 +130,7 @@ object Badges {
         Badge("reward_1", "Je me fais plaisir", "Prendre une récompense dans la boutique", "gift", s.rewardsTaken, 1),
         Badge("stops_5", "En route", "Atteindre 5 escales du tour du monde", "map", s.stops, 5),
         Badge("stops_25", "Tour du monde", "Boucler le tour du monde (25 escales)", "globe", s.stops, 25),
+        Badge("challenge_1", "Défi relevé", "Réussir un défi de la semaine", "bolt", s.challenges, 1),
+        Badge("challenge_10", "Aventurier", "Réussir 10 défis de la semaine", "explore", s.challenges, 10),
     )
 }

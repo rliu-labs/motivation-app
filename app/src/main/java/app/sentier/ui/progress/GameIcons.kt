@@ -7,7 +7,10 @@ package app.sentier.ui.progress
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -42,6 +45,9 @@ object GameIcons {
         "game" to Icons.Filled.SportsEsports,
         "map" to Icons.Filled.Map,
         "globe" to Icons.Filled.Public,
+        "bolt" to Icons.Filled.Bolt,
+        "explore" to Icons.Filled.Explore,
+        "sport" to Icons.Filled.FitnessCenter,
     )
 
     fun of(name: String): ImageVector = byName[name] ?: Icons.Filled.Redeem
