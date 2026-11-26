@@ -54,6 +54,14 @@ jobs:
             echo "::warning::Secrets SENTIER_KEYSTORE_BASE64 / SENTIER_KEYSTORE_PASSWORD absents : APK signé avec une clé de debug, il ne pourra pas mettre à jour une version déjà installée."
           fi
 
+      # Robolectric télécharge des images d'Android depuis Maven Central pendant les tests :
+      # on les garde en cache pour ne pas les retélécharger (et éviter les refus pour trop de requêtes).
+      - name: Cache Robolectric
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+
       - name: Tests
         run: ./gradlew --no-daemon testDebugUnitTest
 
