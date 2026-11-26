@@ -150,8 +150,10 @@ jobs:
             adb shell am start -W -n app.sentier/.MainActivity
             adb shell monkey -p app.sentier --pct-syskeys 0 --throttle 100 -s 42 -v 3000 > monkey.txt 2>&1 || (tail -50 monkey.txt; exit 1)
             tail -5 monkey.txt
+            adb logcat -d -b crash > crash.txt
+            if grep -q "app.sentier" crash.txt; then cat crash.txt; echo "::error::L'appli a planté"; exit 1; fi
             adb logcat -d > logcat.txt
-            if grep -E "FATAL EXCEPTION|ClassNotFoundException|NoSuchMethodError|NoSuchFieldError" logcat.txt; then echo "::error::L'appli a planté"; exit 1; fi
+            if grep -E "ClassNotFoundException|NoSuchMethodError|NoSuchFieldError" logcat.txt | grep -E "app\.sentier|androidx|kotlin"; then echo "::error::Classe ou méthode manquante"; exit 1; fi
             echo "Aucun plantage."
 
   publier:
