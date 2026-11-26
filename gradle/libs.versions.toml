@@ -12,7 +12,7 @@ healthConnect = "1.1.0-alpha12"
 datastore = "1.1.1"
 work = "2.10.0"
 junit = "4.13.2"
-robolectric = "4.14.1"
+robolectric = "4.18.1"
 androidxTestCore = "1.6.1"
 androidxJunit = "1.2.1"
 
