@@ -8,6 +8,7 @@ package app.sentier.steps
 import app.sentier.data.DailySteps
 import app.sentier.data.GameRepository
 import app.sentier.data.HabitDao
+import app.sentier.data.JourneyRepository
 import app.sentier.data.Settings
 import app.sentier.data.StepSettings
 import app.sentier.data.StepSource
@@ -53,6 +54,7 @@ class StepsRepository(
     private val healthConnect: HealthConnectSource,
     private val sensor: SensorStepSource,
     private val game: GameRepository? = null,
+    private val journey: JourneyRepository? = null,
     private val clock: () -> LocalDate = { LocalDate.now() },
 ) {
     private val availability = MutableStateFlow(StepAvailability())
@@ -98,6 +100,7 @@ class StepsRepository(
             StepSource.SENSOR -> sampleSensorLocked(today)
             StepSource.NONE -> Unit
         }
+        journey?.sync()
     }
 
     /** Lecture du capteur (appelée aussi en arrière-plan toutes les 15 minutes). */
@@ -111,6 +114,7 @@ class StepsRepository(
         settings.saveSensorState(counter, epoch, steps)
         dao.putSteps(DailySteps(epoch, steps))
         if (steps >= settings.currentSteps().goal) game?.onStepsGoal(epoch)
+        journey?.sync()
     }
 
     suspend fun useSource(source: StepSource) {

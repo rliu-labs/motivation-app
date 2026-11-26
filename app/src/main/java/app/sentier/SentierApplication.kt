@@ -9,6 +9,7 @@ import android.app.Application
 import app.sentier.data.AppDatabase
 import app.sentier.data.GameRepository
 import app.sentier.data.HabitRepository
+import app.sentier.data.JourneyRepository
 import app.sentier.data.Settings
 import app.sentier.data.TaskRepository
 import app.sentier.steps.HealthConnectSource
@@ -21,7 +22,8 @@ class SentierApplication : Application() {
     val game: GameRepository by lazy { GameRepository(database.gameDao()) }
     val tasks: TaskRepository by lazy { TaskRepository(database.taskDao(), game = game) }
     val habits: HabitRepository by lazy { HabitRepository(database.habitDao(), game = game) }
+    val journey: JourneyRepository by lazy { JourneyRepository(database.habitDao(), settings, game) }
     val steps: StepsRepository by lazy {
-        StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this), game = game)
+        StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this), game = game, journey = journey)
     }
 }

@@ -98,6 +98,8 @@ data class GameStats(
     val rewardsTaken: Int = 0,
     val level: Int = 1,
     val bestStreak: Int = 0,
+    /** Étapes du voyage atteintes. */
+    val stops: Int = 0,
 )
 
 data class Badge(
@@ -124,5 +126,7 @@ object Badges {
         Badge("level_5", "Niveau 5", "Atteindre le niveau 5", "star", s.level, 5),
         Badge("level_10", "Niveau 10", "Atteindre le niveau 10", "trophy", s.level, 10),
         Badge("reward_1", "Je me fais plaisir", "Prendre une récompense dans la boutique", "gift", s.rewardsTaken, 1),
+        Badge("stops_5", "En route", "Atteindre 5 étapes du voyage", "map", s.stops, 5),
+        Badge("stops_25", "Grand voyageur", "Atteindre 25 étapes du voyage", "globe", s.stops, 25),
     )
 }

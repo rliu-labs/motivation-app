@@ -3,6 +3,20 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.5.0] - 2026-11-26
+
+Le voyage virtuel.
+
+### Ajouté
+- Onglet « Voyage » : tes pas te font avancer sur de vrais itinéraires, l'un après l'autre
+  (tour du lac d'Annecy, chemin de Stevenson, canal du Midi, de Paris au Mont-Saint-Michel, environ 870 km).
+- Carte dessinée par l'appli à partir des coordonnées des étapes, sans service en ligne : chemin parcouru, position, prochaine étape.
+- Chaque étape atteinte s'annonce avec une anecdote sur le lieu et rapporte 15 XP et 3 pièces d'or.
+- 2 nouveaux badges : « En route » (5 étapes) et « Grand voyageur » (25 étapes).
+
+### Corrigé
+- La cloche des rappels est alignée à droite de l'écran Aujourd'hui.
+
 ## [0.4.0] - 2026-11-26
 
 Étape 4 : les rappels.
@@ -69,6 +83,7 @@ et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/
 - Stockage local (Room), page Crédits et licence GPL-3.0.
 - Construction et publication automatiques de l'APK avec GitHub Actions.
 
+[0.5.0]: https://github.com/rliu-labs/motivation-app/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/rliu-labs/motivation-app/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rliu-labs/motivation-app/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/rliu-labs/motivation-app/releases/tag/v0.2.0

@@ -69,6 +69,10 @@ object DemoData {
         steps.forEachIndexed { i, n -> if (n >= 8_000) app.game.onStepsGoal(today.minusDays((6 - i).toLong()).toEpochDay()) }
         app.game.observe().first().rewards.firstOrNull { it.name == "Un dessert" }?.let { app.game.buy(it) }
 
+        // Voyage : étapes déjà récompensées et annoncées.
+        app.journey.sync()
+        app.journey.markSeen()
+
         // Rappels : le matin à 8 h et le soir à 20 h 30.
         app.settings.setReminders(ReminderSettings(morningOn = true, eveningOn = true))
     }

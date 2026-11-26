@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -38,6 +40,8 @@ object GameIcons {
         "tv" to Icons.Filled.Tv,
         "cake" to Icons.Filled.Cake,
         "game" to Icons.Filled.SportsEsports,
+        "map" to Icons.Filled.Map,
+        "globe" to Icons.Filled.Public,
     )
 
     fun of(name: String): ImageVector = byName[name] ?: Icons.Filled.Redeem

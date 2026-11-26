@@ -28,6 +28,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/taches.png" width="200" alt="Task list" /><br /><sub>Tasks</sub></td>
     <td align="center"><img src="docs/screenshots/detail-tache.png" width="200" alt="Task details" /><br /><sub>Task details</sub></td>
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habits and steps" /><br /><sub>Habits and steps</sub></td>
+    <td align="center"><img src="docs/screenshots/voyage.png" width="200" alt="Virtual journey map powered by steps" /><br /><sub>Journey</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
     <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
@@ -60,6 +61,12 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Day streaks with **rest days**: one missed day does not break the streak.
 - 10 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
 
+**Journey**
+- Your steps move you along real routes drawn on a map: Lake Annecy, the Stevenson Trail in the Cévennes,
+  the Canal du Midi, then Paris to Mont-Saint-Michel (about 870 km in all).
+- Every stop unlocks a short fact about the place and earns XP and gold.
+- The map is drawn by the app from the stops' coordinates: no map service, works offline.
+
 **Reminders**
 - A morning notification with the plan for the day.
 - An evening reminder of what is left, only when something is left, with a warning when the streak is at risk.
@@ -90,7 +97,8 @@ To update, install the new APK the same way: it replaces the previous version an
 | 2. Habits and steps | Habits with strength score, Health Connect, step goal | ✅ v0.2 |
 | 3. Game | Experience, levels, gold, reward shop, streaks with rest days, badges | ✅ v0.3 |
 | 4. Reminders | Morning summary, evening reminder, complete from the notification | ✅ v0.4 |
-| v2 | Virtual journey on a map powered by your steps, collectibles, challenges, widgets, backup | 💡 |
+| 5. Journey | Real routes drawn on a map, powered by your steps, with stops to unlock | ✅ v0.5 |
+| Next | Collectibles, challenges, widgets, backup | 💡 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -110,10 +118,10 @@ Release notes are in the [changelog](CHANGELOG.md).
 ```
 app/src/main/java/app/sentier/
 ├── data/      Room entities, DAOs, repositories (tasks, habits, game), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges)
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), journeys
 ├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
-└── ui/        Compose screens and ViewModels (today, tasks, edit, habits, progress, reminders, theme)
+└── ui/        Compose screens and ViewModels (today, tasks, edit, habits, journey, progress, reminders, theme)
 ```
 
 ### Building

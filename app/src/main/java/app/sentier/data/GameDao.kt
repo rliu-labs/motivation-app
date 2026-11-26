@@ -20,6 +20,9 @@ interface GameDao {
     @Query("SELECT COUNT(*) FROM game_event WHERE kind = :kind AND ref_id = :refId AND day = :day")
     suspend fun countEvents(kind: Int, refId: Long, day: Long): Int
 
+    @Query("SELECT COUNT(*) FROM game_event WHERE kind = :kind AND ref_id = :refId")
+    suspend fun countEventsEver(kind: Int, refId: Long): Int
+
     @Query("DELETE FROM game_event WHERE kind = :kind AND ref_id = :refId AND day = :day")
     suspend fun deleteEvents(kind: Int, refId: Long, day: Long)
 

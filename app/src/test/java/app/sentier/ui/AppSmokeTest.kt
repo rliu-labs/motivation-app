@@ -75,6 +75,14 @@ class AppSmokeTest {
     }
 
     @Test
+    fun openJourney() {
+        rule.onNodeWithText("Voyage").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Voyage 1 sur 4")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Active le comptage des pas", substring = true).assertExists()
+        rule.onNodeWithText("Dans 6 km").assertExists()
+    }
+
+    @Test
     fun addHabitFromTemplateAndCheckItToday() {
         rule.onNodeWithText("Habitudes").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Ajoute ta première habitude")).fetchSemanticsNodes().isNotEmpty() }

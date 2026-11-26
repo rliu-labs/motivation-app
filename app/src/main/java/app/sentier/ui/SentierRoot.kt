@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.navigation.navArgument
 import app.sentier.ui.edit.TaskEditScreen
 import app.sentier.ui.habits.HabitEditScreen
 import app.sentier.ui.habits.HabitsScreen
+import app.sentier.ui.journey.JourneyScreen
 import app.sentier.ui.progress.CreditsScreen
 import app.sentier.ui.progress.ProgressScreen
 import app.sentier.ui.reminders.RemindersScreen
@@ -47,6 +49,7 @@ private enum class Tab(val route: String, val label: String, val icon: ImageVect
     TODAY("today", "Aujourd'hui", Icons.Filled.WbSunny),
     TASKS("tasks", "Tâches", Icons.Filled.Checklist),
     HABITS("habits", "Habitudes", Icons.Filled.SelfImprovement),
+    JOURNEY("journey", "Voyage", Icons.Filled.Map),
     PROGRESS("progress", "Progrès", Icons.Filled.EmojiEvents),
 }
 
@@ -110,6 +113,9 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
             }
             composable(Tab.HABITS.route) {
                 HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
+            }
+            composable(Tab.JOURNEY.route) {
+                JourneyScreen(modifier = tabModifier)
             }
             composable(Tab.PROGRESS.route) {
                 Box(tabModifier) {

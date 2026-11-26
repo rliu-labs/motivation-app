@@ -59,7 +59,13 @@ class Settings(private val context: Context) {
         val morningMinute = intPreferencesKey("reminder_morning_minute")
         val eveningOn = booleanPreferencesKey("reminder_evening_on")
         val eveningMinute = intPreferencesKey("reminder_evening_minute")
+        val journeySeen = intPreferencesKey("journey_seen_stops")
     }
+
+    /** Nombre d'étapes du voyage déjà annoncées à l'écran. */
+    val journeySeen: Flow<Int> = context.dataStore.data.map { it[Keys.journeySeen] ?: 0 }
+
+    suspend fun setJourneySeen(count: Int) = context.dataStore.edit { it[Keys.journeySeen] = count }
 
     val reminders: Flow<ReminderSettings> = context.dataStore.data.map { p ->
         ReminderSettings(

@@ -8,6 +8,7 @@ package app.sentier.data
 import app.sentier.domain.Badge
 import app.sentier.domain.Badges
 import app.sentier.domain.GameRules
+import app.sentier.domain.Journeys
 import app.sentier.domain.GameStats
 import app.sentier.domain.LevelInfo
 import app.sentier.domain.StreakInfo
@@ -50,6 +51,7 @@ class GameRepository(
                 habitsDone = byKind[GameEvent.HABIT] ?: 0,
                 stepGoals = byKind[GameEvent.STEPS] ?: 0,
                 rewardsTaken = byKind[GameEvent.PURCHASE] ?: 0,
+                stops = byKind[GameEvent.STOP] ?: 0,
                 level = level.level,
                 bestStreak = streak.best,
             )
@@ -89,6 +91,15 @@ class GameRepository(
         if (dao.countEvents(GameEvent.STEPS, 0, day) > 0) return
         val xp = GameRules.STEPS_XP
         dao.insertEvent(GameEvent(kind = GameEvent.STEPS, refId = 0, day = day, xp = xp, gold = GameRules.goldFor(xp)))
+    }
+
+    /** Une étape du voyage est atteinte. Récompensée une seule fois ; renvoie null si déjà fait. */
+    suspend fun onStopReached(key: Long, day: Long = today().toEpochDay()): Gain? {
+        if (dao.countEventsEver(GameEvent.STOP, key) > 0) return null
+        val xp = Journeys.STOP_XP
+        val gain = Gain(xp, GameRules.goldFor(xp))
+        dao.insertEvent(GameEvent(kind = GameEvent.STOP, refId = key, day = day, xp = gain.xp, gold = gain.gold))
+        return gain
     }
 
     /** Prend une récompense si l'or suffit. Renvoie false sinon. */
