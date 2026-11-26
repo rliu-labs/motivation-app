@@ -26,6 +26,10 @@ jobs:
     permissions:
       contents: write
     timeout-minutes: 30
+    outputs:
+      version: ${{ steps.apk.outputs.version }}
+      file: ${{ steps.apk.outputs.file }}
+      signed: ${{ steps.apk.outputs.signed }}
     steps:
       - uses: actions/checkout@v5
 
@@ -65,6 +69,17 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk "$FILE"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "file=$FILE" >> "$GITHUB_OUTPUT"
+          [ -n "$SENTIER_KEYSTORE_FILE" ] && echo "signed=true" >> "$GITHUB_OUTPUT" || echo "signed=false" >> "$GITHUB_OUTPUT"
+
+      - name: Ce que R8 a retiré du code de l'appli
+        run: |
+          SIZE=$(du -m "${{ steps.apk.outputs.file }}" | cut -f1)
+          echo "Taille de l'APK : $SIZE Mo" | tee -a "$GITHUB_STEP_SUMMARY"
+          USAGE=app/build/outputs/mapping/release/usage.txt
+          echo '### Code de Sentier retiré par R8 (code mort)' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep '^app\.sentier' "$USAGE" | tee -a "$GITHUB_STEP_SUMMARY" || echo "(rien)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -83,42 +98,6 @@ jobs:
           name: rapport-tests
           path: app/build/reports/tests/
 
-      - name: Publier l'aperçu de la pull request
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: apercu-pr-${{ github.event.pull_request.number }}
-        run: |
-          if [ -z "$SENTIER_KEYSTORE_FILE" ]; then
-            echo "::warning::Pas de clé de signature : aperçu non publié."
-            exit 0
-          fi
-          gh release delete "$TAG" --cleanup-tag --yes || true
-          gh release create "$TAG" "${{ steps.apk.outputs.file }}" \
-            --prerelease \
-            --target "${{ github.event.pull_request.head.sha }}" \
-            --title "Aperçu de la PR #${{ github.event.pull_request.number }} (${{ steps.apk.outputs.version }}, build ${{ github.run_number }})" \
-            --notes "Version d'essai de la pull request #${{ github.event.pull_request.number }}, supprimée quand la PR est fermée. Pour l'installer, télécharge le fichier .apk ci-dessous depuis ton téléphone."
-
-      - name: Publier la version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.apk.outputs.version }}
-        run: |
-          if [ -z "$SENTIER_KEYSTORE_FILE" ]; then
-            echo "::error::Secrets de signature absents : version non publiée (elle ne pourrait pas mettre à jour l'appli installée)."
-            exit 1
-          fi
-          if gh release view "v$VERSION" > /dev/null 2>&1; then
-            echo "La version v$VERSION existe déjà : augmenter appVersion pour en publier une nouvelle."
-            exit 0
-          fi
-          awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
-          printf '\n---\nPour installer ou mettre à jour Sentier, télécharge le fichier .apk ci-dessous depuis ton téléphone (voir le README).\n' >> notes.md
-          gh release create "v$VERSION" "${{ steps.apk.outputs.file }}" \
-            --latest --target "${{ github.sha }}" --title "Sentier $VERSION" --notes-file notes.md
-
       - name: Mettre à jour les captures d'écran et le schéma de la base
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -133,6 +112,97 @@ jobs:
             git commit -m "Mise à jour des captures d'écran et du schéma de la base [skip ci]"
             git push origin HEAD:main || echo "::warning::main a bougé pendant la construction, captures non poussées."
           fi
+
+  # Installe l'APK réduit par R8 sur un émulateur Android et le parcourt au hasard
+  # (milliers de touches) : échoue si l'appli plante, par exemple parce qu'une classe utile a été retirée.
+  verifier:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.file }}
+
+      - name: Activer KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Lancer l'APK sur un émulateur
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          APK: ${{ needs.build.outputs.file }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb install -r "$APK"
+            adb logcat -c
+            adb shell am start -W -n app.sentier/.MainActivity
+            sleep 5
+            adb shell am start -W -n app.sentier/.PrivacyActivity
+            sleep 2
+            adb shell am start -W -n app.sentier/.MainActivity
+            adb shell monkey -p app.sentier --pct-syskeys 0 --throttle 100 -s 42 -v 3000 > monkey.txt 2>&1 || (tail -50 monkey.txt; exit 1)
+            tail -5 monkey.txt
+            adb logcat -d > logcat.txt
+            if grep -E "FATAL EXCEPTION|ClassNotFoundException|NoSuchMethodError|NoSuchFieldError" logcat.txt; then echo "::error::L'appli a planté"; exit 1; fi
+            echo "Aucun plantage."
+
+  publier:
+    needs: [build, verifier]
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.file }}
+
+      - name: Publier l'aperçu de la pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: apercu-pr-${{ github.event.pull_request.number }}
+        run: |
+          if [ "${{ needs.build.outputs.signed }}" != "true" ]; then
+            echo "::warning::Pas de clé de signature : aperçu non publié."
+            exit 0
+          fi
+          gh release delete "$TAG" --cleanup-tag --yes || true
+          gh release create "$TAG" "${{ needs.build.outputs.file }}" \
+            --prerelease \
+            --target "${{ github.event.pull_request.head.sha }}" \
+            --title "Aperçu de la PR #${{ github.event.pull_request.number }} (${{ needs.build.outputs.version }}, build ${{ github.run_number }})" \
+            --notes "Version d'essai de la pull request #${{ github.event.pull_request.number }}, supprimée quand la PR est fermée. Pour l'installer, télécharge le fichier .apk ci-dessous depuis ton téléphone."
+
+      - name: Publier la version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if [ "${{ needs.build.outputs.signed }}" != "true" ]; then
+            echo "::error::Secrets de signature absents : version non publiée (elle ne pourrait pas mettre à jour l'appli installée)."
+            exit 1
+          fi
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "La version v$VERSION existe déjà : augmenter appVersion pour en publier une nouvelle."
+            exit 0
+          fi
+          awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          printf '\n---\nPour installer ou mettre à jour Sentier, télécharge le fichier .apk ci-dessous depuis ton téléphone (voir le README).\n' >> notes.md
+          gh release create "v$VERSION" "${{ needs.build.outputs.file }}" \
+            --latest --target "${{ github.sha }}" --title "Sentier $VERSION" --notes-file notes.md
+
 
   cleanup:
     runs-on: ubuntu-latest

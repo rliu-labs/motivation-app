@@ -3,6 +3,15 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.2.1] - 2026-11-26
+
+### Modifié
+- APK bien plus léger : le code et les ressources inutilisés sont retirés à la construction (R8).
+
+### Projet
+- Chaque APK est installé sur un émulateur et parcouru automatiquement avant d'être publié.
+- Mises à jour des dépendances regroupées une fois par mois.
+
 ## [0.2.0] - 2026-11-25
 
 Étape 2 : habitudes et pas.
@@ -35,4 +44,5 @@ et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/
 - Stockage local (Room), page Crédits et licence GPL-3.0.
 - Construction et publication automatiques de l'APK avec GitHub Actions.
 
+[0.2.1]: https://github.com/rliu-labs/motivation-app/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rliu-labs/motivation-app/releases/tag/v0.2.0

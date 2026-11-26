@@ -6,7 +6,7 @@ plugins {
 }
 
 // Version affichée (à augmenter à chaque étape, voir CHANGELOG.md).
-val appVersion = "0.2.0"
+val appVersion = "0.2.1"
 
 // Numéro de build fourni par GitHub Actions (1 en local). Il sert de versionCode,
 // qui doit toujours augmenter pour qu'Android accepte la mise à jour.
@@ -43,7 +43,9 @@ android {
     buildTypes {
         val signing = signingConfigs.findByName("sentier") ?: signingConfigs.getByName("debug")
         release {
-            isMinifyEnabled = false
+            // R8 retire le code et les ressources inutilisés (voir proguard-rules.pro).
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signing
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
