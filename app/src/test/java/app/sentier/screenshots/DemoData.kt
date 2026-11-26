@@ -2,6 +2,7 @@ package app.sentier.screenshots
 
 import app.sentier.SentierApplication
 import app.sentier.data.DailySteps
+import app.sentier.data.ReminderSettings
 import app.sentier.data.StepSource
 import app.sentier.domain.HabitTemplates
 import app.sentier.domain.Recurrence
@@ -67,5 +68,8 @@ object DemoData {
         // Jeu : objectifs de pas atteints et une récompense déjà prise.
         steps.forEachIndexed { i, n -> if (n >= 8_000) app.game.onStepsGoal(today.minusDays((6 - i).toLong()).toEpochDay()) }
         app.game.observe().first().rewards.firstOrNull { it.name == "Un dessert" }?.let { app.game.buy(it) }
+
+        // Rappels : le matin à 8 h et le soir à 20 h 30.
+        app.settings.setReminders(ReminderSettings(morningOn = true, eveningOn = true))
     }
 }

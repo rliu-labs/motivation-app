@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Petite icône des notifications : le sentier et l'étoile du logo, en blanc. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="51"
+        android:scaleX="1.6"
+        android:scaleY="1.6">
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="7"
+            android:strokeLineCap="round"
+            android:pathData="M40,80 C60,72 34,62 52,54 C68,47 50,40 60,34" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M66,22 L68.6,28.4 L75.4,28.9 L70.2,33.3 L71.8,40 L66,36.4 L60.2,40 L61.8,33.3 L56.6,28.9 L63.4,28.4 Z" />
+    </group>
+</vector>

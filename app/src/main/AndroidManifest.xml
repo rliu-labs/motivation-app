@@ -6,6 +6,9 @@
     <!-- Capteur de pas du téléphone (secours) -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <!-- Rappels du matin et du soir (demandée seulement quand on les active) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
@@ -48,5 +51,10 @@
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Bouton « Fait » des notifications : privé à l'appli -->
+        <receiver
+            android:name=".notify.ReminderActionReceiver"
+            android:exported="false" />
     </application>
 </manifest>

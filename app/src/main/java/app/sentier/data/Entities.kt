@@ -84,3 +84,7 @@ data class TaskWithCounts(
     @ColumnInfo(name = "subtask_count") val subtaskCount: Int,
     @ColumnInfo(name = "subtask_done") val subtaskDone: Int,
 )
+
+/** Vrai si la tâche est faite pour la journée [day] (finie, ou répétée et validée ce jour-là). */
+fun TaskWithCounts.isDoneOn(day: Long): Boolean =
+    completedAt != null || lastCompletedDay == day && (dueDay ?: 0) > day

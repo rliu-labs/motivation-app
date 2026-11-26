@@ -48,6 +48,12 @@ class ScreenshotTest {
             waitFor("Habitudes du jour")
             save(scenario, "aujourdhui")
 
+            rule.onNode(hasContentDescription("Rappels")).performClick()
+            waitFor("Le soir")
+            save(scenario, "rappels")
+            rule.onAllNodes(hasContentDescription("Retour")).onFirst().performClick()
+            waitFor("Habitudes du jour")
+
             rule.onNodeWithText("Tâches").performClick()
             waitFor("Toutes")
             save(scenario, "taches")

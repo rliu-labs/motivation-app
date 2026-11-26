@@ -39,6 +39,7 @@ import app.sentier.ui.habits.HabitEditScreen
 import app.sentier.ui.habits.HabitsScreen
 import app.sentier.ui.progress.CreditsScreen
 import app.sentier.ui.progress.ProgressScreen
+import app.sentier.ui.reminders.RemindersScreen
 import app.sentier.ui.tasks.TasksScreen
 import app.sentier.ui.today.TodayScreen
 
@@ -101,7 +102,7 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
             composable(Tab.TODAY.route) {
                 TodayScreen(
                     snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
-                    modifier = tabModifier,
+                    onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
                 )
             }
             composable(Tab.TASKS.route) {
@@ -120,6 +121,9 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
             }
             composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+            }
+            composable("reminders") {
+                RemindersScreen(onBack = { nav.popBackStack() })
             }
             composable("credits") {
                 CreditsScreen(onBack = { nav.popBackStack() })

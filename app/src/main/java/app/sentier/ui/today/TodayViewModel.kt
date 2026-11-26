@@ -13,6 +13,7 @@ import app.sentier.data.CompletionResult
 import app.sentier.data.TaskList
 import app.sentier.data.TaskRepository
 import app.sentier.data.TaskWithCounts
+import app.sentier.data.isDoneOn
 import app.sentier.ui.common.app
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -39,7 +40,7 @@ class TodayViewModel(private val repo: TaskRepository) : ViewModel() {
 
     val state: StateFlow<TodayState> = combine(repo.observeToday(), repo.observeLists()) { tasks, lists ->
         val todayDay = today.toEpochDay()
-        val (done, todo) = tasks.partition { it.completedAt != null || it.lastCompletedDay == todayDay && (it.dueDay ?: 0) > todayDay }
+        val (done, todo) = tasks.partition { it.isDoneOn(todayDay) }
         TodayState(today, todo, done, lists.associateBy { it.id }, loading = false)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState(today))
 

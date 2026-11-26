@@ -3,6 +3,18 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.4.0] - 2026-11-26
+
+Étape 4 : les rappels.
+
+### Ajouté
+- Rappel du matin : le programme de la journée (tâches, retards, habitudes, série en cours).
+- Rappel du soir : ce qui reste à faire, seulement s'il reste quelque chose, avec une alerte quand la série est en jeu.
+- Bouton « Fait » dans le rappel du soir pour valider une tâche ou une habitude sans ouvrir l'appli, XP et or compris.
+- Écran « Rappels » (cloche en haut de l'écran Aujourd'hui) : activer chaque rappel, choisir son heure, recevoir un essai.
+- Les habitudes à fréquence souple (3 fois par semaine…) ne sont rappelées que si leur quota n'est pas atteint.
+- Les rappels sont désactivés par défaut ; l'autorisation des notifications n'est demandée qu'en les activant.
+
 ## [0.3.0] - 2026-11-26
 
 Étape 3 : le jeu.
@@ -57,5 +69,6 @@ et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/
 - Stockage local (Room), page Crédits et licence GPL-3.0.
 - Construction et publication automatiques de l'APK avec GitHub Actions.
 
+[0.4.0]: https://github.com/rliu-labs/motivation-app/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rliu-labs/motivation-app/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/rliu-labs/motivation-app/releases/tag/v0.2.0

@@ -64,6 +64,17 @@ class AppSmokeTest {
     }
 
     @Test
+    fun openRemindersSettings() {
+        rule.onNodeWithContentDescription("Rappels").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Le soir")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Le matin").assertIsDisplayed()
+        rule.onNodeWithText("À 08:00").assertIsDisplayed()
+        rule.onNodeWithText("À 20:30").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Retour").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Aujourd'hui")).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
     fun addHabitFromTemplateAndCheckItToday() {
         rule.onNodeWithText("Habitudes").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Ajoute ta première habitude")).fetchSemanticsNodes().isNotEmpty() }

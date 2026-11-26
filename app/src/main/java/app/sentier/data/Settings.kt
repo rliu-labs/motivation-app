@@ -9,6 +9,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -30,6 +31,21 @@ data class StepSettings(
     val source: StepSource = StepSource.NONE,
 )
 
+/** Rappels du matin et du soir. Les heures sont en minutes depuis minuit. */
+data class ReminderSettings(
+    val morningOn: Boolean = false,
+    val morningMinute: Int = DEFAULT_MORNING,
+    val eveningOn: Boolean = false,
+    val eveningMinute: Int = DEFAULT_EVENING,
+) {
+    val anyOn: Boolean get() = morningOn || eveningOn
+
+    companion object {
+        const val DEFAULT_MORNING = 8 * 60
+        const val DEFAULT_EVENING = 20 * 60 + 30
+    }
+}
+
 /** Réglages de l'appli (DataStore). */
 class Settings(private val context: Context) {
     private object Keys {
@@ -39,6 +55,28 @@ class Settings(private val context: Context) {
         val sensorLastCounter = floatPreferencesKey("sensor_last_counter")
         val sensorDay = longPreferencesKey("sensor_day")
         val sensorToday = longPreferencesKey("sensor_today_steps")
+        val morningOn = booleanPreferencesKey("reminder_morning_on")
+        val morningMinute = intPreferencesKey("reminder_morning_minute")
+        val eveningOn = booleanPreferencesKey("reminder_evening_on")
+        val eveningMinute = intPreferencesKey("reminder_evening_minute")
+    }
+
+    val reminders: Flow<ReminderSettings> = context.dataStore.data.map { p ->
+        ReminderSettings(
+            morningOn = p[Keys.morningOn] ?: false,
+            morningMinute = p[Keys.morningMinute] ?: ReminderSettings.DEFAULT_MORNING,
+            eveningOn = p[Keys.eveningOn] ?: false,
+            eveningMinute = p[Keys.eveningMinute] ?: ReminderSettings.DEFAULT_EVENING,
+        )
+    }
+
+    suspend fun currentReminders(): ReminderSettings = reminders.first()
+
+    suspend fun setReminders(r: ReminderSettings) = context.dataStore.edit {
+        it[Keys.morningOn] = r.morningOn
+        it[Keys.morningMinute] = r.morningMinute.coerceIn(0, 24 * 60 - 1)
+        it[Keys.eveningOn] = r.eveningOn
+        it[Keys.eveningMinute] = r.eveningMinute.coerceIn(0, 24 * 60 - 1)
     }
 
     val steps: Flow<StepSettings> = context.dataStore.data.map { p ->

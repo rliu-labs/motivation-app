@@ -12,7 +12,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,6 +75,7 @@ fun TodayScreen(
     onOpenTask: (Long) -> Unit,
     onOpenHabits: () -> Unit,
     onOpenProgress: () -> Unit,
+    onOpenReminders: () -> Unit,
     modifier: Modifier = Modifier,
     vm: TodayViewModel = viewModel(factory = TodayViewModel.Factory),
     habitsVm: HabitsViewModel = viewModel(factory = HabitsViewModel.Factory),
@@ -104,10 +107,15 @@ fun TodayScreen(
     Column(modifier.fillMaxSize().imePadding()) {
         LazyColumn(Modifier.weight(1f)) {
             item {
-                Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
-                    Text("Aujourd'hui", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                    Text(longDate(state.today), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    GameSummary(game, onClick = onOpenProgress, modifier = Modifier.padding(top = 12.dp))
+                Box {
+                    Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
+                        Text("Aujourd'hui", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Text(longDate(state.today), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        GameSummary(game, onClick = onOpenProgress, modifier = Modifier.padding(top = 12.dp))
+                    }
+                    IconButton(onClick = onOpenReminders, modifier = Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 8.dp)) {
+                        Icon(Icons.Outlined.Notifications, contentDescription = "Rappels", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
             item { ProgressCard(done = state.done.size, total = state.total) }

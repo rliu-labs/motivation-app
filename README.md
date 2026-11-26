@@ -29,6 +29,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/detail-tache.png" width="200" alt="Task details" /><br /><sub>Task details</sub></td>
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habits and steps" /><br /><sub>Habits and steps</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
+    <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
   </tr>
 </table>
@@ -59,6 +60,12 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Day streaks with **rest days**: one missed day does not break the streak.
 - 10 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
 
+**Reminders**
+- A morning notification with the plan for the day.
+- An evening reminder of what is left, only when something is left, with a warning when the streak is at risk.
+- Tick a task or a habit straight from the notification with the **Done** button, XP included.
+- Times of your choice; both are off until you turn them on.
+
 **Steps**
 - Step count from Health Connect, with the phone's step sensor as a fallback.
 - Adjustable daily goal, distance, last 7 days and total distance walked.
@@ -82,7 +89,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 1. Tasks | Today screen, priorities, subtasks, lists, recurrence | ✅ v0.1 |
 | 2. Habits and steps | Habits with strength score, Health Connect, step goal | ✅ v0.2 |
 | 3. Game | Experience, levels, gold, reward shop, streaks with rest days, badges | ✅ v0.3 |
-| 4. Reminders | Morning summary, evening reminder, complete from the notification | 🚧 next |
+| 4. Reminders | Morning summary, evening reminder, complete from the notification | ✅ v0.4 |
 | v2 | Virtual journey on a map powered by your steps, collectibles, challenges, widgets, backup | 💡 |
 
 Release notes are in the [changelog](CHANGELOG.md).
@@ -95,6 +102,7 @@ Release notes are in the [changelog](CHANGELOG.md).
 | Architecture | MVVM: Compose screens → ViewModels → repositories → Room |
 | Data | Room (SQLite) with tested migrations, DataStore for settings; XP and gold kept as an event ledger, so any action can be undone |
 | Steps | Health Connect, `TYPE_STEP_COUNTER` sensor sampled by WorkManager |
+| Reminders | WorkManager jobs rescheduled daily, notification actions handled by a private broadcast receiver |
 | Tests | JUnit, Robolectric, Compose UI tests, database migration test, screenshot generation |
 | Release build | R8 code and resource shrinking, signed APK |
 | CI | GitHub Actions: tests, signed APK, smoke test of the shrunk APK on an Android emulator, preview build per pull request, release on every merge |
@@ -103,8 +111,9 @@ Release notes are in the [changelog](CHANGELOG.md).
 app/src/main/java/app/sentier/
 ├── data/      Room entities, DAOs, repositories (tasks, habits, game), settings
 ├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges)
+├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
-└── ui/        Compose screens and ViewModels (today, tasks, edit, habits, progress, theme)
+└── ui/        Compose screens and ViewModels (today, tasks, edit, habits, progress, reminders, theme)
 ```
 
 ### Building
@@ -124,7 +133,8 @@ Without a signing key, the APK is signed with the local debug key. In CI, the ke
 Sentier works fully offline and requires no account. Tasks, habits and steps are stored on the phone,
 and the app itself never sends them anywhere. If Android backup is turned on, the phone's own backup may include
 Sentier's data in your Google account, like other apps' data, so it survives a phone change; you can turn this off
-in Android settings. Step access (Health Connect or sensor) can be revoked at any time in Android settings.
+in Android settings. Step access (Health Connect or sensor) and notifications can be revoked at any time in Android settings.
+Reminders are computed on the phone; no push service is involved.
 
 ## License and acknowledgements
 
