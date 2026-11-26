@@ -89,11 +89,19 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
                 restoreState = true
             }
         }
+        val openProgressTab = {
+            nav.navigate(Tab.PROGRESS.route) {
+                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
         val tabModifier = Modifier.padding(padding).consumeWindowInsets(padding)
         NavHost(nav, startDestination = Tab.TODAY.route) {
             composable(Tab.TODAY.route) {
                 TodayScreen(
-                    snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, modifier = tabModifier,
+                    snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
+                    modifier = tabModifier,
                 )
             }
             composable(Tab.TASKS.route) {

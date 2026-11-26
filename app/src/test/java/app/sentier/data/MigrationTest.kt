@@ -46,6 +46,12 @@ class MigrationTest {
         habits.setValue(habits.getHabit(id)!!, LocalDate.of(2026, 11, 25), 2.0)
         db.habitDao().putSteps(DailySteps(20_000, 1234))
         assertEquals(1234L, db.habitDao().observeTotalSteps().first())
+
+        // Étape 3 : récompenses d'exemple créées par la migration, jeu utilisable.
+        val game = GameRepository(db.gameDao()) { LocalDate.of(2026, 11, 25) }
+        assertEquals(3, game.observe().first().rewards.size)
+        game.onStepsGoal(20_000)
+        assertEquals(20, game.observe().first().totalXp)
         db.close()
     }
 }

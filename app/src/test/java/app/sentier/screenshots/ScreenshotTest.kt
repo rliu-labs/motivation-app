@@ -61,6 +61,10 @@ class ScreenshotTest {
             rule.onNodeWithText("Habitudes").performClick()
             waitFor("Mes habitudes")
             save(scenario, "habitudes")
+
+            rule.onNodeWithText("Progrès").performClick()
+            waitFor("Boutique de récompenses")
+            save(scenario, "progres")
         }
     }
 

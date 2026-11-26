@@ -30,6 +30,7 @@ et le Material Design épuré de [Loop Habit Tracker](https://github.com/iSoron/
     <td align="center"><img src="docs/screenshots/taches.png" width="200" alt="Liste des tâches" /><br /><sub>Tâches</sub></td>
     <td align="center"><img src="docs/screenshots/detail-tache.png" width="200" alt="Détail d'une tâche" /><br /><sub>Détail d'une tâche</sub></td>
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habitudes et pas" /><br /><sub>Habitudes et pas</sub></td>
+    <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progrès : niveau, série, boutique et badges" /><br /><sub>Progrès</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Mode nuit" /><br /><sub>Mode nuit</sub></td>
   </tr>
 </table>
@@ -54,6 +55,12 @@ et le Material Design épuré de [Loop Habit Tracker](https://github.com/iSoron/
 - Cases des 5 derniers jours, couleur et icône par habitude, 6 modèles prêts à l'emploi.
 - **Score de force** : il monte quand l'habitude est faite et baisse doucement quand elle est ratée.
 
+**Jeu**, à la manière de Habitica
+- Chaque tâche et chaque habitude rapporte de l'expérience et de l'or, selon sa difficulté.
+- Niveaux, boutique de récompenses que l'on remplit soi-même (« Un dessert », « Une soirée jeu vidéo »…).
+- Série de jours avec des **jours de repos** : un jour raté ne casse pas la série.
+- 10 badges à débloquer. Rien n'est jamais perdu : pas de pénalité, pas de points retirés.
+
 **Pas**
 - Lecture des pas dans Health Connect, avec le capteur du téléphone en secours.
 - Objectif quotidien réglable, kilomètres, 7 derniers jours et distance totale parcourue.
@@ -76,8 +83,8 @@ Pour mettre à jour, installe le nouvel APK de la même façon : il remplace l'a
 |---|---|---|
 | 1. Les tâches | Écran Aujourd'hui, priorités, sous-tâches, listes, répétition | ✅ v0.1 |
 | 2. Habitudes et pas | Habitudes avec score de force, Health Connect, objectif de pas | ✅ v0.2 |
-| 3. Le jeu | Expérience, niveaux, or, boutique de récompenses, séries avec jours de repos, badges | 🚧 en cours |
-| 4. Rappels | Notification du matin, rappel du soir, validation depuis la notification | ⏳ |
+| 3. Le jeu | Expérience, niveaux, or, boutique de récompenses, séries avec jours de repos, badges | ✅ v0.3 |
+| 4. Rappels | Notification du matin, rappel du soir, validation depuis la notification | 🚧 prochaine étape |
 | v2 | Voyage virtuel sur carte avec les pas, butin à collectionner, défis, widgets, sauvegarde | 💡 |
 
 Le détail des versions est dans le [journal des versions](CHANGELOG.md).
@@ -88,7 +95,7 @@ Le détail des versions est dans le [journal des versions](CHANGELOG.md).
 |---|---|
 | Langage et interface | Kotlin 2.0, Jetpack Compose, Material 3 |
 | Architecture | MVVM : écrans Compose → ViewModel → dépôts → Room |
-| Données | Room (SQLite) avec migrations, DataStore pour les réglages |
+| Données | Room (SQLite) avec migrations, DataStore pour les réglages ; XP et or tenus dans un journal d'événements |
 | Pas | Health Connect, capteur `TYPE_STEP_COUNTER` relevé par WorkManager |
 | Tests | JUnit, Robolectric, tests d'interface Compose, test de migration de la base |
 | Intégration continue | GitHub Actions : tests, APK signé, aperçu par pull request, version à chaque fusion |
@@ -96,7 +103,7 @@ Le détail des versions est dans le [journal des versions](CHANGELOG.md).
 ```
 app/src/main/java/app/sentier/
 ├── data/      Entités Room, DAO, dépôts (tâches, habitudes), réglages
-├── domain/    Règles métier pures : répétition (RRULE), score de force, modèles d'habitudes
+├── domain/    Règles métier pures : répétition (RRULE), score de force, jeu (niveaux, séries, badges)
 ├── steps/     Sources de pas : Health Connect, capteur, relevé en arrière-plan
 └── ui/        Écrans Compose et ViewModels (today, tasks, edit, habits, progress, theme)
 ```

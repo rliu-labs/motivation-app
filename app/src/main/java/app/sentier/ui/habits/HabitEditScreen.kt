@@ -43,6 +43,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import app.sentier.ui.common.DifficultySelector
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -212,6 +213,9 @@ fun HabitEditScreen(
                     onPlus = { vm.edit { it.copy(freqNum = (it.freqNum + 1).coerceAtMost(max)) } },
                 )
             }
+
+            Text("Difficulté", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            DifficultySelector(h.difficulty) { d -> vm.edit { it.copy(difficulty = d) } }
 
             Text("Couleur", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {

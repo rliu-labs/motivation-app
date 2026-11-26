@@ -3,6 +3,22 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.3.0] - 2026-11-26
+
+Étape 3 : le jeu.
+
+### Ajouté
+- Expérience et or à chaque tâche validée, habitude réussie et objectif de pas atteint, selon la difficulté.
+- Niveaux, avec la progression visible en haut de l'écran Aujourd'hui.
+- Boutique de récompenses personnelle : ajouter, modifier, prendre une récompense avec son or.
+- Série de jours avec jours de repos : un jour raté ne casse pas la série (1 jour de repos au départ, 1 de plus tous les 7 jours actifs, 2 au plus).
+- 10 badges à débloquer.
+- Choix de la difficulté des tâches et des habitudes.
+
+### Modifié
+- Base de données en version 3, avec migration qui conserve tout.
+- Annuler une validation retire aussi l'XP et l'or gagnés.
+
 ## [0.2.1] - 2026-11-26
 
 ### Modifié
@@ -44,5 +60,6 @@ et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/
 - Stockage local (Room), page Crédits et licence GPL-3.0.
 - Construction et publication automatiques de l'APK avec GitHub Actions.
 
+[0.3.0]: https://github.com/rliu-labs/motivation-app/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/rliu-labs/motivation-app/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rliu-labs/motivation-app/releases/tag/v0.2.0

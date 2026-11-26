@@ -59,7 +59,7 @@ class AppSmokeTest {
             rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Nouvelle habitude")).fetchSemanticsNodes().isNotEmpty()
         }
         rule.onNodeWithText("Progrès").performClick()
-        rule.onNodeWithText("Crédits et licence").performClick()
+        rule.onNodeWithText("Crédits et licence").performScrollTo().performClick()
         rule.onNodeWithText("Tasks.org").assertExists()
     }
 

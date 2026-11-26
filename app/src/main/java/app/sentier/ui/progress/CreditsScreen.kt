@@ -37,7 +37,7 @@ private val Credits = listOf(
         "GPL-3.0", "https://github.com/tasks/tasks",
     ),
     Credit(
-        "Habitica", "Inspiration pour le jeu : expérience, niveaux, or et boutique de récompenses (étape 3). Aucun graphisme de Habitica n'est utilisé.",
+        "Habitica", "Inspiration pour le jeu : expérience, niveaux, or et boutique de récompenses. Aucun graphisme de Habitica n'est utilisé.",
         "GPL-3.0", "https://github.com/HabitRPG/habitica-android",
     ),
     Credit(

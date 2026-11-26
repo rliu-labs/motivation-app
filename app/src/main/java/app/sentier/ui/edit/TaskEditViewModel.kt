@@ -51,6 +51,7 @@ class TaskEditViewModel(private val repo: TaskRepository, private val taskId: Lo
     fun setTitle(title: String) { if (title.isNotBlank()) edit { it.copy(title = title.trim()) } }
     fun setNotes(notes: String) = edit { it.copy(notes = notes) }
     fun setPriority(priority: Int) = edit { it.copy(priority = priority) }
+    fun setDifficulty(difficulty: Int) = edit { it.copy(difficulty = difficulty) }
     fun setList(listId: Long?) = edit { it.copy(listId = listId) }
 
     fun setDueDate(date: LocalDate?) = edit {

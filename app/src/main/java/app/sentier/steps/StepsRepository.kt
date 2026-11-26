@@ -6,6 +6,7 @@
 package app.sentier.steps
 
 import app.sentier.data.DailySteps
+import app.sentier.data.GameRepository
 import app.sentier.data.HabitDao
 import app.sentier.data.Settings
 import app.sentier.data.StepSettings
@@ -51,6 +52,7 @@ class StepsRepository(
     private val settings: Settings,
     private val healthConnect: HealthConnectSource,
     private val sensor: SensorStepSource,
+    private val game: GameRepository? = null,
     private val clock: () -> LocalDate = { LocalDate.now() },
 ) {
     private val availability = MutableStateFlow(StepAvailability())
@@ -86,7 +88,12 @@ class StepsRepository(
         when (s.source) {
             StepSource.HEALTH_CONNECT -> if (granted) {
                 runCatching { healthConnect.readDailySteps(today.minusDays(6), today) }
-                    .onSuccess { days -> days.forEach { (d, n) -> dao.putSteps(DailySteps(d.toEpochDay(), n)) } }
+                    .onSuccess { days ->
+                        days.forEach { (d, n) ->
+                            dao.putSteps(DailySteps(d.toEpochDay(), n))
+                            if (n >= s.goal) game?.onStepsGoal(d.toEpochDay())
+                        }
+                    }
             }
             StepSource.SENSOR -> sampleSensorLocked(today)
             StepSource.NONE -> Unit
@@ -103,6 +110,7 @@ class StepsRepository(
         val steps = SensorStepSource.accumulate(last, lastDay, soFar, counter, epoch)
         settings.saveSensorState(counter, epoch, steps)
         dao.putSteps(DailySteps(epoch, steps))
+        if (steps >= settings.currentSteps().goal) game?.onStepsGoal(epoch)
     }
 
     suspend fun useSource(source: StepSource) {

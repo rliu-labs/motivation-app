@@ -14,10 +14,13 @@ data class CompletionResult(
     val before: Task,
     /** Nouvelle échéance si la tâche est répétée. */
     val nextDue: LocalDate?,
+    /** XP et or gagnés (null sans le jeu). */
+    val gain: Gain? = null,
 )
 
 class TaskRepository(
     private val dao: TaskDao,
+    private val game: GameRepository? = null,
     private val clock: () -> LocalDate = { LocalDate.now() },
 ) {
     fun today(): LocalDate = clock()
@@ -66,7 +69,7 @@ class TaskRepository(
                 )
             )
             dao.resetSubtasks(task.id)
-            CompletionResult(task, next)
+            CompletionResult(task, next, game?.onTaskCompleted(task))
         } else {
             dao.update(
                 task.copy(
@@ -75,7 +78,7 @@ class TaskRepository(
                     completionCount = task.completionCount + 1,
                 )
             )
-            CompletionResult(task, null)
+            CompletionResult(task, null, game?.onTaskCompleted(task))
         }
     }
 
@@ -90,10 +93,14 @@ class TaskRepository(
                 completionCount = (task.completionCount - 1).coerceAtLeast(0),
             )
         )
+        game?.onTaskUndone(id)
     }
 
     /** Annule une validation (bouton « Annuler »). */
-    suspend fun undo(result: CompletionResult) = dao.update(result.before)
+    suspend fun undo(result: CompletionResult) {
+        dao.update(result.before)
+        game?.onTaskUndone(result.before.id)
+    }
 
     suspend fun toggleSubtask(subtask: Task) {
         dao.update(

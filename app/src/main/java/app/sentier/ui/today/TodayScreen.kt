@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.ui.common.QuickAddBar
+import app.sentier.ui.progress.GameSummary
+import app.sentier.ui.progress.ProgressViewModel
 import app.sentier.ui.common.SectionHeader
 import app.sentier.ui.common.TaskRow
 import app.sentier.ui.common.friendlyDate
@@ -70,10 +72,13 @@ fun TodayScreen(
     snackbar: SnackbarHostState,
     onOpenTask: (Long) -> Unit,
     onOpenHabits: () -> Unit,
+    onOpenProgress: () -> Unit,
     modifier: Modifier = Modifier,
     vm: TodayViewModel = viewModel(factory = TodayViewModel.Factory),
     habitsVm: HabitsViewModel = viewModel(factory = HabitsViewModel.Factory),
+    gameVm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
 ) {
+    val game by gameVm.state.collectAsStateWithLifecycle()
     val state by vm.state.collectAsStateWithLifecycle()
     val habits by habitsVm.state.collectAsStateWithLifecycle()
     var editingHabit by remember { mutableStateOf<Habit?>(null) }
@@ -85,11 +90,12 @@ fun TodayScreen(
 
     LaunchedEffect(vm) {
         vm.completions.collect { result ->
-            val message = if (result.nextDue != null) {
+            val base = if (result.nextDue != null) {
                 "Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, state.today).lowercase()}"
             } else {
                 "Bravo, « ${result.before.title} » est faite !"
             }
+            val message = result.gain?.let { "$base +${it.xp} XP, +${it.gold} or" } ?: base
             val action = snackbar.showSnackbar(message, actionLabel = "Annuler", duration = SnackbarDuration.Short)
             if (action == SnackbarResult.ActionPerformed) vm.undo(result)
         }
@@ -101,6 +107,7 @@ fun TodayScreen(
                 Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
                     Text("Aujourd'hui", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                     Text(longDate(state.today), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    GameSummary(game, onClick = onOpenProgress, modifier = Modifier.padding(top = 12.dp))
                 }
             }
             item { ProgressCard(done = state.done.size, total = state.total) }

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DatePicker
@@ -57,6 +58,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import app.sentier.ui.common.DifficultySelector
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -180,6 +182,10 @@ fun TaskEditScreen(
 
             Field(Icons.Filled.Flag, "Priorité") {
                 PrioritySelector(task.priority, vm::setPriority)
+            }
+
+            Field(Icons.Filled.Star, "Difficulté") {
+                DifficultySelector(task.difficulty, vm::setDifficulty)
             }
 
             Field(Icons.AutoMirrored.Filled.List, "Liste") {

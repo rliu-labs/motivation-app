@@ -26,6 +26,7 @@ data class HabitWithStats(
 
 class HabitRepository(
     private val dao: HabitDao,
+    private val game: GameRepository? = null,
     private val clock: () -> LocalDate = { LocalDate.now() },
 ) {
     fun today(): LocalDate = clock()
@@ -74,19 +75,22 @@ class HabitRepository(
     suspend fun toggle(habit: Habit, day: LocalDate = today()): Boolean {
         val epoch = day.toEpochDay()
         val current = dao.getLog(habit.id, epoch)
-        return if (current != null && current.value > 0) {
+        val done = if (current != null && current.value > 0) {
             dao.deleteLog(habit.id, epoch)
             false
         } else {
             dao.putLog(HabitLog(habit.id, epoch, 1.0))
             true
         }
+        game?.onHabit(habit, epoch, done)
+        return done
     }
 
     /** Enregistre une valeur chiffrée (0 efface). */
     suspend fun setValue(habit: Habit, day: LocalDate, value: Double) {
         val epoch = day.toEpochDay()
         if (value <= 0) dao.deleteLog(habit.id, epoch) else dao.putLog(HabitLog(habit.id, epoch, value))
+        game?.onHabit(habit, epoch, HabitScore.completionOf(value, habit.isNumeric, habit.target) >= 1.0)
     }
 
     companion object {

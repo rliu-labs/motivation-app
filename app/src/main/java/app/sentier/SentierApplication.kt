@@ -7,6 +7,7 @@ package app.sentier
 
 import android.app.Application
 import app.sentier.data.AppDatabase
+import app.sentier.data.GameRepository
 import app.sentier.data.HabitRepository
 import app.sentier.data.Settings
 import app.sentier.data.TaskRepository
@@ -17,9 +18,10 @@ import app.sentier.steps.StepsRepository
 class SentierApplication : Application() {
     val database: AppDatabase by lazy { AppDatabase.create(this) }
     val settings: Settings by lazy { Settings(this) }
-    val tasks: TaskRepository by lazy { TaskRepository(database.taskDao()) }
-    val habits: HabitRepository by lazy { HabitRepository(database.habitDao()) }
+    val game: GameRepository by lazy { GameRepository(database.gameDao()) }
+    val tasks: TaskRepository by lazy { TaskRepository(database.taskDao(), game = game) }
+    val habits: HabitRepository by lazy { HabitRepository(database.habitDao(), game = game) }
     val steps: StepsRepository by lazy {
-        StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this))
+        StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this), game = game)
     }
 }

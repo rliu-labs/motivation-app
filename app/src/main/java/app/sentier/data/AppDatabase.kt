@@ -13,13 +13,17 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Task::class, TaskList::class, Habit::class, HabitLog::class, DailySteps::class],
-    version = 2,
+    entities = [
+        Task::class, TaskList::class, Habit::class, HabitLog::class, DailySteps::class,
+        GameEvent::class, Reward::class,
+    ],
+    version = 3,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun habitDao(): HabitDao
+    abstract fun gameDao(): GameDao
 
     companion object {
         const val NAME = "sentier.db"
@@ -30,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
             } else {
                 Room.databaseBuilder(context, AppDatabase::class.java, name)
             }
-            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2).build()
+            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
         }
 
         /** Étape 2 : habitudes et pas. Les tâches existantes sont conservées. */
@@ -55,6 +59,30 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             }
         }
+        /** Étape 3 : le jeu. Les tâches, habitudes et pas existants sont conservés. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `game_event` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`kind` INTEGER NOT NULL, `ref_id` INTEGER NOT NULL, `day` INTEGER NOT NULL, `xp` INTEGER NOT NULL, " +
+                        "`gold` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_game_event_kind_ref_id_day` ON `game_event` (`kind`, `ref_id`, `day`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_game_event_day` ON `game_event` (`day`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `reward` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`name` TEXT NOT NULL, `cost` INTEGER NOT NULL, `icon` TEXT NOT NULL, `position` INTEGER NOT NULL)"
+                )
+                seedRewards(db)
+            }
+        }
+
+        /** Récompenses d'exemple de la boutique (modifiables). */
+        internal fun seedRewards(db: SupportSQLiteDatabase) {
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Un épisode de série', 20, 'tv', 0)")
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Un dessert', 30, 'cake', 1)")
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Une soirée jeu vidéo', 60, 'game', 2)")
+        }
     }
 
     /** Listes de départ, créées au premier lancement. */
@@ -63,6 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
             db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Perso', 4281236827, 0)")
             db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Maison', 4294940672, 1)")
             db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Travail', 4282557941, 2)")
+            seedRewards(db)
         }
     }
 }

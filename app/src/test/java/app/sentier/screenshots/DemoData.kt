@@ -63,5 +63,9 @@ object DemoData {
         }
         for (back in 7L..40L) app.database.habitDao().putSteps(DailySteps(today.minusDays(back).toEpochDay(), 7_000L + back * 37))
         app.settings.setSource(StepSource.SENSOR)
+
+        // Jeu : objectifs de pas atteints et une récompense déjà prise.
+        steps.forEachIndexed { i, n -> if (n >= 8_000) app.game.onStepsGoal(today.minusDays((6 - i).toLong()).toEpochDay()) }
+        app.game.observe().first().rewards.firstOrNull { it.name == "Un dessert" }?.let { app.game.buy(it) }
     }
 }
