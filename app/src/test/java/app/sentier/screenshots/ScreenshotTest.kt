@@ -97,7 +97,7 @@ class ScreenshotTest {
     }
 
     private fun waitFor(text: String) {
-        rule.waitUntil(10_000) { rule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(10_000) { rule.onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isNotEmpty() }
         rule.waitForIdle()
         // Laisse les animations (anneaux, listes) se terminer.
         rule.mainClock.advanceTimeBy(2_000)
