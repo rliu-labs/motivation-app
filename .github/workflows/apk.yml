@@ -15,9 +15,11 @@ on:
 permissions:
   contents: read
 
+# Une nouvelle poussée sur une PR annule la construction précédente de cette PR.
+# Sur main, rien n'est annulé : chaque fusion doit publier sa version.
 concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+  group: build-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
