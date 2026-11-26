@@ -1,12 +1,22 @@
-# Propose chaque mois les mises à jour des actions GitHub et des dépendances Gradle.
+# Propose chaque mois les mises à jour, regroupées en une seule pull request
+# par écosystème. Les versions majeures (souvent incompatibles) se font à la main.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
   - package-ecosystem: gradle
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    groups:
+      gradle:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
