@@ -16,7 +16,10 @@ import app.sentier.data.SeasonRepository
 import app.sentier.data.Reward
 import app.sentier.data.Settings
 import app.sentier.data.ThemeMode
+import app.sentier.domain.AppLanguage
+import app.sentier.domain.Lang
 import app.sentier.domain.SeasonsState
+import app.sentier.ui.common.AppLocale
 import app.sentier.domain.WeekChallenges
 import app.sentier.ui.common.app
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +48,15 @@ class ProgressViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeMode.SYSTEM)
 
     fun setTheme(mode: ThemeMode) = viewModelScope.launch { settings.setThemeMode(mode) }
+
+    val language: StateFlow<AppLanguage> = settings.language
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppLanguage.FR)
+
+    /** Enregistre la langue puis [then] (redémarrage de l'appli) si elle change vraiment. */
+    fun setLanguage(language: AppLanguage, then: () -> Unit) = viewModelScope.launch {
+        settings.setLanguage(language)
+        if (Lang.resolve(language, AppLocale.systemLocale()) != Lang.english) then()
+    }
 
     fun buy(reward: Reward) = viewModelScope.launch { game.buy(reward) }
 

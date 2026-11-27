@@ -20,10 +20,10 @@ data class HabitTemplate(
 )
 
 val HabitTemplates = listOf(
-    HabitTemplate("Boire de l'eau", "water", 0xFF42A5F5, Habit.TYPE_NUMERIC, 8.0, "verres"),
-    HabitTemplate("Dormir 7 heures", "sleep", 0xFF5C6BC0, Habit.TYPE_NUMERIC, 7.0, "heures"),
-    HabitTemplate("Méditer", "meditation", 0xFF26A69A),
-    HabitTemplate("Faire du sport", "sport", 0xFFEF5350, freqNum = 3, freqDen = 7),
-    HabitTemplate("Lire", "book", 0xFF8D6E63, Habit.TYPE_NUMERIC, 10.0, "pages"),
-    HabitTemplate("Pas d'écran au coucher", "phone_off", 0xFFAB47BC),
+    HabitTemplate(tr("Boire de l'eau", "Drink water"), "water", 0xFF42A5F5, Habit.TYPE_NUMERIC, 8.0, tr("verres", "glasses")),
+    HabitTemplate(tr("Dormir 7 heures", "Sleep 7 hours"), "sleep", 0xFF5C6BC0, Habit.TYPE_NUMERIC, 7.0, tr("heures", "hours")),
+    HabitTemplate(tr("Méditer", "Meditate"), "meditation", 0xFF26A69A),
+    HabitTemplate(tr("Faire du sport", "Work out"), "sport", 0xFFEF5350, freqNum = 3, freqDen = 7),
+    HabitTemplate(tr("Lire", "Read"), "book", 0xFF8D6E63, Habit.TYPE_NUMERIC, 10.0, "pages"),
+    HabitTemplate(tr("Pas d'écran au coucher", "No screens at bedtime"), "phone_off", 0xFFAB47BC),
 )

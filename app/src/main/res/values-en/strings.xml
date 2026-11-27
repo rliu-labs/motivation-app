@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Textes des widgets pour un téléphone réglé en anglais (le sélecteur de widgets suit la langue du téléphone). -->
+<resources>
+    <string name="widget_today_name">Sentier: today</string>
+    <string name="widget_today_description">Your streak, your steps and what to do today, ticked off without opening the app.</string>
+    <string name="widget_steps_name">Sentier: steps and streak</string>
+    <string name="widget_preview_today_title">Today</string>
+    <string name="widget_preview_today_summary">3 things left to do</string>
+    <string name="widget_preview_item_1">Call the dentist</string>
+    <string name="widget_preview_item_2">Meditate</string>
+    <string name="widget_preview_item_3">Go grocery shopping</string>
+    <string name="widget_preview_steps">👣 6,480</string>
+    <string name="widget_preview_goal">of 8,000 steps</string>
+    <string name="widget_preview_streak_days">🔥 12 days</string>
+    <string name="widget_steps_description">Your steps for the day and your current streak.</string>
+</resources>

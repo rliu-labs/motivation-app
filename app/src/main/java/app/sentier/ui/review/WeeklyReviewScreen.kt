@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.review
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,12 +57,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val DAY_MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.FRANCE)
+private val DAY_MONTH: DateTimeFormatter get() = DateTimeFormatter.ofPattern("d MMMM", app.sentier.domain.Lang.locale)
 
 /** « du 16 au 22 novembre », ou « du 30 novembre au 6 décembre ». */
 internal fun weekRange(start: LocalDate, end: LocalDate): String =
-    if (start.month == end.month) "du ${start.dayOfMonth} au ${end.format(DAY_MONTH)}"
-    else "du ${start.format(DAY_MONTH)} au ${end.format(DAY_MONTH)}"
+    if (start.month == end.month) tr("du ${start.dayOfMonth} au ${end.format(DAY_MONTH)}", "from ${start.dayOfMonth} to ${end.format(DAY_MONTH)}")
+    else tr("du ${start.format(DAY_MONTH)} au ${end.format(DAY_MONTH)}", "from ${start.format(DAY_MONTH)} to ${end.format(DAY_MONTH)}")
 
 private fun iconOf(name: String): ImageVector = when (name) {
     "star" -> Icons.Filled.Star
@@ -80,8 +81,8 @@ fun WeeklyReviewScreen(onBack: () -> Unit, vm: WeeklyReviewViewModel = viewModel
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Bilan de la semaine") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(tr("Bilan de la semaine", "Weekly review")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
             )
         },
     ) { padding ->
@@ -99,7 +100,7 @@ private fun ReviewContent(r: WeeklyReview) {
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
-                "Semaine ${weekRange(r.start, r.end)}",
+                tr("Semaine ${weekRange(r.start, r.end)}", "Week ${weekRange(r.start, r.end)}"),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
@@ -114,16 +115,16 @@ private fun ReviewContent(r: WeeklyReview) {
     }
 
     Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Tile("Jours actifs", "${r.week.activeDays} / 7", r.week.activeDays - r.previous.activeDays, Modifier.weight(1f))
-        Tile("Habitudes", "${r.week.habits}", r.week.habits - r.previous.habits, Modifier.weight(1f))
-        Tile("Tâches", "${r.week.tasks}", r.week.tasks - r.previous.tasks, Modifier.weight(1f))
+        Tile(tr("Jours actifs", "Active days"), "${r.week.activeDays} / 7", r.week.activeDays - r.previous.activeDays, Modifier.weight(1f))
+        Tile(tr("Habitudes", "Habits"), "${r.week.habits}", r.week.habits - r.previous.habits, Modifier.weight(1f))
+        Tile(tr("Tâches", "Tasks"), "${r.week.tasks}", r.week.tasks - r.previous.tasks, Modifier.weight(1f))
         Tile("XP", "${r.week.xp}", r.week.xp - r.previous.xp, Modifier.weight(1f))
     }
 
-    SectionHeader("Moments forts")
+    SectionHeader(tr("Moments forts", "Highlights"))
     if (r.highlights.isEmpty()) {
         Text(
-            "Pas encore de moment fort : coche une habitude ou termine une tâche, et ton prochain bilan aura de quoi raconter.",
+            tr("Pas encore de moment fort : coche une habitude ou termine une tâche, et ton prochain bilan aura de quoi raconter.", "No highlights yet: check a habit or finish a task, and your next review will have something to tell."),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 20.dp),
@@ -149,7 +150,7 @@ private fun ReviewContent(r: WeeklyReview) {
     }
 
     val ongoing = r.ongoing
-    SectionHeader(if (ongoing != null) "Objectif de cette semaine" else "Objectif de la semaine prochaine")
+    SectionHeader(if (ongoing != null) tr("Objectif de cette semaine", "This week's goal") else tr("Objectif de la semaine prochaine", "Next week's goal"))
     Card(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
@@ -172,13 +173,13 @@ private fun ReviewContent(r: WeeklyReview) {
                     color = MaterialTheme.colorScheme.tertiary,
                 )
                 Text(
-                    if (done >= r.goal.target) "Objectif atteint, bravo !" else "$done sur ${r.goal.target} pour l'instant.",
+                    if (done >= r.goal.target) tr("Objectif atteint, bravo !", "Goal reached, well done!") else tr("$done sur ${r.goal.target} pour l'instant.", "$done of ${r.goal.target} so far."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
             } else {
                 Text(
-                    "Juste un peu plus que cette semaine : un pas de plus, pas une montagne.",
+                    tr("Juste un peu plus que cette semaine : un pas de plus, pas une montagne.", "Just a little more than this week: one more step, not a mountain."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                 )

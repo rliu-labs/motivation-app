@@ -5,6 +5,7 @@
  */
 package app.sentier.ui
 
+import app.sentier.domain.tr
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -63,13 +64,13 @@ class RewardsViewModel(
             when {
                 g.level.level > level -> Celebration(
                     key = "level-${g.level.level}",
-                    title = "Niveau ${g.level.level} !",
-                    text = "Bravo, tu passes au niveau ${g.level.level}. Continue comme ça : chaque action compte.",
+                    title = tr("Niveau ${g.level.level} !", "Level ${g.level.level}!"),
+                    text = tr("Bravo, tu passes au niveau ${g.level.level}. Continue comme ça : chaque action compte.", "Well done, you reach level ${g.level.level}. Keep it up: every action counts."),
                     icon = Icons.Filled.Star,
                 )
                 badge != null -> Celebration(
                     key = "badge-${badge.id}",
-                    title = (if (badge.rare) "Badge rare obtenu : " else "Badge obtenu : ") + badge.title,
+                    title = (if (badge.rare) tr("Badge rare obtenu : ", "Rare badge earned: ") else tr("Badge obtenu : ", "Badge earned: ")) + badge.title,
                     text = badge.description + ".",
                     icon = GameIcons.of(badge.icon),
                 )

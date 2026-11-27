@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.progress
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -71,7 +72,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.app.Activity
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.ui.platform.LocalContext
 import app.sentier.data.GameState
+import app.sentier.domain.AppLanguage
+import app.sentier.ui.common.AppLocale
 import app.sentier.data.Reward
 import app.sentier.data.ThemeMode
 import app.sentier.domain.Badge
@@ -80,6 +86,13 @@ import app.sentier.domain.Streaks
 import app.sentier.ui.common.SectionHeader
 import java.text.NumberFormat
 import java.util.Locale
+
+/** Nom d'une langue, chacune écrite dans sa propre langue. */
+private fun languageLabel(l: AppLanguage): String = when (l) {
+    AppLanguage.SYSTEM -> tr("Comme le téléphone", "Same as the phone")
+    AppLanguage.FR -> "Français"
+    AppLanguage.EN -> "English"
+}
 
 /** Couleur de l'or, lisible sur fond clair et sombre. */
 val GoldColor = Color(0xFFE0A100)
@@ -96,14 +109,17 @@ fun ProgressScreen(
     val challenges by vm.challenges.collectAsStateWithLifecycle()
     val seasons by vm.seasons.collectAsStateWithLifecycle()
     val theme by vm.theme.collectAsStateWithLifecycle()
+    val language by vm.language.collectAsStateWithLifecycle()
+    val activity = LocalContext.current as? Activity
     var choosingTheme by remember { mutableStateOf(false) }
+    var choosingLanguage by remember { mutableStateOf(false) }
     var buying by remember { mutableStateOf<Reward?>(null) }
     var editing by remember { mutableStateOf<Reward?>(null) }
     var creating by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         Text(
-            "Progrès",
+            tr("Progrès", "Progress"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp),
@@ -111,27 +127,27 @@ fun ProgressScreen(
         LevelCard(state)
         StreakCard(state, onBuyFreeze = vm::buyFreeze)
         ListItem(
-            headlineContent = { Text("Statistiques") },
-            supportingContent = { Text("Pas, habitudes et XP sur la semaine, le mois et l'année") },
+            headlineContent = { Text(tr("Statistiques", "Statistics")) },
+            supportingContent = { Text(tr("Pas, habitudes et XP sur la semaine, le mois et l'année", "Steps, habits and XP over the week, month and year")) },
             leadingContent = { Icon(Icons.Filled.BarChart, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenStats).padding(horizontal = 4.dp),
         )
         ListItem(
-            headlineContent = { Text("Bilan de la semaine") },
-            supportingContent = { Text("Tes moments forts et ton objectif pour la semaine") },
+            headlineContent = { Text(tr("Bilan de la semaine", "Weekly review")) },
+            supportingContent = { Text(tr("Tes moments forts et ton objectif pour la semaine", "Your highlights and your goal for the week")) },
             leadingContent = { Icon(Icons.Filled.AutoAwesome, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenReview).padding(horizontal = 4.dp),
         )
 
         challenges?.let { week ->
-            SectionHeader("Défis de la semaine (${week.doneCount} sur ${week.list.size})")
+            SectionHeader(tr("Défis de la semaine (${week.doneCount} sur ${week.list.size})", "Weekly challenges (${week.doneCount} of ${week.list.size})"))
             Text(
                 when (week.daysLeft) {
-                    0 -> "Dernier jour pour les relever ! De nouveaux défis arrivent lundi."
-                    1 -> "Encore 2 jours, aujourd'hui compris. De nouveaux défis arrivent lundi."
-                    else -> "Encore ${week.daysLeft + 1} jours, aujourd'hui compris. De nouveaux défis arrivent lundi."
+                    0 -> tr("Dernier jour pour les relever ! De nouveaux défis arrivent lundi.", "Last day to take them on! New challenges arrive on Monday.")
+                    1 -> tr("Encore 2 jours, aujourd'hui compris. De nouveaux défis arrivent lundi.", "2 days left, including today. New challenges arrive on Monday.")
+                    else -> tr("Encore ${week.daysLeft + 1} jours, aujourd'hui compris. De nouveaux défis arrivent lundi.", "${week.daysLeft + 1} days left, including today. New challenges arrive on Monday.")
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -142,9 +158,9 @@ fun ProgressScreen(
 
         seasons?.let { SeasonSection(it) }
 
-        SectionHeader("Boutique de récompenses")
+        SectionHeader(tr("Boutique de récompenses", "Reward shop"))
         Text(
-            "Échange ton or contre de vrais petits plaisirs, choisis par toi.",
+            tr("Échange ton or contre de vrais petits plaisirs, choisis par toi.", "Trade your gold for real little treats, chosen by you."),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 20.dp),
@@ -160,32 +176,39 @@ fun ProgressScreen(
         OutlinedButton(onClick = { creating = true }, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Ajouter une récompense")
+            Text(tr("Ajouter une récompense", "Add a reward"))
         }
 
         val unlocked = state.badges.count { it.unlocked }
-        SectionHeader("Badges ($unlocked sur ${state.badges.size})")
+        SectionHeader(tr("Badges ($unlocked sur ${state.badges.size})", "Badges ($unlocked of ${state.badges.size})"))
         for (badge in state.badges) BadgeRow(badge)
 
         RareBadgesSection(state.rareBadges)
 
         ListItem(
-            headlineContent = { Text("Thème") },
+            headlineContent = { Text(tr("Thème", "Theme")) },
             supportingContent = { Text(theme.label) },
             leadingContent = { Icon(Icons.Filled.DarkMode, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable { choosingTheme = true }.padding(horizontal = 4.dp),
         )
         ListItem(
-            headlineContent = { Text("Sauvegarde") },
-            supportingContent = { Text("Exporter ou importer toutes tes données") },
+            headlineContent = { Text(tr("Langue", "Language")) },
+            supportingContent = { Text(languageLabel(language)) },
+            leadingContent = { Icon(Icons.Filled.Language, contentDescription = null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            modifier = Modifier.clickable { choosingLanguage = true }.padding(horizontal = 4.dp),
+        )
+        ListItem(
+            headlineContent = { Text(tr("Sauvegarde", "Backup")) },
+            supportingContent = { Text(tr("Exporter ou importer toutes tes données", "Export or import all your data")) },
             leadingContent = { Icon(Icons.Filled.Backup, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenBackup).padding(horizontal = 4.dp),
         )
         ListItem(
-            headlineContent = { Text("Crédits et licence") },
-            supportingContent = { Text("Logiciel libre, GPL-3.0") },
+            headlineContent = { Text(tr("Crédits et licence", "Credits and license")) },
+            supportingContent = { Text(tr("Logiciel libre, GPL-3.0", "Free software, GPL-3.0")) },
             leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenCredits).padding(horizontal = 4.dp),
@@ -196,7 +219,7 @@ fun ProgressScreen(
     if (choosingTheme) {
         AlertDialog(
             onDismissRequest = { choosingTheme = false },
-            title = { Text("Thème") },
+            title = { Text(tr("Thème", "Theme")) },
             text = {
                 Column(Modifier.selectableGroup()) {
                     for (mode in ThemeMode.entries) {
@@ -216,17 +239,51 @@ fun ProgressScreen(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { choosingTheme = false }) { Text("Fermer") } },
+            confirmButton = { TextButton(onClick = { choosingTheme = false }) { Text(tr("Fermer", "Close")) } },
+        )
+    }
+
+    if (choosingLanguage) {
+        AlertDialog(
+            onDismissRequest = { choosingLanguage = false },
+            title = { Text(tr("Langue", "Language")) },
+            text = {
+                Column(Modifier.selectableGroup()) {
+                    for (l in AppLanguage.entries) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = l == language, role = Role.RadioButton, onClick = {
+                                    choosingLanguage = false
+                                    vm.setLanguage(l) { activity?.let { AppLocale.restart(it) } }
+                                })
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = l == language, onClick = null)
+                            Text(languageLabel(l), modifier = Modifier.padding(start = 12.dp))
+                        }
+                    }
+                    Text(
+                        tr("L'appli redémarre pour changer de langue. Tes données ne changent pas.",
+                            "The app restarts to change language. Your data stays the same."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+            },
+            confirmButton = { TextButton(onClick = { choosingLanguage = false }) { Text(tr("Fermer", "Close")) } },
         )
     }
 
     buying?.let { reward ->
         AlertDialog(
             onDismissRequest = { buying = null },
-            title = { Text("Prendre « ${reward.name} » ?") },
-            text = { Text("Cela coûte ${reward.cost} or. Il t'en restera ${state.gold - reward.cost}.") },
-            confirmButton = { TextButton(onClick = { vm.buy(reward); buying = null }) { Text("Je me fais plaisir") } },
-            dismissButton = { TextButton(onClick = { buying = null }) { Text("Plus tard") } },
+            title = { Text(tr("Prendre « ${reward.name} » ?", "Take “${reward.name}”?")) },
+            text = { Text(tr("Cela coûte ${reward.cost} or. Il t'en restera ${state.gold - reward.cost}.", "It costs ${reward.cost} gold. You will have ${state.gold - reward.cost} left.")) },
+            confirmButton = { TextButton(onClick = { vm.buy(reward); buying = null }) { Text(tr("Je me fais plaisir", "Treat myself")) } },
+            dismissButton = { TextButton(onClick = { buying = null }) { Text(tr("Plus tard", "Later")) } },
         )
     }
     if (creating || editing != null) {
@@ -247,21 +304,21 @@ private fun LevelCard(state: GameState) {
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Niveau ${state.level.level}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(tr("Niveau ${state.level.level}", "Level ${state.level.level}"), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 Icon(Icons.Filled.Paid, contentDescription = null, tint = GoldColor)
                 Spacer(Modifier.width(6.dp))
-                Text("${state.gold} or", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(tr("${state.gold} or", "${state.gold} gold"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             }
             LinearProgressIndicator(
                 progress = { state.level.progress },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
             )
             Text(
-                "${state.level.xpInLevel} / ${state.level.xpForNext} XP avant le niveau ${state.level.level + 1}",
+                tr("${state.level.xpInLevel} / ${state.level.xpForNext} XP avant le niveau ${state.level.level + 1}", "${state.level.xpInLevel} / ${state.level.xpForNext} XP to level ${state.level.level + 1}"),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                "Chaque tâche et chaque habitude rapporte de l'XP et de l'or, selon sa difficulté. Rien n'est jamais perdu.",
+                tr("Chaque tâche et chaque habitude rapporte de l'XP et de l'or, selon sa difficulté. Rien n'est jamais perdu.", "Every task and habit earns XP and gold, according to its difficulty. Nothing is ever lost."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
             )
@@ -285,22 +342,22 @@ private fun StreakCard(state: GameState, onBuyFreeze: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         when (s.current) {
-                            0 -> "Pas encore de série"
-                            1 -> "1 jour de suite"
-                            else -> "${s.current} jours de suite"
+                            0 -> tr("Pas encore de série", "No streak yet")
+                            1 -> tr("1 jour de suite", "1 day in a row")
+                            else -> tr("${s.current} jours de suite", "${s.current} days in a row")
                         },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        if (s.activeToday || s.current == 0) "Record : ${s.best} jours" else "Fais une action aujourd'hui pour la continuer",
+                        if (s.activeToday || s.current == 0) tr("Record : ${s.best} jours", "Best: ${s.best} days") else tr("Fais une action aujourd'hui pour la continuer", "Do something today to keep it going"),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
                         when (s.restDays) {
-                            0 -> "Aucun jour de repos en réserve : 1 de plus tous les ${Streaks.DAYS_PER_REST_DAY} jours actifs."
-                            1 -> "1 jour de repos en réserve : un jour raté ne cassera pas la série."
-                            else -> "${s.restDays} jours de repos en réserve : un jour raté ne cassera pas la série."
+                            0 -> tr("Aucun jour de repos en réserve : 1 de plus tous les ${Streaks.DAYS_PER_REST_DAY} jours actifs.", "No rest days left: you earn 1 every ${Streaks.DAYS_PER_REST_DAY} active days.")
+                            1 -> tr("1 jour de repos en réserve : un jour raté ne cassera pas la série.", "1 rest day saved: a missed day won't break the streak.")
+                            else -> tr("${s.restDays} jours de repos en réserve : un jour raté ne cassera pas la série.", "${s.restDays} rest days saved: a missed day won't break the streak.")
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -313,19 +370,19 @@ private fun StreakCard(state: GameState, onBuyFreeze: () -> Unit) {
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "Gels de série : ${s.freezes} sur ${Streaks.MAX_FREEZES}",
+                        tr("Gels de série : ${s.freezes} sur ${Streaks.MAX_FREEZES}", "Streak freezes: ${s.freezes} of ${Streaks.MAX_FREEZES}"),
                         style = MaterialTheme.typography.titleSmall,
                     )
                     Text(
-                        "Quand il ne reste plus de jour de repos, un gel protège la série pour un jour manqué. " +
-                            "Un gel est offert chaque trimestre.",
+                        tr("Quand il ne reste plus de jour de repos, un gel protège la série pour un jour manqué. ", "When no rest days are left, a freeze protects the streak for one missed day. ") +
+                            tr("Un gel est offert chaque trimestre.", "You get a free freeze every quarter."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 val canBuy = s.freezes < Streaks.MAX_FREEZES && state.gold >= Streaks.FREEZE_COST
                 FilledTonalButton(onClick = onBuyFreeze, enabled = canBuy, modifier = Modifier.padding(start = 8.dp)) {
-                    Text("${Streaks.FREEZE_COST} or")
+                    Text(tr("${Streaks.FREEZE_COST} or", "${Streaks.FREEZE_COST} gold"))
                 }
             }
         }
@@ -340,7 +397,7 @@ private fun ChallengeCard(c: Challenge) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .semantics(mergeDescendants = true) {
-                contentDescription = (if (c.done) "Défi relevé : " else "Défi : ") + "${c.title}, ${c.goalText}"
+                contentDescription = (if (c.done) tr("Défi relevé : ", "Challenge completed: ") else tr("Défi : ", "Challenge: ")) + "${c.title}, ${c.goalText}"
             },
         colors = CardDefaults.cardColors(containerColor = if (c.done) colors.secondaryContainer else colors.surfaceContainerLow),
     ) {
@@ -377,7 +434,7 @@ private fun ChallengeCard(c: Challenge) {
                 )
                 Text(
                     when {
-                        c.done -> "Relevé ! Bonus versé."
+                        c.done -> tr("Relevé ! Bonus versé.", "Done! Bonus paid.")
                         c.hint != null -> c.hint
                         else -> "${formatCount(c.current)} / ${formatCount(c.goal)}"
                     },
@@ -389,13 +446,13 @@ private fun ChallengeCard(c: Challenge) {
     }
 }
 
-private fun formatCount(n: Long): String = NumberFormat.getIntegerInstance(Locale.FRANCE).format(n)
+private fun formatCount(n: Long): String = NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale).format(n)
 
 @Composable
 private fun RewardRow(reward: Reward, affordable: Boolean, onBuy: () -> Unit, onEdit: () -> Unit) {
     ListItem(
         headlineContent = { Text(reward.name) },
-        supportingContent = { Text("${reward.cost} or") },
+        supportingContent = { Text(tr("${reward.cost} or", "${reward.cost} gold")) },
         leadingContent = {
             Box(
                 Modifier.size(40.dp).clip(CircleShape).background(GoldColor.copy(alpha = 0.18f)),
@@ -404,8 +461,8 @@ private fun RewardRow(reward: Reward, affordable: Boolean, onBuy: () -> Unit, on
         },
         trailingContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onEdit) { Icon(Icons.Filled.Edit, contentDescription = "Modifier ${reward.name}") }
-                FilledTonalButton(onClick = onBuy, enabled = affordable) { Text("Prendre") }
+                IconButton(onClick = onEdit) { Icon(Icons.Filled.Edit, contentDescription = tr("Modifier ${reward.name}", "Edit ${reward.name}")) }
+                FilledTonalButton(onClick = onBuy, enabled = affordable) { Text(tr("Prendre", "Take")) }
             }
         },
     )
@@ -416,7 +473,7 @@ private fun BadgeRow(badge: Badge) {
     val color = if (badge.unlocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
     ListItem(
         modifier = Modifier.semantics {
-            contentDescription = (if (badge.unlocked) "Badge obtenu : " else "Badge à obtenir : ") + badge.title
+            contentDescription = (if (badge.unlocked) tr("Badge obtenu : ", "Badge earned: ") else tr("Badge à obtenir : ", "Badge to earn: ")) + badge.title
         },
         headlineContent = {
             Text(badge.title, color = if (badge.unlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -449,26 +506,26 @@ private fun RewardDialog(
     val costValue = cost.toIntOrNull()
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initial == null) "Nouvelle récompense" else "Modifier la récompense") },
+        title = { Text(if (initial == null) tr("Nouvelle récompense", "New reward") else tr("Modifier la récompense", "Edit reward")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Récompense") },
-                    placeholder = { Text("Un café en terrasse") },
+                    label = { Text(tr("Récompense", "Reward")) },
+                    placeholder = { Text(tr("Un café en terrasse", "A coffee on a terrace")) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 )
                 OutlinedTextField(
                     value = cost,
                     onValueChange = { v -> cost = v.filter(Char::isDigit).take(5) },
-                    label = { Text("Prix en or") },
+                    label = { Text(tr("Prix en or", "Price in gold")) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 if (onDelete != null) {
-                    TextButton(onClick = onDelete) { Text("Supprimer cette récompense", color = MaterialTheme.colorScheme.error) }
+                    TextButton(onClick = onDelete) { Text(tr("Supprimer cette récompense", "Delete this reward"), color = MaterialTheme.colorScheme.error) }
                 }
             }
         },
@@ -476,9 +533,9 @@ private fun RewardDialog(
             TextButton(
                 onClick = { onSave(name, costValue ?: 1) },
                 enabled = name.isNotBlank() && costValue != null && costValue > 0,
-            ) { Text("Enregistrer") }
+            ) { Text(tr("Enregistrer", "Save")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     )
 }
 
@@ -494,7 +551,7 @@ fun GameSummary(state: GameState, onClick: () -> Unit, modifier: Modifier = Modi
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text("Niveau ${state.level.level}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        Text(tr("Niveau ${state.level.level}", "Level ${state.level.level}"), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
         LinearProgressIndicator(
             progress = { state.level.progress },
             modifier = Modifier.width(48.dp).height(6.dp).clip(CircleShape),

@@ -65,9 +65,9 @@ object HabitScore {
 
 /** Description en français de la fréquence. */
 fun describeFrequency(num: Int, den: Int): String = when {
-    num >= den -> "Chaque jour"
-    den == 7 -> if (num == 1) "1 fois par semaine" else "$num fois par semaine"
-    den == 30 || den == 31 -> if (num == 1) "1 fois par mois" else "$num fois par mois"
-    num == 1 -> "Tous les $den jours"
-    else -> "$num fois tous les $den jours"
+    num >= den -> tr("Chaque jour", "Every day")
+    den == 7 -> if (num == 1) tr("1 fois par semaine", "Once a week") else tr("$num fois par semaine", "$num times a week")
+    den == 30 || den == 31 -> if (num == 1) tr("1 fois par mois", "Once a month") else tr("$num fois par mois", "$num times a month")
+    num == 1 -> tr("Tous les $den jours", "Every $den days")
+    else -> tr("$num fois tous les $den jours", "$num times every $den days")
 }

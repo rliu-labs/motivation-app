@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.celebrate
 
+import app.sentier.domain.tr
 import android.provider.Settings
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -154,7 +155,7 @@ fun CelebrationOverlay(celebration: Celebration, onDismiss: () -> Unit) {
                 }
                 Text(celebration.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                 Text(celebration.text, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-                Button(onClick = onDismiss) { Text("Génial !") }
+                Button(onClick = onDismiss) { Text(tr("Génial !", "Great!")) }
             }
         }
         Confetti(celebration.key)

@@ -6,6 +6,10 @@
 package app.sentier
 
 import android.app.Application
+import app.sentier.domain.AppLanguage
+import app.sentier.ui.common.AppLocale
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import app.sentier.data.AppDatabase
 import app.sentier.data.BackupRepository
 import app.sentier.data.ChallengeRepository
@@ -57,8 +61,8 @@ class SentierApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // Dates et nombres à la française, même sur un téléphone réglé dans une autre langue.
-        java.util.Locale.setDefault(app.sentier.ui.common.French.locale)
+        // Langue choisie (français par défaut), fixée avant tout texte.
+        AppLocale.apply(runCatching { runBlocking { settings.language.first() } }.getOrDefault(AppLanguage.FR))
         if (Widgets.anyPlaced(this)) startWidgetSync()
     }
 

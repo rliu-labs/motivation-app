@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.common
 
+import app.sentier.domain.tr
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,7 +64,7 @@ fun PriorityCheckbox(
                 if (!checked) tick()
                 onClick()
             }
-            .semantics { contentDescription = if (checked) "Décocher $label" else "Valider $label" },
+            .semantics { contentDescription = if (checked) tr("Décocher $label", "Uncheck $label") else tr("Valider $label", "Complete $label") },
         contentAlignment = Alignment.Center,
     ) {
         Box(
@@ -128,7 +129,7 @@ fun TaskRow(
                     }
                     if (task.recurrence != null) {
                         Icon(
-                            Icons.Filled.Repeat, contentDescription = "Tâche répétée",
+                            Icons.Filled.Repeat, contentDescription = tr("Tâche répétée", "Repeating task"),
                             modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }

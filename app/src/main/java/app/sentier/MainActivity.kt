@@ -10,7 +10,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import app.sentier.ui.common.French
+import app.sentier.ui.common.AppLocale
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
-    // Toujours en français, même sur un téléphone réglé dans une autre langue.
-    override fun attachBaseContext(newBase: Context) = super.attachBaseContext(French.wrap(newBase))
+    // Dans la langue choisie, même si le téléphone est réglé dans une autre langue.
+    override fun attachBaseContext(newBase: Context) = super.attachBaseContext(AppLocale.wrap(newBase))
 
     /** Écran demandé par la notification touchée (le bilan du dimanche). */
     private var openRequest by mutableStateOf<String?>(null)

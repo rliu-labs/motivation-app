@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.edit
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,11 +44,11 @@ import app.sentier.domain.letterFr
 import java.time.DayOfWeek
 
 private enum class Mode(val label: String) {
-    NONE("Ne se répète pas"),
-    DAILY("Chaque jour"),
-    EVERY_N_DAYS("Tous les N jours"),
-    WEEKDAYS("Certains jours de la semaine"),
-    MONTHLY("Chaque mois"),
+    NONE(tr("Ne se répète pas", "Does not repeat")),
+    DAILY(tr("Chaque jour", "Every day")),
+    EVERY_N_DAYS(tr("Tous les N jours", "Every N days")),
+    WEEKDAYS(tr("Certains jours de la semaine", "Some days of the week")),
+    MONTHLY(tr("Chaque mois", "Every month")),
 }
 
 /** Choix de la répétition, version simple des règles de Tasks.org. */
@@ -75,7 +76,7 @@ fun RecurrenceDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Répétition") },
+        title = { Text(tr("Répétition", "Repeat")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 for (m in Mode.entries) {
@@ -91,11 +92,11 @@ fun RecurrenceDialog(
                     }
                     if (m == Mode.EVERY_N_DAYS && mode == m) {
                         Row(Modifier.padding(start = 40.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("Tous les")
-                            IconButton(onClick = { if (interval > 2) interval-- }) { Icon(Icons.Filled.Remove, "Moins") }
+                            Text(tr("Tous les", "Every"))
+                            IconButton(onClick = { if (interval > 2) interval-- }) { Icon(Icons.Filled.Remove, tr("Moins", "Less")) }
                             Text("$interval", style = MaterialTheme.typography.titleMedium)
-                            IconButton(onClick = { if (interval < 365) interval++ }) { Icon(Icons.Filled.Add, "Plus") }
-                            Text("jours")
+                            IconButton(onClick = { if (interval < 365) interval++ }) { Icon(Icons.Filled.Add, tr("Plus", "More")) }
+                            Text(tr("jours", "days"))
                         }
                     }
                     if (m == Mode.WEEKDAYS && mode == m) {
@@ -124,9 +125,9 @@ fun RecurrenceDialog(
                     ) {
                         Checkbox(checked = fromCompletion, onCheckedChange = null)
                         Column(Modifier.padding(start = 8.dp)) {
-                            Text("Compter à partir du jour où je la termine")
+                            Text(tr("Compter à partir du jour où je la termine", "Count from the day I complete it"))
                             Text(
-                                "Sinon, à partir de l'échéance prévue.",
+                                tr("Sinon, à partir de l'échéance prévue.", "Otherwise, from the planned due date."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -148,6 +149,6 @@ fun RecurrenceDialog(
                 onSave(rec, fromCompletion)
             }) { Text("OK") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     )
 }

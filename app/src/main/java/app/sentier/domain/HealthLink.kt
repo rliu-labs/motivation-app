@@ -66,5 +66,5 @@ object HealthLink {
     }
 
     private fun isMinutes(unit: String): Boolean = unit.trim().lowercase().let { it.startsWith("min") || it == "mn" }
-    private fun isHours(unit: String): Boolean = unit.trim().lowercase().let { it.startsWith("heure") || it == "h" }
+    private fun isHours(unit: String): Boolean = unit.trim().lowercase().let { it.startsWith("heure") || it.startsWith("hour") || it == "h" }
 }

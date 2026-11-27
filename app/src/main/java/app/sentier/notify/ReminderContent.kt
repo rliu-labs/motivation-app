@@ -5,6 +5,7 @@
  */
 package app.sentier.notify
 
+import app.sentier.domain.tr
 import app.sentier.data.HabitWithStats
 import app.sentier.data.TaskWithCounts
 import app.sentier.data.isDoneOn
@@ -45,7 +46,7 @@ object ReminderContent {
     fun pendingTasks(tasks: List<TaskWithCounts>, today: Long): List<ReminderItem> =
         tasks.filter { !it.isDoneOn(today) }.map { t ->
             val late = t.dueDay != null && t.dueDay < today
-            ReminderItem(ReminderItem.Type.TASK, t.id, t.title, detail = if (late) "En retard" else null)
+            ReminderItem(ReminderItem.Type.TASK, t.id, t.title, detail = if (late) tr("En retard", "Overdue") else null)
         }
 
     /** Habitudes encore à faire aujourd'hui. */
@@ -72,14 +73,14 @@ object ReminderContent {
     /** Le matin : le programme de la journée. Rien à envoyer si la journée est vide. */
     fun morning(tasks: List<ReminderItem>, habits: List<ReminderItem>, streak: StreakInfo): ReminderMessage? {
         if (tasks.isEmpty() && habits.isEmpty()) return null
-        val late = tasks.count { it.detail == "En retard" }
-        val lateText = if (late > 0) " (dont $late en retard)" else ""
-        val tasksText = if (tasks.isNotEmpty()) count(tasks.size, "tâche", "tâches") + lateText else null
-        val habitsText = if (habits.isNotEmpty()) count(habits.size, "habitude", "habitudes") else null
-        val streakText = if (streak.current > 1) " Série en cours : ${streak.current} jours." else ""
+        val late = tasks.count { it.detail == tr("En retard", "Overdue") }
+        val lateText = if (late > 0) tr(" (dont $late en retard)", " ($late overdue)") else ""
+        val tasksText = if (tasks.isNotEmpty()) count(tasks.size, tr("tâche", "task"), tr("tâches", "tasks")) + lateText else null
+        val habitsText = if (habits.isNotEmpty()) count(habits.size, tr("habitude", "habit"), tr("habitudes", "habits")) else null
+        val streakText = if (streak.current > 1) tr(" Série en cours : ${streak.current} jours.", " Current streak: ${streak.current} days.") else ""
         return ReminderMessage(
-            title = "Au programme aujourd'hui",
-            text = listOfNotNull(tasksText, habitsText).joinToString(" et ") + "." + streakText,
+            title = tr("Au programme aujourd'hui", "On the plan today"),
+            text = listOfNotNull(tasksText, habitsText).joinToString(tr(" et ", " and ")) + "." + streakText,
             items = (tasks + habits).take(MAX_ITEMS),
         )
     }
@@ -87,17 +88,17 @@ object ReminderContent {
     /** Le soir : ce qui reste, à valider d'un geste. Rien à envoyer si tout est fait. */
     fun evening(tasks: List<ReminderItem>, habits: List<ReminderItem>, streak: StreakInfo): ReminderMessage? {
         if (tasks.isEmpty() && habits.isEmpty()) return null
-        val rest = "Il reste " + remaining(tasks.size, habits.size)
+        val rest = tr("Il reste ", "Still to do: ") + remaining(tasks.size, habits.size)
         return if (streak.current > 0 && !streak.activeToday) {
             ReminderMessage(
-                title = "Ta série de ${count(streak.current, "jour", "jours")} t'attend",
-                text = "$rest. Une seule suffit pour la garder.",
+                title = tr("Ta série de ${count(streak.current, "jour", "jours")} t'attend", "Your ${count(streak.current, "day", "days")} streak is waiting"),
+                text = tr("$rest. Une seule suffit pour la garder.", "$rest. Just one is enough to keep it."),
                 items = (tasks + habits).take(MAX_ITEMS),
             )
         } else {
             ReminderMessage(
-                title = "Encore un petit effort ?",
-                text = "$rest pour aujourd'hui.",
+                title = tr("Encore un petit effort ?", "One more little effort?"),
+                text = tr("$rest pour aujourd'hui.", "$rest for today."),
                 items = (tasks + habits).take(MAX_ITEMS),
             )
         }
@@ -111,9 +112,9 @@ object ReminderContent {
         if (!isDueToday(h, today)) return null
         val item = pendingHabits(listOf(h), today).first()
         val text = if (h.habit.isNumeric) {
-            "Aujourd'hui : ${item.detail}. Chaque petit pas compte."
+            tr("Aujourd'hui : ${item.detail}. Chaque petit pas compte.", "Today: ${item.detail}. Every little step counts.")
         } else {
-            "C'est l'heure. Un geste suffit pour la cocher."
+            tr("C'est l'heure. Un geste suffit pour la cocher.", "It's time. One tap is enough to check it.")
         }
         return ReminderMessage(title = h.habit.name, text = text, items = listOf(item))
     }
@@ -129,9 +130,9 @@ object ReminderContent {
     fun formatMinute(minuteOfDay: Int): String = "%02d:%02d".format(minuteOfDay / 60, minuteOfDay % 60)
 
     private fun remaining(tasks: Int, habits: Int): String = listOfNotNull(
-        if (tasks > 0) count(tasks, "tâche", "tâches") else null,
-        if (habits > 0) count(habits, "habitude", "habitudes") else null,
-    ).joinToString(" et ")
+        if (tasks > 0) count(tasks, tr("tâche", "task"), tr("tâches", "tasks")) else null,
+        if (habits > 0) count(habits, tr("habitude", "habit"), tr("habitudes", "habits")) else null,
+    ).joinToString(tr(" et ", " and "))
 
     private fun count(n: Int, one: String, many: String) = "$n ${if (n > 1) many else one}"
 }

@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import app.sentier.domain.tr
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,8 +46,8 @@ import app.sentier.steps.HealthState
 /** « 7 h 25 », « 45 min ». */
 fun formatDuration(minutes: Long): String = when {
     minutes < 60 -> "$minutes min"
-    minutes % 60 == 0L -> "${minutes / 60} h"
-    else -> "${minutes / 60} h ${"%02d".format(minutes % 60)}"
+    minutes % 60 == 0L -> tr("${minutes / 60} h", "${minutes / 60}h")
+    else -> tr("${minutes / 60} h ${"%02d".format(minutes % 60)}", "${minutes / 60}h ${"%02d".format(minutes % 60)}")
 }
 
 /**
@@ -70,7 +71,7 @@ fun HealthCard(state: HealthState, onSetOn: (Boolean) -> Unit, onAddTemplate: (S
                 Icon(Icons.Filled.MonitorHeart, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    "Sommeil et sport automatiques",
+                    tr("Sommeil et sport automatiques", "Automatic sleep and workouts"),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
@@ -80,30 +81,30 @@ fun HealthCard(state: HealthState, onSetOn: (Boolean) -> Unit, onAddTemplate: (S
                     onCheckedChange = { on ->
                         if (on) launcher.launch(HealthConnectSource.HEALTH_PERMISSIONS) else onSetOn(false)
                     },
-                    modifier = Modifier.semantics { contentDescription = "Sommeil et sport automatiques" },
+                    modifier = Modifier.semantics { contentDescription = tr("Sommeil et sport automatiques", "Automatic sleep and workouts") },
                 )
             }
             if (!state.on) {
                 Text(
-                    "Sentier peut lire tes nuits et tes séances de sport dans Health Connect (enregistrées par ta montre, " +
-                        "Google Fit, Samsung Health…) et cocher tout seul tes habitudes de sommeil et de sport. " +
-                        "Rien ne quitte ton téléphone.",
+                    tr("Sentier peut lire tes nuits et tes séances de sport dans Health Connect (enregistrées par ta montre, ", "Sentier can read your nights and workouts in Health Connect (recorded by your watch, ") +
+                        tr("Google Fit, Samsung Health…) et cocher tout seul tes habitudes de sommeil et de sport. ", "Google Fit, Samsung Health…) and check your sleep and sport habits by itself. ") +
+                        tr("Rien ne quitte ton téléphone.", "Nothing leaves your phone."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (refused) {
                     Text(
-                        "Sentier n'a pas reçu l'autorisation de lire le sommeil et le sport.",
+                        tr("Sentier n'a pas reçu l'autorisation de lire le sommeil et le sport.", "Sentier did not get permission to read sleep and workouts."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
             } else if (state.read && !state.granted) {
                 Text(
-                    "L'autorisation de lire le sommeil et le sport a été retirée dans Health Connect.",
+                    tr("L'autorisation de lire le sommeil et le sport a été retirée dans Health Connect.", "Permission to read sleep and workouts was removed in Health Connect."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                Button(onClick = { launcher.launch(HealthConnectSource.HEALTH_PERMISSIONS) }) { Text("Autoriser l'accès") }
+                Button(onClick = { launcher.launch(HealthConnectSource.HEALTH_PERMISSIONS) }) { Text(tr("Autoriser l'accès", "Allow access")) }
             } else {
                 Linked(state, onAddTemplate)
             }
@@ -115,26 +116,26 @@ fun HealthCard(state: HealthState, onSetOn: (Boolean) -> Unit, onAddTemplate: (S
 private fun Linked(state: HealthState, onAddTemplate: (String) -> Unit) {
     Line(
         Icons.Filled.Bedtime,
-        state.lastNightMinutes?.let { "Dernière nuit : ${formatDuration(it)}" } ?: "Pas de nuit enregistrée cette nuit",
-        state.sleepHabit?.let { "Reliée à « ${it.name} »" },
+        state.lastNightMinutes?.let { tr("Dernière nuit : ${formatDuration(it)}", "Last night: ${formatDuration(it)}") } ?: tr("Pas de nuit enregistrée cette nuit", "No sleep recorded last night"),
+        state.sleepHabit?.let { tr("Reliée à « ${it.name} »", "Linked to “${it.name}”") },
     )
     if (state.sleepHabit == null) {
-        OutlinedButton(onClick = { onAddTemplate("Dormir 7 heures") }) { Text("Ajouter l'habitude « Dormir 7 heures »") }
+        OutlinedButton(onClick = { onAddTemplate("sleep") }) { Text(tr("Ajouter l'habitude « Dormir 7 heures »", "Add the habit “Sleep 7 hours”")) }
     }
     Line(
         Icons.Filled.FitnessCenter,
         when (state.sportTodaySessions) {
-            0 -> "Pas encore de séance de sport aujourd'hui"
-            1 -> "Sport aujourd'hui : ${formatDuration(state.sportTodayMinutes)}"
-            else -> "Sport aujourd'hui : ${formatDuration(state.sportTodayMinutes)} en ${state.sportTodaySessions} séances"
+            0 -> tr("Pas encore de séance de sport aujourd'hui", "No workout yet today")
+            1 -> tr("Sport aujourd'hui : ${formatDuration(state.sportTodayMinutes)}", "Workout today: ${formatDuration(state.sportTodayMinutes)}")
+            else -> tr("Sport aujourd'hui : ${formatDuration(state.sportTodayMinutes)} en ${state.sportTodaySessions} séances", "Workouts today: ${formatDuration(state.sportTodayMinutes)} in ${state.sportTodaySessions} sessions")
         },
-        state.sportHabit?.let { "Reliée à « ${it.name} »" },
+        state.sportHabit?.let { tr("Reliée à « ${it.name} »", "Linked to “${it.name}”") },
     )
     if (state.sportHabit == null) {
-        OutlinedButton(onClick = { onAddTemplate("Faire du sport") }) { Text("Ajouter l'habitude « Faire du sport »") }
+        OutlinedButton(onClick = { onAddTemplate("sport") }) { Text(tr("Ajouter l'habitude « Faire du sport »", "Add the habit “Work out”")) }
     }
     Text(
-        "Les 7 derniers jours sont mis à jour à chaque ouverture de l'appli. Une valeur saisie à la main n'est jamais baissée.",
+        tr("Les 7 derniers jours sont mis à jour à chaque ouverture de l'appli. Une valeur saisie à la main n'est jamais baissée.", "The last 7 days are updated every time you open the app. A value you entered by hand is never lowered."),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )

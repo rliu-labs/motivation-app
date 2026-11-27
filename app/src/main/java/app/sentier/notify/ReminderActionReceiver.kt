@@ -5,6 +5,7 @@
  */
 package app.sentier.notify
 
+import app.sentier.domain.tr
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -65,8 +66,8 @@ object ReminderActions {
     suspend fun complete(tasks: TaskRepository, habits: HabitRepository, type: ReminderItem.Type, id: Long): String? = when (type) {
         ReminderItem.Type.TASK -> {
             tasks.complete(id)?.let { result ->
-                val gain = result.gain?.let { " +${it.xp} XP, +${it.gold} or" }.orEmpty()
-                "« ${result.before.title} » : c'est fait !$gain"
+                val gain = result.gain?.let { tr(" +${it.xp} XP, +${it.gold} or", " +${it.xp} XP, +${it.gold} gold") }.orEmpty()
+                tr("« ${result.before.title} » : c'est fait !$gain", "“${result.before.title}”: done!$gain")
             }
         }
         ReminderItem.Type.HABIT -> {
@@ -77,7 +78,7 @@ object ReminderActions {
             } else {
                 habits.toggle(stats.habit, today)
                 val xp = GameRules.xpFor(stats.habit.difficulty)
-                "« ${stats.habit.name} » : c'est fait ! +$xp XP, +${GameRules.goldFor(xp)} or"
+                tr("« ${stats.habit.name} » : c'est fait ! +$xp XP, +${GameRules.goldFor(xp)} or", "“${stats.habit.name}”: done! +$xp XP, +${GameRules.goldFor(xp)} gold")
             }
         }
     }

@@ -5,6 +5,7 @@
  */
 package app.sentier.data
 
+import app.sentier.domain.tr
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -14,9 +15,9 @@ import java.util.Locale
 
 /** Période des statistiques. */
 enum class StatsPeriod(val label: String) {
-    WEEK("7 jours"),
-    MONTH("30 jours"),
-    YEAR("12 mois"),
+    WEEK(tr("7 jours", "7 days")),
+    MONTH(tr("30 jours", "30 days")),
+    YEAR(tr("12 mois", "12 months")),
 }
 
 /** Une barre d'un graphique : un jour (semaine, mois) ou un mois (année). */
@@ -147,7 +148,7 @@ class StatsRepository(
                 StatsPeriod.WEEK, StatsPeriod.MONTH -> (first..last).map { day ->
                     val date = LocalDate.ofEpochDay(day)
                     val label = if (period == StatsPeriod.WEEK) {
-                        date.dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.FRANCE).uppercase(Locale.FRANCE)
+                        date.dayOfWeek.getDisplayName(TextStyle.NARROW, app.sentier.domain.Lang.locale).uppercase(app.sentier.domain.Lang.locale)
                     } else {
                         date.dayOfMonth.toString()
                     }
@@ -156,7 +157,7 @@ class StatsRepository(
                 StatsPeriod.YEAR -> (0L..11L).map { m ->
                     val month = start.plusMonths(m)
                     val range = month.toEpochDay()..month.plusMonths(1).minusDays(1).toEpochDay()
-                    val label = month.month.getDisplayName(TextStyle.NARROW, Locale.FRANCE).uppercase(Locale.FRANCE)
+                    val label = month.month.getDisplayName(TextStyle.NARROW, app.sentier.domain.Lang.locale).uppercase(app.sentier.domain.Lang.locale)
                     bucket(label, stepDays.filterKeys { it in range }, inRange.filter { it.day in range })
                 }
             }

@@ -5,6 +5,7 @@
  */
 package app.sentier.widget
 
+import app.sentier.domain.tr
 import app.sentier.data.GameRepository
 import app.sentier.data.HabitDao
 import app.sentier.data.HabitRepository
@@ -39,24 +40,24 @@ data class WidgetData(
 
     val streakText: String
         get() = when (streak) {
-            0 -> "Pas de série"
-            1 -> "1 jour"
-            else -> "$streak jours"
+            0 -> tr("Pas de série", "No streak")
+            1 -> tr("1 jour", "1 day")
+            else -> tr("$streak jours", "$streak days")
         }
 
     /** Résumé sous le titre du widget « Aujourd'hui ». */
     val summary: String
         get() = when {
-            remaining == 0 -> "Tout est fait pour aujourd'hui. Bravo !"
-            remaining == 1 -> "Encore 1 chose à faire"
-            else -> "Encore $remaining choses à faire"
+            remaining == 0 -> tr("Tout est fait pour aujourd'hui. Bravo !", "All done for today. Well done!")
+            remaining == 1 -> tr("Encore 1 chose à faire", "1 thing left to do")
+            else -> tr("Encore $remaining choses à faire", "$remaining things left to do")
         }
 
     companion object {
         /** Nombre de lignes affichées au plus dans le widget « Aujourd'hui ». */
         const val MAX_ITEMS = 8
 
-        private fun formatInt(n: Long): String = NumberFormat.getIntegerInstance(Locale.FRANCE).format(n)
+        private fun formatInt(n: Long): String = NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale).format(n)
 
         suspend fun load(
             tasks: TaskRepository,

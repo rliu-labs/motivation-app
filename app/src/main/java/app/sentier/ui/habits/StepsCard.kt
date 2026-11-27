@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import app.sentier.domain.tr
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -63,9 +64,9 @@ import androidx.compose.material.icons.filled.Remove
 import java.text.NumberFormat
 import java.util.Locale
 
-private val FrNumber: NumberFormat = NumberFormat.getIntegerInstance(Locale.FRANCE)
+private val FrNumber: NumberFormat get() = NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale)
 fun formatSteps(n: Long): String = FrNumber.format(n)
-fun formatKm(km: Double): String = String.format(Locale.FRANCE, if (km < 10) "%.1f km" else "%.0f km", km)
+fun formatKm(km: Double): String = String.format(app.sentier.domain.Lang.locale, if (km < 10) "%.1f km" else "%.0f km", km)
 
 /** Carte des pas : anneau d'objectif, distance, 7 derniers jours. */
 @Composable
@@ -88,38 +89,38 @@ fun StepsCard(
                     Spacer(Modifier.width(20.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            "${formatSteps(state.todaySteps)} pas",
+                            tr("${formatSteps(state.todaySteps)} pas", "${formatSteps(state.todaySteps)} steps"),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                         )
-                        Text("${formatKm(state.todayKm)} aujourd'hui", style = MaterialTheme.typography.bodyMedium)
+                        Text(tr("${formatKm(state.todayKm)} aujourd'hui", "${formatKm(state.todayKm)} today"), style = MaterialTheme.typography.bodyMedium)
                         Text(
-                            if (state.goalReached) "Objectif atteint, bravo ! 🎉"
-                            else "Encore ${formatSteps(state.settings.goal - state.todaySteps)} pas pour l'objectif",
+                            if (state.goalReached) tr("Objectif atteint, bravo ! 🎉", "Goal reached, well done! 🎉")
+                            else tr("Encore ${formatSteps(state.settings.goal - state.todaySteps)} pas pour l'objectif", "${formatSteps(state.settings.goal - state.todaySteps)} steps to go"),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                         TextButton(onClick = { editGoal = true }, modifier = Modifier.padding(start = 0.dp)) {
                             Text(
-                                (if (state.settings.adaptive) "Objectif adaptatif : " else "Objectif : ") +
-                                    "${formatSteps(state.settings.goal.toLong())} pas"
+                                (if (state.settings.adaptive) tr("Objectif adaptatif : ", "Adaptive goal: ") else tr("Objectif : ", "Goal: ")) +
+                                    tr("${formatSteps(state.settings.goal.toLong())} pas", "${formatSteps(state.settings.goal.toLong())} steps")
                             )
                         }
                     }
                 }
                 WeekBars(state)
                 Text(
-                    "Distance totale parcourue : ${formatKm(state.totalKm)}",
+                    tr("Distance totale parcourue : ${formatKm(state.totalKm)}", "Total distance walked: ${formatKm(state.totalKm)}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
                 if (state.settings.source == StepSource.HEALTH_CONNECT && state.week.all { it.second == 0L }) {
                     Text(
-                        "Aucun pas trouvé dans Health Connect. Vérifie qu'une appli (Google Fit, Samsung Health…) y enregistre tes pas, ou utilise le capteur du téléphone.",
+                        tr("Aucun pas trouvé dans Health Connect. Vérifie qu'une appli (Google Fit, Samsung Health…) y enregistre tes pas, ou utilise le capteur du téléphone.", "No steps found in Health Connect. Check that an app (Google Fit, Samsung Health…) records your steps there, or use the phone's sensor."),
                         style = MaterialTheme.typography.bodySmall,
                     )
                     if (state.availability.sensorAvailable) {
-                        OutlinedButton(onClick = onUseSensor) { Text("Utiliser le capteur du téléphone") }
+                        OutlinedButton(onClick = onUseSensor) { Text(tr("Utiliser le capteur du téléphone", "Use the phone's sensor")) }
                     }
                 }
             } else {
@@ -202,29 +203,29 @@ private fun ConnectSteps(state: StepsState, onUseHealthConnect: () -> Unit, onUs
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.AutoMirrored.Filled.DirectionsWalk, contentDescription = null, modifier = Modifier.size(32.dp))
         Spacer(Modifier.width(12.dp))
-        Text("Compte tes pas", style = MaterialTheme.typography.titleLarge)
+        Text(tr("Compte tes pas", "Count your steps"), style = MaterialTheme.typography.titleLarge)
     }
     val hc = state.availability.healthConnect
     Text(
         when {
             state.settings.source == StepSource.HEALTH_CONNECT ->
-                "Sentier n'a pas encore l'autorisation de lire tes pas dans Health Connect."
+                tr("Sentier n'a pas encore l'autorisation de lire tes pas dans Health Connect.", "Sentier doesn't have permission to read your steps in Health Connect yet.")
             hc == HealthConnectSource.Status.AVAILABLE ->
-                "Sentier lit tes pas dans Health Connect, l'espace santé d'Android. Rien ne quitte ton téléphone."
+                tr("Sentier lit tes pas dans Health Connect, l'espace santé d'Android. Rien ne quitte ton téléphone.", "Sentier reads your steps in Health Connect, Android's health space. Nothing leaves your phone.")
             hc == HealthConnectSource.Status.NEEDS_UPDATE ->
-                "Health Connect doit être mis à jour pour que Sentier puisse lire tes pas."
-            else -> "Health Connect n'est pas installé. Tu peux l'installer, ou utiliser directement le capteur de pas du téléphone."
+                tr("Health Connect doit être mis à jour pour que Sentier puisse lire tes pas.", "Health Connect needs an update so Sentier can read your steps.")
+            else -> tr("Health Connect n'est pas installé. Tu peux l'installer, ou utiliser directement le capteur de pas du téléphone.", "Health Connect isn't installed. You can install it, or use the phone's step sensor directly.")
         },
         style = MaterialTheme.typography.bodyMedium,
     )
     when (hc) {
         HealthConnectSource.Status.AVAILABLE ->
             Button(onClick = { hcLauncher.launch(HealthConnectSource.PERMISSIONS) }) {
-                Text(if (state.settings.source == StepSource.HEALTH_CONNECT) "Autoriser l'accès aux pas" else "Connecter Health Connect")
+                Text(if (state.settings.source == StepSource.HEALTH_CONNECT) tr("Autoriser l'accès aux pas", "Allow access to steps") else tr("Connecter Health Connect", "Connect Health Connect"))
             }
         else -> if (state.availability.checked) {
             Button(onClick = { openHealthConnectStore(context) }) {
-                Text(if (hc == HealthConnectSource.Status.NEEDS_UPDATE) "Mettre à jour Health Connect" else "Installer Health Connect")
+                Text(if (hc == HealthConnectSource.Status.NEEDS_UPDATE) tr("Mettre à jour Health Connect", "Update Health Connect") else tr("Installer Health Connect", "Install Health Connect"))
             }
         }
     }
@@ -235,7 +236,7 @@ private fun ConnectSteps(state: StepsState, onUseHealthConnect: () -> Unit, onUs
             } else {
                 onUseSensor()
             }
-        }) { Text("Utiliser le capteur du téléphone") }
+        }) { Text(tr("Utiliser le capteur du téléphone", "Use the phone's sensor")) }
     }
 }
 
@@ -256,14 +257,14 @@ private fun GoalDialog(goal: Int, stepLengthCm: Int, adaptive: Boolean, onDismis
     var a by remember { mutableStateOf(adaptive) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Objectif de pas") },
+        title = { Text(tr("Objectif de pas", "Step goal")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Objectif adaptatif")
+                        Text(tr("Objectif adaptatif", "Adaptive goal"))
                         Text(
-                            "Chaque jour, l'objectif suit tes pas des 2 dernières semaines, plus 10 %, pour rester atteignable.",
+                            tr("Chaque jour, l'objectif suit tes pas des 2 dernières semaines, plus 10 %, pour rester atteignable.", "Every day, the goal follows your steps of the last 2 weeks, plus 10%, so it stays within reach."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -271,18 +272,18 @@ private fun GoalDialog(goal: Int, stepLengthCm: Int, adaptive: Boolean, onDismis
                     Switch(checked = a, onCheckedChange = { a = it })
                 }
                 if (!a) {
-                    Stepper("Pas par jour", formatSteps(g.toLong()), onMinus = { g = (g - 500).coerceAtLeast(500) }, onPlus = { g = (g + 500).coerceAtMost(50_000) })
+                    Stepper(tr("Pas par jour", "Steps per day"), formatSteps(g.toLong()), onMinus = { g = (g - 500).coerceAtLeast(500) }, onPlus = { g = (g + 500).coerceAtMost(50_000) })
                 }
-                Stepper("Longueur d'un pas", "$l cm", onMinus = { l = (l - 5).coerceAtLeast(30) }, onPlus = { l = (l + 5).coerceAtMost(150) })
+                Stepper(tr("Longueur d'un pas", "Step length"), "$l cm", onMinus = { l = (l - 5).coerceAtLeast(30) }, onPlus = { l = (l + 5).coerceAtMost(150) })
                 Text(
-                    "La longueur du pas sert à calculer les kilomètres parcourus.",
+                    tr("La longueur du pas sert à calculer les kilomètres parcourus.", "Step length is used to compute the distance walked."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(g, l, a) }) { Text("Enregistrer") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        confirmButton = { TextButton(onClick = { onSave(g, l, a) }) { Text(tr("Enregistrer", "Save")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     )
 }
 
@@ -290,9 +291,9 @@ private fun GoalDialog(goal: Int, stepLengthCm: Int, adaptive: Boolean, onDismis
 fun Stepper(label: String, value: String, onMinus: () -> Unit, onPlus: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, Modifier.weight(1f))
-        IconButton(onClick = onMinus) { Icon(Icons.Filled.Remove, "Moins") }
+        IconButton(onClick = onMinus) { Icon(Icons.Filled.Remove, tr("Moins", "Less")) }
         Text(value, style = MaterialTheme.typography.titleMedium)
-        IconButton(onClick = onPlus) { Icon(Icons.Filled.Add, "Plus") }
+        IconButton(onClick = onPlus) { Icon(Icons.Filled.Add, tr("Plus", "More")) }
     }
 }
 
@@ -309,16 +310,16 @@ fun StepsMiniCard(state: StepsState, onClick: () -> Unit, modifier: Modifier = M
             Column {
                 if (state.connected) {
                     Text(
-                        "${formatSteps(state.todaySteps)} / ${formatSteps(state.settings.goal.toLong())} pas",
+                        tr("${formatSteps(state.todaySteps)} / ${formatSteps(state.settings.goal.toLong())} pas", "${formatSteps(state.todaySteps)} / ${formatSteps(state.settings.goal.toLong())} steps"),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        if (state.goalReached) "Objectif atteint !" else formatKm(state.todayKm),
+                        if (state.goalReached) tr("Objectif atteint !", "Goal reached!") else formatKm(state.todayKm),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {
-                    Text("Compte tes pas", style = MaterialTheme.typography.titleMedium)
-                    Text("Touche ici pour connecter le podomètre", style = MaterialTheme.typography.bodyMedium)
+                    Text(tr("Compte tes pas", "Count your steps"), style = MaterialTheme.typography.titleMedium)
+                    Text(tr("Touche ici pour connecter le podomètre", "Tap here to connect the pedometer"), style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

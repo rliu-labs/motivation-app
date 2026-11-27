@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.tasks
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -91,11 +92,11 @@ fun TasksScreen(
     LaunchedEffect(vm) {
         vm.completions.collect { result ->
             val message = if (result.nextDue != null) {
-                "Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, state.today).lowercase()}"
+                tr("Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, state.today).lowercase()}", "Well done! Next time: ${friendlyDate(result.nextDue, state.today).lowercase()}")
             } else {
-                "Bravo, tâche terminée !"
+                tr("Bravo, tâche terminée !", "Well done, task finished!")
             }
-            val action = snackbar.showSnackbar(message, actionLabel = "Annuler", duration = SnackbarDuration.Short)
+            val action = snackbar.showSnackbar(message, actionLabel = tr("Annuler", "Undo"), duration = SnackbarDuration.Short)
             if (action == SnackbarResult.ActionPerformed) vm.undo(result)
         }
     }
@@ -111,7 +112,7 @@ fun TasksScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "Tâches",
+                tr("Tâches", "Tasks"),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
@@ -119,7 +120,7 @@ fun TasksScreen(
             IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) vm.setQuery("") }) {
                 Icon(
                     if (searchOpen) Icons.Filled.Close else Icons.Filled.Search,
-                    contentDescription = if (searchOpen) "Fermer la recherche" else "Chercher une tâche",
+                    contentDescription = if (searchOpen) tr("Fermer la recherche", "Close search") else tr("Chercher une tâche", "Search tasks"),
                 )
             }
         }
@@ -128,7 +129,7 @@ fun TasksScreen(
             OutlinedTextField(
                 value = state.query,
                 onValueChange = vm::setQuery,
-                placeholder = { Text("Chercher dans les titres et les notes") },
+                placeholder = { Text(tr("Chercher dans les titres et les notes", "Search titles and notes")) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 shape = RoundedCornerShape(28.dp),
@@ -145,7 +146,7 @@ fun TasksScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
-                FilterChip(selected = state.selectedListId == null, onClick = { vm.selectList(null) }, label = { Text("Toutes") })
+                FilterChip(selected = state.selectedListId == null, onClick = { vm.selectList(null) }, label = { Text(tr("Toutes", "All")) })
             }
             items(state.lists, key = { it.id }) { list ->
                 FilterChip(
@@ -159,7 +160,7 @@ fun TasksScreen(
                 FilterChip(
                     selected = false,
                     onClick = { creatingList = true },
-                    label = { Text("Liste") },
+                    label = { Text(tr("Liste", "List")) },
                     leadingIcon = { Icon(Icons.Filled.Add, null, Modifier.size(18.dp)) },
                 )
             }
@@ -167,7 +168,7 @@ fun TasksScreen(
         state.selectedListId?.let { id ->
             state.listsById[id]?.let { list ->
                 TextButton(onClick = { editingList = list }, modifier = Modifier.padding(horizontal = 8.dp)) {
-                    Text("Modifier la liste « ${list.name} »")
+                    Text(tr("Modifier la liste « ${list.name} »", "Edit the list “${list.name}”"))
                 }
             }
         }
@@ -200,7 +201,7 @@ fun TasksScreen(
                 state.searching -> {
                     if (state.results.isEmpty()) {
                         item {
-                            EmptyText("Aucune tâche ne correspond à « ${state.query.trim()} ».")
+                            EmptyText(tr("Aucune tâche ne correspond à « ${state.query.trim()} ».", "No task matches “${state.query.trim()}”."))
                         }
                     }
                     items(state.results, key = { it.id }) { task ->
@@ -223,7 +224,7 @@ fun TasksScreen(
                     }
                     item(key = "h-jour") { SectionHeader(longDate(state.selectedDay)) }
                     if (state.selectedDayTasks.isEmpty()) {
-                        item(key = "vide-jour") { EmptyText("Rien de prévu ce jour-là. Ajoute une tâche juste en dessous.") }
+                        item(key = "vide-jour") { EmptyText(tr("Rien de prévu ce jour-là. Ajoute une tâche juste en dessous.", "Nothing planned that day. Add a task just below.")) }
                     }
                     items(state.selectedDayTasks, key = { it.id }) { task ->
                         row(task, false, Modifier.animateItem(), null)
@@ -231,12 +232,12 @@ fun TasksScreen(
                 }
                 else -> {
                     if (!state.loading && state.isEmpty) {
-                        item { EmptyText("Aucune tâche ici. Ajoute la première juste en dessous !") }
+                        item { EmptyText(tr("Aucune tâche ici. Ajoute la première juste en dessous !", "No tasks here. Add the first one just below!")) }
                     }
                     if (state.view == TaskView.MANUAL) {
                         if (reorder.items.isNotEmpty()) {
                             item(key = "h-ordre") {
-                                SectionHeader("Fais glisser la poignée pour ranger tes tâches")
+                                SectionHeader(tr("Fais glisser la poignée pour ranger tes tâches", "Drag the handle to order your tasks"))
                             }
                         }
                         reorderableTasks(reorder) { task, m, handle -> row(task, false, m, handle) }
@@ -259,7 +260,7 @@ fun TasksScreen(
                                 Modifier.fillMaxWidth().clickable { vm.toggleShowCompleted() }.padding(end = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                SectionHeader("Terminées (${state.completed.size})", Modifier.weight(1f))
+                                SectionHeader(tr("Terminées (${state.completed.size})", "Completed (${state.completed.size})"), Modifier.weight(1f))
                                 Icon(if (state.showCompleted) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null)
                             }
                         }
@@ -281,9 +282,9 @@ fun TasksScreen(
         QuickAddBar(
             placeholder = when {
                 state.view == TaskView.CALENDAR && !state.searching ->
-                    "Ajouter : ${friendlyDate(state.selectedDay, state.today).lowercase()}"
-                listName != null -> "Ajouter à « $listName »"
-                else -> "Ajouter une tâche"
+                    tr("Ajouter : ${friendlyDate(state.selectedDay, state.today).lowercase()}", "Add: ${friendlyDate(state.selectedDay, state.today).lowercase()}")
+                listName != null -> tr("Ajouter à « $listName »", "Add to “$listName”")
+                else -> tr("Ajouter une tâche", "Add a task")
             },
             onAdd = vm::add,
         )
@@ -333,20 +334,20 @@ private fun ListDialog(
     if (confirmDelete && onDelete != null) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Supprimer la liste ?") },
-            text = { Text("Les tâches de cette liste ne sont pas supprimées : elles restent dans « Toutes ».") },
-            confirmButton = { TextButton(onClick = onDelete) { Text("Supprimer") } },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Garder") } },
+            title = { Text(tr("Supprimer la liste ?", "Delete the list?")) },
+            text = { Text(tr("Les tâches de cette liste ne sont pas supprimées : elles restent dans « Toutes ».", "The tasks in this list are not deleted: they stay in “All”.")) },
+            confirmButton = { TextButton(onClick = onDelete) { Text(tr("Supprimer", "Delete")) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(tr("Garder", "Keep")) } },
         )
         return
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initial == null) "Nouvelle liste" else "Modifier la liste") },
+        title = { Text(if (initial == null) tr("Nouvelle liste", "New list") else tr("Modifier la liste", "Edit list")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nom") }, singleLine = true)
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(tr("Nom", "Name")) }, singleLine = true)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     for (c in ListPalette) {
                         Box(
@@ -356,20 +357,20 @@ private fun ListDialog(
                                 .background(Color(c))
                                 .then(if (c == color) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
                                 .clickable { color = c }
-                                .semantics { contentDescription = "Couleur" },
+                                .semantics { contentDescription = tr("Couleur", "Color") },
                         )
                     }
                 }
                 if (onDelete != null) {
                     TextButton(onClick = { confirmDelete = true }) {
-                        Text("Supprimer cette liste", color = MaterialTheme.colorScheme.error)
+                        Text(tr("Supprimer cette liste", "Delete this list"), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(name, color) }, enabled = name.isNotBlank()) { Text("Enregistrer") }
+            TextButton(onClick = { onSave(name, color) }, enabled = name.isNotBlank()) { Text(tr("Enregistrer", "Save")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Undo")) } },
     )
 }

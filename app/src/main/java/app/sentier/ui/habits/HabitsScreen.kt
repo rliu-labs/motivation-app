@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -89,7 +90,7 @@ fun HabitsScreen(
         LazyColumn(Modifier.fillMaxSize()) {
             item {
                 Text(
-                    "Habitudes",
+                    tr("Habitudes", "Habits"),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp),
@@ -124,7 +125,7 @@ fun HabitsScreen(
                     HealthCard(
                         state = health,
                         onSetOn = vm::setHealthAuto,
-                        onAddTemplate = { name -> HabitTemplates.firstOrNull { it.name == name }?.let(vm::addTemplate) },
+                        onAddTemplate = { icon -> HabitTemplates.firstOrNull { it.icon == icon }?.let(vm::addTemplate) },
                     )
                 }
             }
@@ -133,8 +134,8 @@ fun HabitsScreen(
         ExtendedFloatingActionButton(
             onClick = { onOpenHabit(0L) },
             // Le texte d'un bouton étendu est masqué aux lecteurs d'écran : la description porte le libellé.
-            icon = { Icon(Icons.Filled.Add, contentDescription = "Nouvelle habitude") },
-            text = { Text("Nouvelle habitude") },
+            icon = { Icon(Icons.Filled.Add, contentDescription = tr("Nouvelle habitude", "New habit")) },
+            text = { Text(tr("Nouvelle habitude", "New habit")) },
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
         )
     }
@@ -156,9 +157,9 @@ fun HabitsScreen(
 @Composable
 private fun EmptyHabits(onPick: (app.sentier.domain.HabitTemplate) -> Unit) {
     Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Ajoute ta première habitude", style = MaterialTheme.typography.titleMedium)
+        Text(tr("Ajoute ta première habitude", "Add your first habit"), style = MaterialTheme.typography.titleMedium)
         Text(
-            "Commence par une ou deux. Touche un modèle pour l'ajouter, ou crée la tienne avec le bouton en bas.",
+            tr("Commence par une ou deux. Touche un modèle pour l'ajouter, ou crée la tienne avec le bouton en bas.", "Start with one or two. Tap a template to add it, or create your own with the button below."),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -179,7 +180,7 @@ private val CellWidth = 44.dp
 @Composable
 private fun DaysHeader(days: List<LocalDate>, today: LocalDate) {
     Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 16.dp), verticalAlignment = Alignment.Bottom) {
-        Text("Mes habitudes", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+        Text(tr("Mes habitudes", "My habits"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
         for (d in days) {
             Column(Modifier.width(CellWidth), horizontalAlignment = Alignment.CenterHorizontally) {
                 val bold = if (d == today) FontWeight.Bold else FontWeight.Normal
@@ -228,13 +229,13 @@ fun subtitle(habit: Habit): String {
 }
 
 fun formatValue(v: Double): String =
-    if (v == v.roundToInt().toDouble()) v.roundToInt().toString() else String.format(Locale.FRANCE, "%.1f", v)
+    if (v == v.roundToInt().toDouble()) v.roundToInt().toString() else String.format(app.sentier.domain.Lang.locale, "%.1f", v)
 
 /** Anneau de force de l'habitude (à la Loop), avec son icône. */
 @Composable
 fun StrengthRing(strength: Double, color: Color, icon: androidx.compose.ui.graphics.vector.ImageVector, size: Int = 40) {
     Box(
-        Modifier.size(size.dp).semantics { contentDescription = "Force ${(strength * 100).roundToInt()} %" },
+        Modifier.size(size.dp).semantics { contentDescription = tr("Force ${(strength * 100).roundToInt()} %", "Strength ${(strength * 100).roundToInt()}%") },
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
@@ -259,7 +260,7 @@ private fun HabitCell(h: HabitWithStats, day: LocalDate, color: Color, onClick: 
             .size(CellWidth)
             .clip(CircleShape)
             .clickable(onClick = onClick)
-            .semantics { contentDescription = if (done) "$label : fait" else "$label : à faire" }
+            .semantics { contentDescription = if (done) tr("$label : fait", "$label: done") else tr("$label : à faire", "$label: to do") }
             .testTag("cell-${h.habit.id}-$epoch"),
         contentAlignment = Alignment.Center,
     ) {
@@ -304,11 +305,11 @@ fun NumericValueDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    if (day == today) "Aujourd'hui" else app.sentier.ui.common.friendlyDate(day, today),
+                    if (day == today) tr("Aujourd'hui", "Today") else app.sentier.ui.common.friendlyDate(day, today),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Stepper(
-                    label = habit.unit.ifBlank { "Valeur" },
+                    label = habit.unit.ifBlank { tr("Valeur", "Value") },
                     value = formatValue(value),
                     onMinus = { text = formatValue((value - 1).coerceAtLeast(0.0)) },
                     onPlus = { text = formatValue(value + 1) },
@@ -316,15 +317,15 @@ fun NumericValueDialog(
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text("Objectif : ${formatValue(habit.target)} ${habit.unit}") },
+                    label = { Text(tr("Objectif : ${formatValue(habit.target)} ${habit.unit}", "Goal: ${formatValue(habit.target)} ${habit.unit}")) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.testTag("habitValue"),
                 )
-                TextButton(onClick = { text = formatValue(habit.target) }) { Text("Objectif atteint") }
+                TextButton(onClick = { text = formatValue(habit.target) }) { Text(tr("Objectif atteint", "Goal reached")) }
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(value) }) { Text("Enregistrer") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        confirmButton = { TextButton(onClick = { onSave(value) }) { Text(tr("Enregistrer", "Save")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     )
 }

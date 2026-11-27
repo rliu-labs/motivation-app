@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.reminders
 
+import app.sentier.domain.tr
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -37,9 +38,9 @@ class RemindersViewModel(private val app: SentierApplication) : ViewModel() {
 
     fun sendPreview() = viewModelScope.launch {
         _preview.value = when {
-            !Notifier.canPost(app) -> "Autorise d'abord les notifications."
-            Reminders.show(app, ReminderKind.EVENING) -> "C'est envoyé : regarde tes notifications."
-            else -> "Rien à rappeler : tout est fait pour aujourd'hui."
+            !Notifier.canPost(app) -> tr("Autorise d'abord les notifications.", "Allow notifications first.")
+            Reminders.show(app, ReminderKind.EVENING) -> tr("C'est envoyé : regarde tes notifications.", "Sent: check your notifications.")
+            else -> tr("Rien à rappeler : tout est fait pour aujourd'hui.", "Nothing to remind you of: everything is done for today.")
         }
     }
 

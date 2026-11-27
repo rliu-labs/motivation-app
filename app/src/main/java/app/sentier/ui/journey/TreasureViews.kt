@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.journey
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -97,10 +98,10 @@ fun Rarity.color(): Color = when (this) {
 
 /** Condition en quelques mots, sous un trésor pas encore gagné. */
 private fun Treasure.shortHowTo(): String = when (source) {
-    TreasureSource.LEVEL -> "Niveau $goal"
-    TreasureSource.STREAK -> "Série de $goal j"
+    TreasureSource.LEVEL -> tr("Niveau $goal", "Level $goal")
+    TreasureSource.STREAK -> tr("Série de $goal j", "$goal-day streak")
     TreasureSource.BADGES -> "$goal badges"
-    TreasureSource.CHALLENGES -> if (goal == 1) "1 défi" else "$goal défis"
+    TreasureSource.CHALLENGES -> if (goal == 1) tr("1 défi", "1 challenge") else tr("$goal défis", "$goal challenges")
 }
 
 @Composable
@@ -138,7 +139,7 @@ fun TreasureGrid(treasures: List<Treasure>, onOpen: (Treasure) -> Unit) {
                             .clickable { onOpen(t) }
                             .padding(vertical = 4.dp)
                             .semantics {
-                                contentDescription = if (t.owned) "Trésor ${t.rarity.label.lowercase(Locale.FRANCE)} : ${t.name}" else "Trésor à gagner : ${t.howTo}"
+                                contentDescription = if (t.owned) tr("Trésor ${t.rarity.label.lowercase(app.sentier.domain.Lang.locale)} : ${t.name}", "${t.rarity.label} treasure: ${t.name}") else tr("Trésor à gagner : ${t.howTo}", "Treasure to earn: ${t.howTo}")
                             },
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
@@ -171,7 +172,7 @@ fun TreasureDialog(treasure: Treasure, title: String, footer: String?, onDismiss
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "${treasure.rarity.label.uppercase(Locale.FRANCE)} · ${treasure.origin}",
+                    "${treasure.rarity.label.uppercase(app.sentier.domain.Lang.locale)} · ${treasure.origin}",
                     style = MaterialTheme.typography.labelMedium,
                     color = rarity,
                     fontWeight = FontWeight.SemiBold,
@@ -187,13 +188,13 @@ fun TreasureDialog(treasure: Treasure, title: String, footer: String?, onDismiss
                             modifier = Modifier.size(20.dp).padding(top = 2.dp),
                         )
                         Column(Modifier.padding(start = 10.dp)) {
-                            Text("Le savais-tu ?", style = MaterialTheme.typography.labelLarge)
+                            Text(tr("Le savais-tu ?", "Did you know?"), style = MaterialTheme.typography.labelLarge)
                             Text(treasure.anecdote, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 } else {
                     Text(
-                        "Pour le gagner : ${treasure.howTo.replaceFirstChar { it.lowercase(Locale.FRANCE) }} " +
+                        tr("Pour le gagner : ${treasure.howTo.replaceFirstChar { it.lowercase(app.sentier.domain.Lang.locale) }} ", "To earn it: ${treasure.howTo.replaceFirstChar { it.lowercase(app.sentier.domain.Lang.locale) }} ") +
                             "(${treasure.current.coerceAtMost(treasure.goal)} / ${treasure.goal}).",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -204,6 +205,6 @@ fun TreasureDialog(treasure: Treasure, title: String, footer: String?, onDismiss
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(if (footer != null) "Super !" else "Fermer") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(if (footer != null) tr("Super !", "Great!") else tr("Fermer", "Close")) } },
     )
 }

@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.progress
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.sentier.domain.Badge
+import app.sentier.domain.Lang
 import app.sentier.domain.Season
 import app.sentier.domain.SeasonMetric
 import app.sentier.domain.SeasonalChallenge
@@ -68,25 +70,26 @@ fun seasonColor(id: String): Color = when (id) {
     else -> Color(0xFF8E24AA)
 }
 
-private val Fr = Locale.FRANCE
+private val Fr: Locale get() = Lang.locale
 
-/** « 1er décembre », « 24 décembre ». */
-fun dayMonthFr(d: MonthDay): String =
-    (if (d.dayOfMonth == 1) "1er" else "${d.dayOfMonth}") + " " + d.month.getDisplayName(TextStyle.FULL, Fr)
+private fun dayFr(day: Int): String = if (day == 1 && !Lang.english) "1er" else "$day"
 
-/** « du 1er au 24 décembre », « du 20 mars au 5 avril ». */
+/** « 1er décembre », « 24 décembre » (« 1 December » en anglais). */
+fun dayMonthFr(d: MonthDay): String = dayFr(d.dayOfMonth) + " " + d.month.getDisplayName(TextStyle.FULL, Fr)
+
+/** « du 1er au 24 décembre », « du 20 mars au 5 avril » (« from 1 to 24 December »). */
 fun periodFr(s: Season): String =
     if (s.start.month == s.end.month) {
-        "du ${if (s.start.dayOfMonth == 1) "1er" else s.start.dayOfMonth} au ${dayMonthFr(s.end)}"
+        tr("du ", "from ") + dayFr(s.start.dayOfMonth) + tr(" au ", " to ") + dayMonthFr(s.end)
     } else {
-        "du ${dayMonthFr(s.start)} au ${dayMonthFr(s.end)}"
+        tr("du ", "from ") + dayMonthFr(s.start) + tr(" au ", " to ") + dayMonthFr(s.end)
     }
 
 private fun count(n: Long): String = NumberFormat.getIntegerInstance(Fr).format(n)
 
 @Composable
 fun SeasonSection(state: SeasonsState, today: LocalDate = LocalDate.now()) {
-    SectionHeader("Défi saisonnier")
+    SectionHeader(tr("Défi saisonnier", "Seasonal challenge"))
     val active = state.active
     if (active != null) {
         ActiveSeasonCard(active)
@@ -104,7 +107,7 @@ private fun ActiveSeasonCard(c: SeasonalChallenge) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .semantics(mergeDescendants = true) {
-                contentDescription = (if (c.done) "Défi saisonnier réussi : " else "Défi saisonnier : ") + "${s.title}, ${s.goalText}"
+                contentDescription = (if (c.done) tr("Défi saisonnier réussi : ", "Seasonal challenge completed: ") else tr("Défi saisonnier : ", "Seasonal challenge: ")) + "${s.title}, ${s.goalText}"
             },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
     ) {
@@ -121,7 +124,7 @@ private fun ActiveSeasonCard(c: SeasonalChallenge) {
                     Column(Modifier.weight(1f)) {
                         Text(s.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text(
-                            "Défi limité · ${periodFr(s)}",
+                            tr("Défi limité · ${periodFr(s)}", "Limited challenge · ${periodFr(s)}"),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -142,12 +145,12 @@ private fun ActiveSeasonCard(c: SeasonalChallenge) {
                 )
                 Text(
                     when {
-                        c.done -> "Réussi ! Bonus versé et badge rare « ${s.badgeTitle} » gagné."
+                        c.done -> tr("Réussi ! Bonus versé et badge rare « ${s.badgeTitle} » gagné.", "Done! Bonus paid and rare badge “${s.badgeTitle}” earned.")
                         c.hint != null -> c.hint
                         else -> "${count(c.current)} / ${count(s.goal)}${unitOf(s.metric)} · " + when (c.daysLeft) {
-                            0 -> "dernier jour !"
-                            1 -> "encore 2 jours, aujourd'hui compris"
-                            else -> "encore ${c.daysLeft + 1} jours, aujourd'hui compris"
+                            0 -> tr("dernier jour !", "last day!")
+                            1 -> tr("encore 2 jours, aujourd'hui compris", "2 days left, including today")
+                            else -> tr("encore ${c.daysLeft + 1} jours, aujourd'hui compris", "${c.daysLeft + 1} days left, including today")
                         }
                     },
                     style = MaterialTheme.typography.labelLarge,
@@ -157,10 +160,10 @@ private fun ActiveSeasonCard(c: SeasonalChallenge) {
                     Text("+${s.xp} XP", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(8.dp))
                     Icon(Icons.Filled.Paid, contentDescription = null, tint = GoldColor, modifier = Modifier.size(16.dp))
-                    Text(" ${s.gold} or", style = MaterialTheme.typography.labelLarge)
+                    Text(tr(" ${s.gold} or", " ${s.gold} gold"), style = MaterialTheme.typography.labelLarge)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "· badge rare « ${s.badgeTitle} »",
+                        tr("· badge rare « ${s.badgeTitle} »", "· rare badge “${s.badgeTitle}”"),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -171,10 +174,10 @@ private fun ActiveSeasonCard(c: SeasonalChallenge) {
 }
 
 private fun unitOf(m: SeasonMetric): String = when (m) {
-    SeasonMetric.STEPS -> " pas"
-    SeasonMetric.ACTIVE_DAYS, SeasonMetric.SPORT_DAYS -> " jours"
-    SeasonMetric.HABITS -> " habitudes"
-    SeasonMetric.TASKS -> " tâches"
+    SeasonMetric.STEPS -> tr(" pas", " steps")
+    SeasonMetric.ACTIVE_DAYS, SeasonMetric.SPORT_DAYS -> tr(" jours", " days")
+    SeasonMetric.HABITS -> tr(" habitudes", " habits")
+    SeasonMetric.TASKS -> tr(" tâches", " tasks")
 }
 
 @Composable
@@ -192,16 +195,16 @@ private fun NextSeasonCard(s: Season, start: LocalDate, today: LocalDate) {
             ) { Icon(GameIcons.of(s.icon), contentDescription = null, tint = color) }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Prochain : ${s.title}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(tr("Prochain : ${s.title}", "Next: ${s.title}"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Text(
                     when (days) {
-                        1L -> "Commence demain, le ${dayMonthFr(s.start)}."
-                        else -> "Commence dans $days jours, le ${dayMonthFr(s.start)}."
+                        1L -> tr("Commence demain, le ${dayMonthFr(s.start)}.", "Starts tomorrow, ${dayMonthFr(s.start)}.")
+                        else -> tr("Commence dans $days jours, le ${dayMonthFr(s.start)}.", "Starts in $days days, on ${dayMonthFr(s.start)}.")
                     },
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    "${s.goalText}, pour un badge rare : « ${s.badgeTitle} ».",
+                    tr("${s.goalText}, pour un badge rare : « ${s.badgeTitle} ».", "${s.goalText}, for a rare badge: “${s.badgeTitle}”."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -213,9 +216,9 @@ private fun NextSeasonCard(s: Season, start: LocalDate, today: LocalDate) {
 /** Les badges rares des défis saisonniers. */
 @Composable
 fun RareBadgesSection(badges: List<Badge>) {
-    SectionHeader("Badges rares (${badges.count { it.unlocked }} sur ${badges.size})")
+    SectionHeader(tr("Badges rares (${badges.count { it.unlocked }} sur ${badges.size})", "Rare badges (${badges.count { it.unlocked }} of ${badges.size})"))
     Text(
-        "Un par défi saisonnier. Chaque défi revient une fois par an : c'est la seule occasion de gagner son badge.",
+        tr("Un par défi saisonnier. Chaque défi revient une fois par an : c'est la seule occasion de gagner son badge.", "One per seasonal challenge. Each challenge comes back once a year: it is the only chance to earn its badge."),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 20.dp),
@@ -229,7 +232,7 @@ private fun RareBadgeRow(badge: Badge) {
     val color = season?.let { seasonColor(it.id) } ?: GoldColor
     ListItem(
         modifier = Modifier.semantics {
-            contentDescription = (if (badge.unlocked) "Badge rare obtenu : " else "Badge rare à obtenir : ") + badge.title
+            contentDescription = (if (badge.unlocked) tr("Badge rare obtenu : ", "Rare badge earned: ") else tr("Badge rare à obtenir : ", "Rare badge to earn: ")) + badge.title
         },
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {

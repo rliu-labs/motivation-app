@@ -5,6 +5,7 @@
  */
 package app.sentier.data
 
+import app.sentier.domain.tr
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -98,18 +99,18 @@ abstract class AppDatabase : RoomDatabase() {
 
         /** Récompenses d'exemple de la boutique (modifiables). */
         internal fun seedRewards(db: SupportSQLiteDatabase) {
-            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Un épisode de série', 20, 'tv', 0)")
-            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Un dessert', 30, 'cake', 1)")
-            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES ('Une soirée jeu vidéo', 60, 'game', 2)")
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES (?, 20, 'tv', 0)", arrayOf<Any>(tr("Un épisode de série", "An episode of a series")))
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES (?, 30, 'cake', 1)", arrayOf<Any>(tr("Un dessert", "A dessert")))
+            db.execSQL("INSERT INTO reward (name, cost, icon, position) VALUES (?, 60, 'game', 2)", arrayOf<Any>(tr("Une soirée jeu vidéo", "A video game night")))
         }
     }
 
     /** Listes de départ, créées au premier lancement. */
     private object SeedCallback : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
-            db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Perso', 4281236827, 0)")
-            db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Maison', 4294940672, 1)")
-            db.execSQL("INSERT INTO task_list (name, color, position) VALUES ('Travail', 4282557941, 2)")
+            db.execSQL("INSERT INTO task_list (name, color, position) VALUES (?, 4281236827, 0)", arrayOf<Any>(tr("Perso", "Personal")))
+            db.execSQL("INSERT INTO task_list (name, color, position) VALUES (?, 4294940672, 1)", arrayOf<Any>(tr("Maison", "Home")))
+            db.execSQL("INSERT INTO task_list (name, color, position) VALUES (?, 4282557941, 2)", arrayOf<Any>(tr("Travail", "Work")))
             seedRewards(db)
         }
     }

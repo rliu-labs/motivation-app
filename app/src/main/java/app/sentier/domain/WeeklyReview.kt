@@ -33,8 +33,8 @@ data class WeeklyGoal(val kind: Kind, val target: Int) {
     enum class Kind { ACTIVE_DAYS, HABITS }
 
     val text: String get() = when (kind) {
-        Kind.ACTIVE_DAYS -> if (target >= 7) "Être actif les 7 jours" else "Être actif $target jours"
-        Kind.HABITS -> "Réussir $target habitudes"
+        Kind.ACTIVE_DAYS -> if (target >= 7) tr("Être actif les 7 jours", "Be active all 7 days") else tr("Être actif $target jours", "Be active $target days")
+        Kind.HABITS -> tr("Réussir $target habitudes", "Complete $target habits")
     }
 
     fun progressOf(n: WeekNumbers): Int = when (kind) {
@@ -57,31 +57,37 @@ data class WeeklyReview(
     val end: LocalDate get() = start.plusDays(6)
 
     val headline: String get() = when {
-        week.activeDays >= 7 -> "Semaine parfaite !"
-        week.activeDays >= 5 -> "Superbe semaine !"
-        week.activeDays >= 3 -> "Belle semaine"
-        week.activeDays >= 1 -> "Chaque pas compte"
-        else -> "Une semaine pour repartir"
+        week.activeDays >= 7 -> tr("Semaine parfaite !", "Perfect week!")
+        week.activeDays >= 5 -> tr("Superbe semaine !", "Superb week!")
+        week.activeDays >= 3 -> tr("Belle semaine", "Good week")
+        week.activeDays >= 1 -> tr("Chaque pas compte", "Every step counts")
+        else -> tr("Une semaine pour repartir", "A week to start again")
     }
 
     val message: String get() {
-        val days = if (week.activeDays == 1) "1 jour" else "${week.activeDays} jours"
+        val days = plural(week.activeDays, tr("jour", "day"))
         val diff = week.activeDays - previous.activeDays
         return when {
-            week.activeDays == 0 -> "Pas d'activité cette semaine-là. Ce n'est pas grave : une petite habitude suffit pour relancer la machine."
-            diff > 0 -> "Tu as été actif $days, ${plural(diff, "jour")} de plus que la semaine d'avant. Continue comme ça !"
-            diff == 0 -> "Tu as été actif $days, aussi régulier que la semaine d'avant. La constance, c'est la clé."
-            else -> "Tu as été actif $days. Un peu moins que la semaine d'avant, mais chaque jour compte."
+            week.activeDays == 0 -> tr("Pas d'activité cette semaine-là. Ce n'est pas grave : une petite habitude suffit pour relancer la machine.", "No activity that week. No big deal: one small habit is enough to get going again.")
+            diff > 0 -> tr("Tu as été actif $days, ${plural(diff, "jour")} de plus que la semaine d'avant. Continue comme ça !", "You were active $days, ${plural(diff, "day")} more than the week before. Keep it up!")
+            diff == 0 -> tr("Tu as été actif $days, aussi régulier que la semaine d'avant. La constance, c'est la clé.", "You were active $days, as steady as the week before. Consistency is key.")
+            else -> tr("Tu as été actif $days. Un peu moins que la semaine d'avant, mais chaque jour compte.", "You were active $days. A little less than the week before, but every day counts.")
         }
     }
 
     /** Texte court de la notification du dimanche. */
     val summary: String get() =
-        "${plural(week.activeDays, "jour")} actif${if (week.activeDays > 1) "s" else ""}, " +
-            "${plural(week.habits, "habitude")}, ${plural(week.tasks, "tâche")}. Objectif : ${goal.text.lowercase(Locale.FRANCE)}."
+        if (Lang.english) {
+            "${plural(week.activeDays, "active day")}, ${plural(week.habits, "habit")}, ${plural(week.tasks, "task")}. " +
+                "Goal: ${goal.text.replaceFirstChar { it.lowercase() }}."
+        } else {
+            "${plural(week.activeDays, "jour")} actif${if (week.activeDays > 1) "s" else ""}, " +
+                "${plural(week.habits, "habitude")}, ${plural(week.tasks, "tâche")}. Objectif : ${goal.text.lowercase(Locale.FRANCE)}."
+        }
 }
 
-internal fun plural(n: Int, word: String): String = if (n <= 1) "$n $word" else "$n ${word}s"
+internal fun plural(n: Int, word: String): String =
+    if (n == 1 || (n == 0 && !Lang.english)) "$n $word" else "$n ${word}s"
 
 object WeeklyReviews {
     /** Nombre de semaines regardées pour repérer un record. */
@@ -141,7 +147,7 @@ object WeeklyReviews {
         )
     }
 
-    private fun dayName(date: LocalDate): String = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.FRANCE)
+    private fun dayName(date: LocalDate): String = date.dayOfWeek.getDisplayName(TextStyle.FULL, Lang.locale)
 
     private fun highlights(
         start: LocalDate,
@@ -155,15 +161,21 @@ object WeeklyReviews {
         val out = mutableListOf<WeekHighlight>()
         val days = (0L..6L).map { start.plusDays(it) }
         if (week.activeDays >= 7) {
-            out += WeekHighlight("star", "Semaine parfaite", "Actif les 7 jours, sans exception.")
+            out += WeekHighlight("star", tr("Semaine parfaite", "Perfect week"), tr("Actif les 7 jours, sans exception.", "Active all 7 days, no exceptions."))
         } else if (week.actions > 0 && earlier.isNotEmpty() && week.actions > earlier.maxOf { it.actions }) {
-            out += WeekHighlight("trophy", "Record sur 3 mois", "${plural(week.actions, "action")}, ta semaine la plus remplie depuis ${HISTORY_WEEKS} semaines.")
+            out += WeekHighlight(
+                "trophy", tr("Record sur 3 mois", "3-month record"),
+                tr("${plural(week.actions, "action")}, ta semaine la plus remplie depuis ${HISTORY_WEEKS} semaines.", "${plural(week.actions, "action")}, your fullest week in ${HISTORY_WEEKS} weeks."),
+            )
         }
         val perDay = days.associateWith { d ->
             events.count { it.day == d.toEpochDay() && GameEvent.isActivity(it.kind) }
         }
         perDay.maxByOrNull { it.value }?.takeIf { it.value > 0 }?.let { (d, n) ->
-            out += WeekHighlight("sun", "Meilleure journée", "${dayName(d).replaceFirstChar { it.titlecase(Locale.FRANCE) }}, avec ${plural(n, "action")}.")
+            out += WeekHighlight(
+                "sun", tr("Meilleure journée", "Best day"),
+                "${dayName(d).replaceFirstChar { it.titlecase(Lang.locale) }}" + tr(", avec ", ", with ") + "${plural(n, "action")}.",
+            )
         }
         val range = days.first().toEpochDay()..days.last().toEpochDay()
         habits.filter { !it.habit.archived }
@@ -171,21 +183,33 @@ object WeeklyReviews {
             .filter { it.second > 0 }
             .maxByOrNull { it.second }
             ?.let { (h, n) ->
-                out += WeekHighlight("habit", "Habitude phare", "${h.habit.name}, réussie ${if (n >= 7) "tous les jours" else "$n jours sur 7"}.")
+                out += WeekHighlight(
+                    "habit", tr("Habitude phare", "Standout habit"),
+                    "${h.habit.name}" + if (n >= 7) tr(", réussie tous les jours.", ", done every day.") else tr(", réussie $n jours sur 7.", ", done $n days out of 7."),
+                )
             }
         if (week.habits > previous.habits && previous.habits > 0) {
-            out += WeekHighlight("up", "En progrès", "${plural(week.habits - previous.habits, "habitude")} de plus que la semaine d'avant.")
+            out += WeekHighlight(
+                "up", tr("En progrès", "Improving"),
+                plural(week.habits - previous.habits, tr("habitude", "habit")) + tr(" de plus que la semaine d'avant.", " more than the week before."),
+            )
         }
         val bestSteps = days.maxByOrNull { steps[it.toEpochDay()] ?: 0L }
         val bestCount = bestSteps?.let { steps[it.toEpochDay()] } ?: 0L
         if (bestSteps != null && bestCount > 0) {
-            out += WeekHighlight("walk", "Record de pas", "${formatSteps(bestCount)} pas ${dayName(bestSteps)}, ${formatSteps(week.steps)} sur la semaine.")
+            out += WeekHighlight(
+                "walk", tr("Record de pas", "Step record"),
+                tr("${formatSteps(bestCount)} pas ${dayName(bestSteps)}, ${formatSteps(week.steps)} sur la semaine.", "${formatSteps(bestCount)} steps on ${dayName(bestSteps)}, ${formatSteps(week.steps)} over the week."),
+            )
         }
         if (week.tasks > 0) {
-            out += WeekHighlight("task", "Tâches bouclées", "${plural(week.tasks, "tâche")} terminée${if (week.tasks > 1) "s" else ""}.")
+            out += WeekHighlight(
+                "task", tr("Tâches bouclées", "Tasks done"),
+                if (Lang.english) "${plural(week.tasks, "task")} finished." else "${plural(week.tasks, "tâche")} terminée${if (week.tasks > 1) "s" else ""}.",
+            )
         }
         return out.take(4)
     }
 
-    private fun formatSteps(n: Long): String = java.text.NumberFormat.getIntegerInstance(Locale.FRANCE).format(n)
+    private fun formatSteps(n: Long): String = java.text.NumberFormat.getIntegerInstance(Lang.locale).format(n)
 }

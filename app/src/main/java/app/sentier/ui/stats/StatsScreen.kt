@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.stats
 
+import app.sentier.domain.tr
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -64,7 +65,7 @@ import app.sentier.ui.progress.GoldColor
 import java.text.NumberFormat
 import java.util.Locale
 
-private val Fr: NumberFormat = NumberFormat.getIntegerInstance(Locale.FRANCE)
+private val Fr: NumberFormat get() = NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale)
 private fun fmt(n: Long) = Fr.format(n)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,8 +77,8 @@ fun StatsScreen(onBack: () -> Unit, vm: StatsViewModel = viewModel(factory = Sta
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistiques") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(tr("Statistiques", "Statistics")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
             )
         },
     ) { padding ->
@@ -98,16 +99,16 @@ fun StatsScreen(onBack: () -> Unit, vm: StatsViewModel = viewModel(factory = Sta
 
 @Composable
 private fun StatsContent(s: Stats, goal: Int, year: YearActivity?) {
-    val per = if (s.period == StatsPeriod.YEAR) "par mois" else "par jour"
+    val per = if (s.period == StatsPeriod.YEAR) tr("par mois", "per month") else tr("par jour", "per day")
     Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Tile("Jours actifs", "${s.activeDays} / ${s.days}", Modifier.weight(1f))
-        Tile("Tâches", fmt(s.tasksDone.toLong()), Modifier.weight(1f))
-        Tile("Habitudes", fmt(s.habitsDone.toLong()), Modifier.weight(1f))
+        Tile(tr("Jours actifs", "Active days"), "${s.activeDays} / ${s.days}", Modifier.weight(1f))
+        Tile(tr("Tâches", "Tasks"), fmt(s.tasksDone.toLong()), Modifier.weight(1f))
+        Tile(tr("Habitudes", "Habits"), fmt(s.habitsDone.toLong()), Modifier.weight(1f))
         Tile("XP", fmt(s.xp.toLong()), Modifier.weight(1f))
     }
 
     if (year != null) {
-        SectionHeader("Ton année")
+        SectionHeader(tr("Ton année", "Your year"))
         Card(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -116,28 +117,28 @@ private fun StatsContent(s: Stats, goal: Int, year: YearActivity?) {
         }
     }
 
-    SectionHeader("Pas")
+    SectionHeader(tr("Pas", "Steps"))
     ChartCard(
         summary = if (s.totalSteps == 0L) {
-            "Aucun pas enregistré sur la période."
+            tr("Aucun pas enregistré sur la période.", "No steps recorded over the period.")
         } else {
-            "${fmt(s.totalSteps)} pas au total · ${fmt(s.averageSteps)} en moyenne par jour marché · record ${fmt(s.bestDaySteps)} · objectif atteint ${s.goalDays} fois"
+            tr("${fmt(s.totalSteps)} pas au total · ${fmt(s.averageSteps)} en moyenne par jour marché · record ${fmt(s.bestDaySteps)} · objectif atteint ${s.goalDays} fois", "${fmt(s.totalSteps)} steps in total · ${fmt(s.averageSteps)} on average per walking day · best ${fmt(s.bestDaySteps)} · goal reached ${s.goalDays} times")
         },
         values = s.buckets.map { it.steps.toFloat() },
         labels = s.buckets.map { it.label },
         color = MaterialTheme.colorScheme.primary,
         reference = if (s.period == StatsPeriod.YEAR) null else goal.toFloat(),
-        description = "Graphique des pas $per",
+        description = tr("Graphique des pas $per", "Steps chart $per"),
     )
 
-    SectionHeader("Habitudes réussies")
+    SectionHeader(tr("Habitudes réussies", "Habits done"))
     ChartCard(
-        summary = "${s.habitsDone} habitudes réussies sur la période.",
+        summary = tr("${s.habitsDone} habitudes réussies sur la période.", "${s.habitsDone} habits done over the period."),
         values = s.buckets.map { it.habits.toFloat() },
         labels = s.buckets.map { it.label },
         color = MaterialTheme.colorScheme.tertiary,
         reference = null,
-        description = "Graphique des habitudes réussies $per",
+        description = tr("Graphique des habitudes réussies $per", "Habits done chart $per"),
     )
     if (s.habitRates.isNotEmpty()) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -156,14 +157,14 @@ private fun StatsContent(s: Stats, goal: Int, year: YearActivity?) {
         }
     }
 
-    SectionHeader("Expérience gagnée")
+    SectionHeader(tr("Expérience gagnée", "Experience earned"))
     ChartCard(
-        summary = "${fmt(s.xp.toLong())} XP et ${s.tasksDone} tâches terminées sur la période.",
+        summary = tr("${fmt(s.xp.toLong())} XP et ${s.tasksDone} tâches terminées sur la période.", "${fmt(s.xp.toLong())} XP and ${s.tasksDone} tasks finished over the period."),
         values = s.buckets.map { it.xp.toFloat() },
         labels = s.buckets.map { it.label },
         color = GoldColor,
         reference = null,
-        description = "Graphique de l'expérience gagnée $per",
+        description = tr("Graphique de l'expérience gagnée $per", "Experience earned chart $per"),
     )
     androidx.compose.foundation.layout.Spacer(Modifier.height(24.dp))
 }
