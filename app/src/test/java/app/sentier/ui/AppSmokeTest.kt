@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.sentier.MainActivity
 import androidx.test.core.app.ApplicationProvider
 import app.sentier.SentierApplication
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.rules.ExternalResource
@@ -171,9 +172,15 @@ class AppSmokeTest {
         }
 
         // Note du jour : écrite depuis Aujourd'hui, visible sous l'habitude et dans son journal.
+        // (Robolectric ne sait pas saisir du texte dans une fenêtre de dialogue : la note est écrite par le dépôt.)
         rule.onNodeWithContentDescription("Note du jour : Méditer").performClick()
-        rule.onNodeWithTag("habitNote").performTextInput("Dix minutes au calme")
-        rule.onNodeWithText("Enregistrer").performClick()
+        rule.onNodeWithTag("habitNote").assertExists()
+        rule.onNodeWithText("Annuler").performClick()
+        val app = ApplicationProvider.getApplicationContext<SentierApplication>()
+        runBlocking {
+            val id = app.database.habitDao().observeHabits().first().single().id
+            app.habits.setNote(id, app.habits.today(), "Dix minutes au calme")
+        }
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Dix minutes au calme")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithContentDescription("Modifier la note : Méditer").assertExists()
 
