@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.sentier.SentierApplication
 import app.sentier.data.BackupException
 import app.sentier.data.BackupFile
+import app.sentier.notify.HabitReminders
 import app.sentier.notify.Reminders
 import app.sentier.ui.common.app
 import app.sentier.widget.Widgets
@@ -78,6 +79,7 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
             _state.value = try {
                 sentier.backup.restore(file)
                 Reminders.apply(sentier, sentier.settings.currentReminders())
+                runCatching { HabitReminders.rescheduleAll(sentier) }
                 if (Widgets.anyPlaced(sentier)) runCatching { Widgets.updateAll(sentier) }
                 BackupUiState(message = "Données restaurées : ${file.tasks} tâches, ${file.habits} habitudes et tout ton historique.")
             } catch (e: BackupException) {

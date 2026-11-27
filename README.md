@@ -42,6 +42,9 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 
 ## Features
 
+**First launch**
+- A short welcome: pick your first habits from the templates, set a step goal and turn on reminders, or skip it.
+
 **Today**
 - One screen for the day: tasks due today or overdue, habits to check off, steps.
 - Progress ring and encouraging messages.
@@ -81,7 +84,8 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - A morning notification with the plan for the day.
 - An evening reminder of what is left, only when something is left, with a warning when the streak is at risk.
 - Tick a task or a habit straight from the notification with the **Done** button, XP included.
-- Times of your choice; both are off until you turn them on.
+- A reminder per habit at the time you choose, only if it is not done yet.
+- Times of your choice; all reminders are off until you turn them on.
 
 **Statistics**
 - Charts of steps (with the goal line), habits done and XP earned over 7 days, 30 days or 12 months.
@@ -123,6 +127,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 6. Challenges and treasures | Weekly challenges with bonuses, rare cultural treasures in the travel journal | ✅ v0.6 |
 | 7. Widgets and backup | Home screen widgets with one-tap completion, export and import of all data | ✅ v0.7 |
 | 8. Statistics and polish | Statistics, adaptive step goal, theme choice, celebrations | ✅ v0.8 |
+| 9. Welcome and habit reminders | First-launch welcome, a reminder per habit at the chosen time | ✅ v0.9 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 

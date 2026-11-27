@@ -69,7 +69,7 @@ class BackupRepository(
         if (json.optString("format") != FORMAT) throw BackupException("Ce fichier n'est pas une sauvegarde de Sentier.")
         val schema = json.optInt("schema", -1)
         if (schema > SCHEMA) throw BackupException("Cette sauvegarde vient d'une version plus récente de Sentier. Mets l'appli à jour, puis réessaie.")
-        if (schema != SCHEMA) throw BackupException("Cette sauvegarde vient d'une version trop ancienne de Sentier.")
+        if (schema < MIN_SCHEMA) throw BackupException("Cette sauvegarde vient d'une version trop ancienne de Sentier.")
         val tables = json.optJSONObject("tables") ?: throw BackupException("Cette sauvegarde est incomplète.")
         if (TABLES.any { tables.optJSONArray(it) == null }) throw BackupException("Cette sauvegarde est incomplète.")
         return BackupFile(
@@ -120,7 +120,10 @@ class BackupRepository(
         const val FORMAT = "sentier-sauvegarde"
 
         /** Version du schéma de la base (voir AppDatabase). */
-        const val SCHEMA = 3
+        const val SCHEMA = 4
+
+        /** Plus ancienne version encore lisible : les colonnes ajoutées depuis gardent leur valeur par défaut. */
+        const val MIN_SCHEMA = 3
 
         /** Une sauvegarde de plusieurs années tient en quelques Mo ; au-delà, ce n'est pas une sauvegarde. */
         const val MAX_CHARS = 30_000_000

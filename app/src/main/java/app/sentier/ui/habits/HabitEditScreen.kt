@@ -5,6 +5,10 @@
  */
 package app.sentier.ui.habits
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -42,6 +47,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import app.sentier.ui.common.DifficultySelector
 import androidx.compose.material3.TextButton
@@ -55,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,8 +72,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.Habit
 import app.sentier.domain.HabitTemplates
+import app.sentier.notify.Notifier
+import app.sentier.notify.ReminderContent
+import app.sentier.ui.reminders.TimeDialog
 import app.sentier.ui.theme.ListPalette
 import kotlin.math.roundToInt
+
+/** Heure proposée pour un nouveau rappel d'habitude : 9 h. */
+private const val DEFAULT_HABIT_REMINDER = 9 * 60
 
 private enum class FreqMode(val label: String) { DAILY("Chaque jour"), WEEK("Par semaine"), MONTH("Par mois") }
 
@@ -80,6 +93,15 @@ fun HabitEditScreen(
     val draft by vm.draft.collectAsStateWithLifecycle()
     val stats by vm.stats.collectAsStateWithLifecycle()
     var confirmDelete by remember { mutableStateOf(false) }
+    var pickingTime by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var canPost by remember { mutableStateOf(Notifier.canPost(context)) }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        canPost = Notifier.canPost(context)
+    }
+    fun askNotifications() {
+        if (Build.VERSION.SDK_INT >= 33 && !Notifier.canPost(context)) permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
 
     Scaffold(
         topBar = {
@@ -214,6 +236,47 @@ fun HabitEditScreen(
                 )
             }
 
+            Text("Rappel", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Me le rappeler chaque jour", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Seulement si elle n'est pas encore faite.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = h.reminderMinute != null,
+                    onCheckedChange = { on ->
+                        vm.edit { it.copy(reminderMinute = if (on) DEFAULT_HABIT_REMINDER else null) }
+                        if (on) askNotifications()
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Rappel de l'habitude" },
+                )
+            }
+            h.reminderMinute?.let { minute ->
+                Row(
+                    Modifier.clickable { pickingTime = true }.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Filled.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(
+                        "À ${ReminderContent.formatMinute(minute)}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+                if (!canPost) {
+                    Text(
+                        "Les notifications de Sentier sont bloquées : autorise-les pour recevoir ce rappel.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
             Text("Difficulté", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             DifficultySelector(h.difficulty) { d -> vm.edit { it.copy(difficulty = d) } }
 
@@ -255,6 +318,18 @@ fun HabitEditScreen(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             ) { Text("Enregistrer") }
             Spacer(Modifier.size(24.dp))
+        }
+
+        if (pickingTime) {
+            TimeDialog(
+                initial = h.reminderMinute ?: DEFAULT_HABIT_REMINDER,
+                onDismiss = { pickingTime = false },
+                onConfirm = { m ->
+                    vm.edit { it.copy(reminderMinute = m) }
+                    askNotifications()
+                    pickingTime = false
+                },
+            )
         }
 
         if (confirmDelete) {

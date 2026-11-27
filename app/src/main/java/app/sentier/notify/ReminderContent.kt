@@ -103,6 +103,21 @@ object ReminderContent {
         }
     }
 
+    /**
+     * Rappel d'une habitude à son heure : rien si elle est déjà faite aujourd'hui
+     * ou si son quota de la période est atteint.
+     */
+    fun habitReminder(h: HabitWithStats, today: Long): ReminderMessage? {
+        if (!isDueToday(h, today)) return null
+        val item = pendingHabits(listOf(h), today).first()
+        val text = if (h.habit.isNumeric) {
+            "Aujourd'hui : ${item.detail}. Chaque petit pas compte."
+        } else {
+            "C'est l'heure. Un geste suffit pour la cocher."
+        }
+        return ReminderMessage(title = h.habit.name, text = text, items = listOf(item))
+    }
+
     /** Prochain passage à [minuteOfDay] (minutes depuis minuit), strictement après [now]. */
     fun nextOccurrence(now: LocalDateTime, minuteOfDay: Int): LocalDateTime {
         val time = LocalTime.of(minuteOfDay / 60, minuteOfDay % 60)

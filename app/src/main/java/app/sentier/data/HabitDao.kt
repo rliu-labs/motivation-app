@@ -25,6 +25,13 @@ interface HabitDao {
     @Query("SELECT * FROM habit WHERE id = :id")
     suspend fun getHabit(id: Long): Habit?
 
+    /** Habitudes actives qui ont un rappel. */
+    @Query("SELECT * FROM habit WHERE archived = 0 AND reminder_minute IS NOT NULL")
+    suspend fun habitsWithReminder(): List<Habit>
+
+    @Query("SELECT COUNT(*) FROM habit")
+    suspend fun countHabits(): Int
+
     @Query("SELECT COALESCE(MAX(position), 0) FROM habit")
     suspend fun maxPosition(): Int
 

@@ -122,4 +122,20 @@ class ReminderContentTest {
         assertFalse(Reminders.isTooLate(target, target + 60_000))
         assertTrue(Reminders.isTooLate(target, target + 3 * 3_600_000))
     }
+
+    @Test
+    fun habitReminderOnlyWhenStillToDo() {
+        val meditate = ReminderContent.habitReminder(habit(1, "Méditer"), today)!!
+        assertEquals("Méditer", meditate.title)
+        assertTrue(meditate.items.single().canComplete)
+
+        // Déjà faite aujourd'hui, ou quota de la semaine atteint : pas de rappel.
+        assertNull(ReminderContent.habitReminder(habit(1, "Méditer", doneDays = setOf(today)), today))
+        assertNull(ReminderContent.habitReminder(habit(2, "Sport", setOf(today - 1, today - 3, today - 5), num = 3, den = 7), today))
+
+        // Habitude chiffrée : on rappelle où on en est, sans bouton « Fait ».
+        val water = ReminderContent.habitReminder(habit(3, "Eau", numeric = true), today)!!
+        assertTrue(water.text.contains("0 / 8 verres"))
+        assertFalse(water.items.single().canComplete)
+    }
 }

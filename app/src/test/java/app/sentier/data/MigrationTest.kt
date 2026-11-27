@@ -44,6 +44,10 @@ class MigrationTest {
         val habits = HabitRepository(db.habitDao()) { LocalDate.of(2026, 11, 25) }
         val id = habits.addFromTemplate(HabitTemplates.first())
         habits.setValue(habits.getHabit(id)!!, LocalDate.of(2026, 11, 25), 2.0)
+        // Étape 4 : rappel par habitude, vide par défaut.
+        assertEquals(null, habits.getHabit(id)!!.reminderMinute)
+        habits.update(habits.getHabit(id)!!.copy(reminderMinute = 7 * 60))
+        assertEquals(listOf(7 * 60), db.habitDao().habitsWithReminder().map { it.reminderMinute })
         db.habitDao().putSteps(DailySteps(20_000, 1234))
         assertEquals(1234L, db.habitDao().observeTotalSteps().first())
 

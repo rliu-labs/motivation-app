@@ -17,7 +17,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         Task::class, TaskList::class, Habit::class, HabitLog::class, DailySteps::class,
         GameEvent::class, Reward::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
             } else {
                 Room.databaseBuilder(context, AppDatabase::class.java, name)
             }
-            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
+            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
         }
 
         /** Étape 2 : habitudes et pas. Les tâches existantes sont conservées. */
@@ -74,6 +74,13 @@ abstract class AppDatabase : RoomDatabase() {
                         "`name` TEXT NOT NULL, `cost` INTEGER NOT NULL, `icon` TEXT NOT NULL, `position` INTEGER NOT NULL)"
                 )
                 seedRewards(db)
+            }
+        }
+
+        /** Rappel à l'heure choisie pour chaque habitude. Rien n'est perdu. */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `habit` ADD COLUMN `reminder_minute` INTEGER")
             }
         }
 

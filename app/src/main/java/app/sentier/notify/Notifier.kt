@@ -22,6 +22,7 @@ import app.sentier.R
 /** Affiche les notifications de Sentier. */
 object Notifier {
     const val CHANNEL = "rappels"
+    const val CHANNEL_HABITS = "rappels-habitudes"
     private const val GROUP_EVENING = "app.sentier.SOIR"
     const val ID_MORNING = 1
     const val ID_EVENING = 2
@@ -46,6 +47,28 @@ object Notifier {
                 .setDescription("Le programme du matin et ce qui reste à faire le soir")
                 .build()
         )
+    }
+
+    fun ensureHabitChannel(context: Context) {
+        NotificationManagerCompat.from(context).createNotificationChannel(
+            NotificationChannelCompat.Builder(CHANNEL_HABITS, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                .setName("Rappels des habitudes")
+                .setDescription("Le rappel de chaque habitude, à l'heure choisie")
+                .build()
+        )
+    }
+
+    /** Le rappel d'une habitude à son heure, avec un bouton « Fait » si elle se coche d'un geste. */
+    fun showHabit(context: Context, message: ReminderMessage) {
+        if (!canPost(context)) return
+        val item = message.items.firstOrNull() ?: return
+        ensureHabitChannel(context)
+        val id = itemId(item.type, item.id)
+        val builder = base(context, message.title, message.text, CHANNEL_HABITS)
+        if (item.canComplete) {
+            builder.addAction(0, "Fait", ReminderActionReceiver.intent(context, item.type, item.id, id))
+        }
+        post(context, id, builder.build())
     }
 
     /** Le programme de la journée, un seul message. */
@@ -100,8 +123,8 @@ object Notifier {
 
     fun cancel(context: Context, notificationId: Int) = NotificationManagerCompat.from(context).cancel(notificationId)
 
-    private fun base(context: Context, title: String, text: String) =
-        NotificationCompat.Builder(context, CHANNEL)
+    private fun base(context: Context, title: String, text: String, channel: String = CHANNEL) =
+        NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(0xFF2E7D5B.toInt())
             .setContentTitle(title)

@@ -12,7 +12,12 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.sentier.MainActivity
+import androidx.test.core.app.ApplicationProvider
+import app.sentier.SentierApplication
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -23,8 +28,18 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34], qualifiers = "w411dp-h891dp-xxhdpi")
 class AppSmokeTest {
 
-    @get:Rule
     val rule = createAndroidComposeRule<MainActivity>()
+
+    /** L'accueil du premier lancement est déjà passé (il a son propre test). */
+    @get:Rule
+    val chain: RuleChain = RuleChain
+        .outerRule(object : ExternalResource() {
+            override fun before() = runBlocking {
+                ApplicationProvider.getApplicationContext<SentierApplication>().settings.setOnboarded()
+                Unit
+            }
+        })
+        .around(rule)
 
     @Test
     fun addAndCompleteTaskToday() {
@@ -156,6 +171,26 @@ class AppSmokeTest {
         rule.onNodeWithText("Enregistrer").performScrollTo().performClick()
         // Retour à la liste : l'habitude y apparaît avec son objectif.
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("8 verres · Chaque jour")).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
+    fun habitReminderAtChosenTime() {
+        rule.onNodeWithText("Habitudes").performClick()
+        rule.waitUntil(5_000) {
+            rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Nouvelle habitude")).fetchSemanticsNodes().isNotEmpty()
+        }
+        rule.onNodeWithContentDescription("Nouvelle habitude").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Modèles")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Méditer").performClick()
+        rule.onNodeWithContentDescription("Rappel de l'habitude").performScrollTo().performClick()
+        rule.onNodeWithText("À 09:00").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("Enregistrer").performScrollTo().performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }
+
+        // La fiche rouverte garde l'heure du rappel.
+        rule.onNodeWithText("Méditer").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Modifier l'habitude")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("À 09:00").performScrollTo().assertIsDisplayed()
     }
 
     private fun hasTextExactly(text: String) = androidx.compose.ui.test.hasText(text, substring = false)

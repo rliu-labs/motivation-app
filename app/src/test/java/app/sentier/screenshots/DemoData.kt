@@ -79,6 +79,8 @@ object DemoData {
         app.settings.addTreasuresSeen(state.treasures.filter { it.owned }.map { it.id })
         app.settings.setCelebrated(state.level.level, state.badges.filter { it.unlocked }.map { it.id }.toSet())
 
+        app.settings.setOnboarded()
+
         // Rappels : le matin à 8 h et le soir à 20 h 30.
         app.settings.setReminders(ReminderSettings(morningOn = true, eveningOn = true))
     }

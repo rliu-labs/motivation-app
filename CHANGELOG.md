@@ -3,6 +3,18 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.9.0] - 2026-11-27
+
+Accueil et rappels par habitude.
+
+### Ajouté
+- Accueil au premier lancement, en quatre écrans : bienvenue, choix des premières habitudes parmi les modèles,
+  objectif de pas (fixe ou adaptatif) et rappels du matin et du soir. Il peut être passé d'un geste
+  et ne s'affiche pas après une mise à jour.
+- Rappel par habitude, à l'heure choisie dans sa fiche : seulement si elle n'est pas encore faite
+  et si son quota de la période n'est pas atteint, avec un bouton « Fait » pour les habitudes oui/non.
+- Les rappels des habitudes font partie de la sauvegarde ; les sauvegardes des versions précédentes restent lisibles.
+
 ## [0.8.0] - 2026-11-27
 
 Statistiques, objectif adaptatif, thème et animations.

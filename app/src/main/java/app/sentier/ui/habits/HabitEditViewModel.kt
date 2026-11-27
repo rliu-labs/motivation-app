@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -13,6 +14,7 @@ import app.sentier.data.Habit
 import app.sentier.data.HabitRepository
 import app.sentier.data.HabitWithStats
 import app.sentier.domain.HabitTemplate
+import app.sentier.notify.HabitReminders
 import app.sentier.ui.common.app
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +24,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Création (id = 0) ou modification d'une habitude. */
-class HabitEditViewModel(private val repo: HabitRepository, val habitId: Long) : ViewModel() {
+class HabitEditViewModel(
+    private val repo: HabitRepository,
+    val habitId: Long,
+    /** Contexte pour programmer le rappel (null dans les tests). */
+    private val context: Context? = null,
+) : ViewModel() {
 
     val isNew: Boolean get() = habitId == 0L
 
@@ -60,16 +67,20 @@ class HabitEditViewModel(private val repo: HabitRepository, val habitId: Long) :
             target = if (h.isNumeric) h.target.coerceAtLeast(0.1) else 1.0,
             freqNum = h.freqNum.coerceIn(1, h.freqDen.coerceAtLeast(1)),
         )
-        if (isNew) repo.addHabit(clean) else repo.update(clean)
+        val saved = if (isNew) clean.copy(id = repo.addHabit(clean)) else clean.also { repo.update(it) }
+        context?.let { runCatching { HabitReminders.update(it, saved) } }
         onDone()
     }
 
     fun delete(onDone: () -> Unit) = viewModelScope.launch {
-        _draft.value?.takeIf { !isNew }?.let { repo.delete(it) }
+        _draft.value?.takeIf { !isNew }?.let { h ->
+            repo.delete(h)
+            context?.let { runCatching { HabitReminders.cancel(it, h.id) } }
+        }
         onDone()
     }
 
     companion object {
-        fun factory(id: Long) = viewModelFactory { initializer { HabitEditViewModel(app().habits, id) } }
+        fun factory(id: Long) = viewModelFactory { initializer { HabitEditViewModel(app().habits, id, app()) } }
     }
 }

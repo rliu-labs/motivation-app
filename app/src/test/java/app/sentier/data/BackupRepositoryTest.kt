@@ -126,6 +126,7 @@ class BackupRepositoryTest {
         rejects("""{"format":"autre"}""", "n'est pas une sauvegarde")
         rejects("""{"format":"sentier-sauvegarde","schema":99,"tables":{}}""", "plus récente")
         rejects("""{"format":"sentier-sauvegarde","schema":3,"tables":{}}""", "incomplète")
+        rejects("""{"format":"sentier-sauvegarde","schema":2,"tables":{}}""", "trop ancienne")
 
         // Une ligne impossible (tâche sans titre) : tout est annulé.
         fill()
@@ -138,5 +139,26 @@ class BackupRepositoryTest {
             assertTrue(e.message!!.contains("rien n'a été modifié"))
         }
         assertEquals(listOf("À garder"), target.taskDao().observeTasks(null).first().map { it.title })
+    }
+
+    @Test
+    fun habitReminderIsKeptAndOlderBackupsStillRestore() = runBlocking {
+        fill()
+        val water = source.habitDao().observeHabits().first().single()
+        source.habitDao().update(water.copy(reminderMinute = 9 * 60 + 30))
+        val text = BackupRepository(source, settings).export()
+
+        val repo = BackupRepository(target, settings)
+        repo.restore(repo.read(text))
+        assertEquals(9 * 60 + 30, target.habitDao().observeHabits().first().single().reminderMinute)
+
+        // Sauvegarde faite avant les rappels d'habitude (schéma 3, sans la colonne) : toujours lisible.
+        val old = JSONObject(text).put("schema", 3)
+        val habitsRows = old.getJSONObject("tables").getJSONArray("habit")
+        for (i in 0 until habitsRows.length()) habitsRows.getJSONObject(i).remove("reminder_minute")
+        repo.restore(repo.read(old.toString()))
+        val restored = target.habitDao().observeHabits().first().single()
+        assertEquals("Boire de l'eau", restored.name)
+        assertEquals(null, restored.reminderMinute)
     }
 }

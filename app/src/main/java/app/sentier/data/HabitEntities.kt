@@ -34,6 +34,8 @@ data class Habit(
     val position: Int = 0,
     val archived: Boolean = false,
     @ColumnInfo(name = "created_day") val createdDay: Long,
+    /** Heure du rappel de l'habitude (minutes depuis minuit), ou null s'il n'y en a pas. */
+    @ColumnInfo(name = "reminder_minute") val reminderMinute: Int? = null,
 ) {
     val isNumeric: Boolean get() = type == TYPE_NUMERIC
 

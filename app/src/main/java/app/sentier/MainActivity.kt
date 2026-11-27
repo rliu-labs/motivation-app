@@ -14,11 +14,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import app.sentier.data.ThemeMode
+import app.sentier.notify.HabitReminders
 import app.sentier.notify.Reminders
 import app.sentier.ui.SentierRoot
+import app.sentier.ui.onboarding.OnboardingScreen
+import app.sentier.ui.onboarding.OnboardingViewModel
 import app.sentier.ui.theme.SentierTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,8 +37,13 @@ class MainActivity : ComponentActivity() {
         val settings = (application as SentierApplication).settings
         // Lu tout de suite pour que l'appli s'ouvre directement dans le bon thème.
         val initialTheme = runCatching { runBlocking { settings.themeMode.first() } }.getOrDefault(ThemeMode.SYSTEM)
+        // L'accueil ne s'affiche qu'au tout premier lancement (et revient si l'écran tourne avant la fin).
+        val firstLaunch = runCatching { runBlocking { OnboardingViewModel.needed(application as SentierApplication) } }.getOrDefault(false)
         // Reprogramme les rappels actifs s'ils ont été perdus (mise à jour de l'appli, arrêt forcé…).
-        lifecycleScope.launch { runCatching { Reminders.ensureScheduled(application as SentierApplication) } }
+        lifecycleScope.launch {
+            runCatching { Reminders.ensureScheduled(application as SentierApplication) }
+            runCatching { HabitReminders.ensureScheduled(application as SentierApplication) }
+        }
         setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialTheme)
             val dark = when (mode) {
@@ -50,7 +61,12 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
             }
             SentierTheme(darkTheme = dark) {
-                SentierRoot()
+                var showOnboarding by remember { mutableStateOf(firstLaunch) }
+                if (showOnboarding) {
+                    OnboardingScreen(onDone = { showOnboarding = false })
+                } else {
+                    SentierRoot()
+                }
             }
         }
     }

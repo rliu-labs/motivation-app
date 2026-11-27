@@ -22,6 +22,8 @@ private const val WITH_COUNTS = """
 
 @Dao
 interface TaskDao {
+    @Query("SELECT COUNT(*) FROM task")
+    suspend fun countTasks(): Int
 
     /** Tâches à faire aujourd'hui ou en retard, plus celles validées aujourd'hui. */
     @Query(

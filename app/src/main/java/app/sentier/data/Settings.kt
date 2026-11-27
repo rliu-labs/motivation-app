@@ -74,7 +74,13 @@ class Settings(private val context: Context) {
         val theme = stringPreferencesKey("theme_mode")
         val celebratedLevel = intPreferencesKey("celebrated_level")
         val celebratedBadges = stringSetPreferencesKey("celebrated_badges")
+        val onboarded = booleanPreferencesKey("onboarded")
     }
+
+    /** Vrai une fois l'accueil du premier lancement terminé ou passé (null s'il n'a jamais été montré). */
+    suspend fun onboarded(): Boolean? = context.dataStore.data.first()[Keys.onboarded]
+
+    suspend fun setOnboarded() = context.dataStore.edit { it[Keys.onboarded] = true }
 
     val themeMode: Flow<ThemeMode> = context.dataStore.data.map { p ->
         p[Keys.theme]?.let { v -> ThemeMode.entries.firstOrNull { it.name == v } } ?: ThemeMode.SYSTEM
