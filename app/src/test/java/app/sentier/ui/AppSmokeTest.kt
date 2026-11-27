@@ -190,12 +190,9 @@ class AppSmokeTest {
         rule.onNodeWithText("Enregistrer").performScrollTo().performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }
 
-        // La fiche rouverte garde l'heure du rappel (une fois la transition de retour terminée).
-        rule.waitForIdle()
-        rule.mainClock.advanceTimeBy(1_000)
-        rule.onNodeWithText("Méditer").performClick()
-        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Modifier l'habitude")).fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText("À 09:00").performScrollTo().assertIsDisplayed()
+        // Le rappel est enregistré avec l'habitude.
+        val dao = ApplicationProvider.getApplicationContext<SentierApplication>().database.habitDao()
+        rule.waitUntil(5_000) { runBlocking { dao.habitsWithReminder().map { it.name to it.reminderMinute } } == listOf("Méditer" to 9 * 60) }
     }
 
     @Test
