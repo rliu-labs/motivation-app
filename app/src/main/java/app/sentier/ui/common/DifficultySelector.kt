@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.common
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -19,7 +20,7 @@ import app.sentier.domain.GameRules
 @Composable
 fun DifficultySelector(selected: Int, onSelect: (Int) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for ((value, label) in listOf(1 to "Facile", 2 to "Moyen", 3 to "Difficile")) {
+        for ((value, label) in listOf(1 to tr("Facile", "Easy"), 2 to tr("Moyen", "Medium"), 3 to tr("Difficile", "Hard"))) {
             FilterChip(
                 selected = selected == value,
                 onClick = { onSelect(value) },

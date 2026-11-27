@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.reminders
 
+import app.sentier.domain.tr
 import android.Manifest
 import android.content.Intent
 import android.os.Build
@@ -84,7 +85,7 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
 
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         canPost = Notifier.canPost(context)
-        if (!granted) vm.showHint("Sans autorisation, Android bloque les rappels. Tu peux l'accorder dans les réglages.")
+        if (!granted) vm.showHint(tr("Sans autorisation, Android bloque les rappels. Tu peux l'accorder dans les réglages.", "Without permission, Android blocks reminders. You can grant it in the settings."))
     }
 
     fun askIfNeeded() {
@@ -94,8 +95,8 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Rappels") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(tr("Rappels", "Reminders")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
             )
         },
     ) { padding ->
@@ -104,25 +105,25 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                "Un petit signe le matin pour lancer la journée, un autre le soir pour ne rien oublier. " +
-                    "Les rappels sont calculés sur ton téléphone, rien n'est envoyé ailleurs.",
+                tr("Un petit signe le matin pour lancer la journée, un autre le soir pour ne rien oublier. ", "A little nudge in the morning to start the day, another in the evening so nothing is forgotten. ") +
+                    tr("Les rappels sont calculés sur ton téléphone, rien n'est envoyé ailleurs.", "Reminders are computed on your phone, nothing is sent anywhere."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
             )
 
             ReminderCard(
-                title = "Le matin",
-                description = "Le programme de la journée : tâches et habitudes à faire.",
+                title = tr("Le matin", "Morning"),
+                description = tr("Le programme de la journée : tâches et habitudes à faire.", "The plan for the day: tasks and habits to do."),
                 on = settings.morningOn,
                 minute = settings.morningMinute,
                 onToggle = { on -> vm.update(settings.copy(morningOn = on)); if (on) askIfNeeded() },
                 onPickTime = { picking = ReminderKind.MORNING },
             )
             ReminderCard(
-                title = "Le soir",
-                description = "Ce qui reste à faire, avec un bouton « Fait » pour valider sans ouvrir l'appli. " +
-                    "Si tout est fait, Sentier ne dit rien.",
+                title = tr("Le soir", "Evening"),
+                description = tr("Ce qui reste à faire, avec un bouton « Fait » pour valider sans ouvrir l'appli. ", "What is left to do, with a “Done” button to tick it off without opening the app. ") +
+                    tr("Si tout est fait, Sentier ne dit rien.", "If everything is done, Sentier stays quiet."),
                 on = settings.eveningOn,
                 minute = settings.eveningMinute,
                 onToggle = { on -> vm.update(settings.copy(eveningOn = on)); if (on) askIfNeeded() },
@@ -130,13 +131,13 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
             )
 
             ReminderCard(
-                title = "Le bilan du dimanche",
-                description = "Le résumé de ta semaine : tes moments forts et un objectif pour la suivante.",
+                title = tr("Le bilan du dimanche", "Sunday review"),
+                description = tr("Le résumé de ta semaine : tes moments forts et un objectif pour la suivante.", "A summary of your week: your highlights and a goal for the next one."),
                 on = settings.weeklyOn,
                 minute = settings.weeklyMinute,
                 onToggle = { on -> vm.update(settings.copy(weeklyOn = on)); if (on) askIfNeeded() },
                 onPickTime = { pickingWeekly = true },
-                timeLabel = "Le dimanche à",
+                timeLabel = tr("Le dimanche à", "On Sunday at"),
             )
 
             if (settings.anyOn && !canPost) {
@@ -145,7 +146,7 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.NotificationsOff, contentDescription = null, modifier = Modifier.size(20.dp))
                             Text(
-                                "Les notifications de Sentier sont bloquées",
+                                tr("Les notifications de Sentier sont bloquées", "Sentier's notifications are blocked"),
                                 style = MaterialTheme.typography.titleSmall,
                                 modifier = Modifier.padding(start = 8.dp),
                             )
@@ -153,8 +154,8 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
                         Button(
                             onClick = { if (Build.VERSION.SDK_INT >= 33) askIfNeeded() else openSystemSettings() },
                             modifier = Modifier.padding(top = 8.dp),
-                        ) { Text("Autoriser") }
-                        TextButton(onClick = ::openSystemSettings) { Text("Ouvrir les réglages d'Android") }
+                        ) { Text(tr("Autoriser", "Allow")) }
+                        TextButton(onClick = ::openSystemSettings) { Text(tr("Ouvrir les réglages d'Android", "Open Android settings")) }
                     }
                 }
             }
@@ -162,7 +163,7 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
             OutlinedButton(
                 onClick = { vm.sendPreview(); askIfNeeded() },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("M'envoyer le rappel du soir maintenant") }
+            ) { Text(tr("M'envoyer le rappel du soir maintenant", "Send me the evening reminder now")) }
             preview?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -206,7 +207,7 @@ private fun ReminderCard(
     minute: Int,
     onToggle: (Boolean) -> Unit,
     onPickTime: () -> Unit,
-    timeLabel: String = "À",
+    timeLabel: String = tr("À", "At"),
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(16.dp)) {
@@ -215,7 +216,7 @@ private fun ReminderCard(
                 Switch(
                     checked = on,
                     onCheckedChange = onToggle,
-                    modifier = Modifier.semantics { contentDescription = "Rappel : ${title.lowercase()}" },
+                    modifier = Modifier.semantics { contentDescription = tr("Rappel : ${title.lowercase()}", "Reminder: ${title.lowercase()}") },
                 )
             }
             Text(
@@ -246,10 +247,10 @@ internal fun TimeDialog(initial: Int, onDismiss: () -> Unit, onConfirm: (Int) ->
     val state = rememberTimePickerState(initialHour = initial / 60, initialMinute = initial % 60, is24Hour = true)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Heure du rappel") },
+        title = { Text(tr("Heure du rappel", "Reminder time")) },
         text = { TimePicker(state = state) },
         confirmButton = { TextButton(onClick = { onConfirm(state.hour * 60 + state.minute) }) { Text("OK") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     )
 }
 

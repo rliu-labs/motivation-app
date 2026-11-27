@@ -5,6 +5,7 @@
  */
 package app.sentier.widget
 
+import app.sentier.domain.tr
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -142,7 +143,7 @@ private fun TodayContent(data: WidgetData) {
         ) {
             Column(GlanceModifier.defaultWeight()) {
                 Text(
-                    "Aujourd'hui",
+                    tr("Aujourd'hui", "Today"),
                     style = TextStyle(color = colors.onSurface, fontSize = 17.sp, fontWeight = FontWeight.Bold),
                 )
                 Text(data.summary, style = TextStyle(color = colors.onSurfaceVariant, fontSize = 13.sp), maxLines = 1)
@@ -162,7 +163,7 @@ private fun TodayContent(data: WidgetData) {
         Spacer(GlanceModifier.height(8.dp))
         if (data.items.isEmpty()) {
             Text(
-                "Rien d'autre au programme. Profite !",
+                tr("Rien d'autre au programme. Profite !", "Nothing else planned. Enjoy!"),
                 style = TextStyle(color = colors.onSurfaceVariant, fontSize = 14.sp),
                 modifier = GlanceModifier.clickable(actionStartActivity<MainActivity>()),
             )
@@ -186,7 +187,7 @@ private fun ItemRow(item: ReminderItem) {
         if (item.canComplete) {
             Image(
                 provider = ImageProvider(R.drawable.ic_widget_check),
-                contentDescription = "Valider ${item.title}",
+                contentDescription = tr("Valider ${item.title}", "Complete ${item.title}"),
                 colorFilter = ColorFilter.tint(colors.primary),
                 modifier = GlanceModifier
                     .size(28.dp)
@@ -204,7 +205,7 @@ private fun ItemRow(item: ReminderItem) {
         Column(GlanceModifier.defaultWeight().clickable(actionStartActivity<MainActivity>())) {
             Text(item.title, style = TextStyle(color = colors.onSurface, fontSize = 14.sp), maxLines = 1)
             item.detail?.let {
-                Text(it, style = TextStyle(color = if (it == "En retard") colors.error else colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
+                Text(it, style = TextStyle(color = if (it == tr("En retard", "Overdue")) colors.error else colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
             }
         }
     }
@@ -230,7 +231,7 @@ private fun StepsContent(data: WidgetData) {
                 style = TextStyle(color = colors.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold),
                 maxLines = 1,
             )
-            Text("sur ${data.goalText} pas", style = TextStyle(color = colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
+            Text(tr("sur ${data.goalText} pas", "of ${data.goalText} steps"), style = TextStyle(color = colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
             Spacer(GlanceModifier.height(6.dp))
             LinearProgressIndicator(
                 progress = data.stepProgress,
@@ -239,7 +240,7 @@ private fun StepsContent(data: WidgetData) {
                 backgroundColor = colors.surfaceVariant,
             )
         } else {
-            Text("Pas non comptés", style = TextStyle(color = colors.onSurfaceVariant, fontSize = 13.sp), maxLines = 2)
+            Text(tr("Pas non comptés", "Steps not counted"), style = TextStyle(color = colors.onSurfaceVariant, fontSize = 13.sp), maxLines = 2)
         }
         Spacer(GlanceModifier.height(8.dp))
         Text(
@@ -247,6 +248,6 @@ private fun StepsContent(data: WidgetData) {
             style = TextStyle(color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold),
             maxLines = 1,
         )
-        Text("Niveau ${data.level}", style = TextStyle(color = colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
+        Text(tr("Niveau ${data.level}", "Level ${data.level}"), style = TextStyle(color = colors.onSurfaceVariant, fontSize = 12.sp), maxLines = 1)
     }
 }

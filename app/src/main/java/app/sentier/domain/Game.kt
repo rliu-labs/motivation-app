@@ -147,19 +147,19 @@ data class Badge(
 
 object Badges {
     fun of(s: GameStats): List<Badge> = listOf(
-        Badge("first_task", "Premier pas", "Finir une première tâche", "flag", s.tasksDone, 1),
-        Badge("tasks_10", "Bien lancé", "Finir 10 tâches", "task", s.tasksDone, 10),
-        Badge("tasks_100", "Infatigable", "Finir 100 tâches", "rocket", s.tasksDone, 100),
-        Badge("habits_30", "Rituel", "Réussir 30 fois une habitude", "spa", s.habitsDone, 30),
-        Badge("steps_7", "Marcheur", "Atteindre 7 fois l'objectif de pas", "walk", s.stepGoals, 7),
-        Badge("streak_7", "Une semaine", "Tenir une série de 7 jours", "fire", s.bestStreak, 7),
-        Badge("streak_30", "Un mois", "Tenir une série de 30 jours", "calendar", s.bestStreak, 30),
-        Badge("level_5", "Niveau 5", "Atteindre le niveau 5", "star", s.level, 5),
-        Badge("level_10", "Niveau 10", "Atteindre le niveau 10", "trophy", s.level, 10),
-        Badge("reward_1", "Je me fais plaisir", "Prendre une récompense dans la boutique", "gift", s.rewardsTaken, 1),
-        Badge("stops_5", "En route", "Atteindre 5 escales du tour du monde", "map", s.stops, 5),
-        Badge("stops_25", "Tour du monde", "Boucler le tour du monde (25 escales)", "globe", s.stops, 25),
-        Badge("challenge_1", "Défi relevé", "Réussir un défi de la semaine", "bolt", s.challenges, 1),
-        Badge("challenge_10", "Aventurier", "Réussir 10 défis de la semaine", "explore", s.challenges, 10),
+        Badge("first_task", tr("Premier pas", "First step"), tr("Finir une première tâche", "Finish a first task"), "flag", s.tasksDone, 1),
+        Badge("tasks_10", tr("Bien lancé", "Off to a good start"), tr("Finir 10 tâches", "Finish 10 tasks"), "task", s.tasksDone, 10),
+        Badge("tasks_100", tr("Infatigable", "Tireless"), tr("Finir 100 tâches", "Finish 100 tasks"), "rocket", s.tasksDone, 100),
+        Badge("habits_30", tr("Rituel", "Ritual"), tr("Réussir 30 fois une habitude", "Complete a habit 30 times"), "spa", s.habitsDone, 30),
+        Badge("steps_7", tr("Marcheur", "Walker"), tr("Atteindre 7 fois l'objectif de pas", "Reach the step goal 7 times"), "walk", s.stepGoals, 7),
+        Badge("streak_7", tr("Une semaine", "One week"), tr("Tenir une série de 7 jours", "Keep a 7-day streak"), "fire", s.bestStreak, 7),
+        Badge("streak_30", tr("Un mois", "One month"), tr("Tenir une série de 30 jours", "Keep a 30-day streak"), "calendar", s.bestStreak, 30),
+        Badge("level_5", tr("Niveau 5", "Level 5"), tr("Atteindre le niveau 5", "Reach level 5"), "star", s.level, 5),
+        Badge("level_10", tr("Niveau 10", "Level 10"), tr("Atteindre le niveau 10", "Reach level 10"), "trophy", s.level, 10),
+        Badge("reward_1", tr("Je me fais plaisir", "Treat yourself"), tr("Prendre une récompense dans la boutique", "Take a reward from the shop"), "gift", s.rewardsTaken, 1),
+        Badge("stops_5", tr("En route", "On the way"), tr("Atteindre 5 escales du tour du monde", "Reach 5 stops of the world tour"), "map", s.stops, 5),
+        Badge("stops_25", tr("Tour du monde", "World tour"), tr("Boucler le tour du monde (25 escales)", "Complete the world tour (25 stops)"), "globe", s.stops, 25),
+        Badge("challenge_1", tr("Défi relevé", "Challenge completed"), tr("Réussir un défi de la semaine", "Complete a weekly challenge"), "bolt", s.challenges, 1),
+        Badge("challenge_10", tr("Aventurier", "Adventurer"), tr("Réussir 10 défis de la semaine", "Complete 10 weekly challenges"), "explore", s.challenges, 10),
     )
 }

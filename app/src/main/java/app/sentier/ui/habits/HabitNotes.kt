@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,11 +74,11 @@ fun HabitNoteScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (day == vm.today) "Note du jour" else "Note · ${friendlyDate(day, vm.today).lowercase()}") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(if (day == vm.today) tr("Note du jour", "Note of the day") else tr("Note · ${friendlyDate(day, vm.today).lowercase()}", "Note · ${friendlyDate(day, vm.today).lowercase()}")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
                 actions = {
                     if (state.hadNote) {
-                        IconButton(onClick = { vm.save("", onBack) }) { Icon(Icons.Filled.Delete, "Effacer la note") }
+                        IconButton(onClick = { vm.save("", onBack) }) { Icon(Icons.Filled.Delete, tr("Effacer la note", "Clear the note")) }
                     }
                 },
             )
@@ -94,16 +95,16 @@ fun HabitNoteScreen(
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it.take(HabitNote.MAX_LENGTH) },
-                placeholder = { Text("Comment ça s'est passé ? Ce que tu as ressenti, appris…") },
+                placeholder = { Text(tr("Comment ça s'est passé ? Ce que tu as ressenti, appris…", "How did it go? What you felt, what you learned…")) },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(min = 160.dp).testTag("habitNote"),
             )
             Text(
-                "${text.length} / ${HabitNote.MAX_LENGTH} · la note reste sur ton téléphone, comme le reste.",
+                tr("${text.length} / ${HabitNote.MAX_LENGTH} · la note reste sur ton téléphone, comme le reste.", "${text.length} / ${HabitNote.MAX_LENGTH} · the note stays on your phone, like everything else."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Button(onClick = { vm.save(text, onBack) }, modifier = Modifier.fillMaxWidth()) { Text("Enregistrer") }
+            Button(onClick = { vm.save(text, onBack) }, modifier = Modifier.fillMaxWidth()) { Text(tr("Enregistrer", "Save")) }
         }
     }
 }
@@ -154,15 +155,15 @@ fun HabitJournal(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Outlined.Notes, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Text("Journal", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp).weight(1f))
+                Text(tr("Journal", "Journal"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp).weight(1f))
                 TextButton(onClick = { onWrite(today) }) {
                     Icon(Icons.Outlined.EditNote, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(if (todayNote == null) "Note du jour" else "Modifier", modifier = Modifier.padding(start = 4.dp))
+                    Text(if (todayNote == null) tr("Note du jour", "Note of the day") else tr("Modifier", "Edit"), modifier = Modifier.padding(start = 4.dp))
                 }
             }
             if (notes.isEmpty()) {
                 Text(
-                    "Une phrase par jour suffit : ce qui a aidé, ce qui a coincé. Tu verras le chemin parcouru.",
+                    tr("Une phrase par jour suffit : ce qui a aidé, ce qui a coincé. Tu verras le chemin parcouru.", "One sentence a day is enough: what helped, what got in the way. You'll see how far you've come."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -182,7 +183,7 @@ fun HabitJournal(
             }
             if (notes.size > PREVIEW_NOTES) {
                 TextButton(onClick = { showAll = !showAll }) {
-                    Text(if (showAll) "Voir moins" else "Voir les ${notes.size} notes")
+                    Text(if (showAll) tr("Voir moins", "Show less") else tr("Voir les ${notes.size} notes", "Show all ${notes.size} notes"))
                 }
             }
         }

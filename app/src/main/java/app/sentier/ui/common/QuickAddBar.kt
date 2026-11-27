@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.common
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,7 +55,7 @@ fun QuickAddBar(
         trailingIcon = {
             if (text.isNotBlank()) {
                 IconButton(onClick = submit) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Ajouter")
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = tr("Ajouter", "Add"))
                 }
             }
         },

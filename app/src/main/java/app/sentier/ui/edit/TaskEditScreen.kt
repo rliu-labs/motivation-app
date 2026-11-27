@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.edit
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -108,11 +109,11 @@ fun TaskEditScreen(
     LaunchedEffect(vm) {
         vm.completions.collect { result ->
             val message = if (result.nextDue != null) {
-                "Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, vm.today).lowercase()}"
+                tr("Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, vm.today).lowercase()}", "Well done! Next time: ${friendlyDate(result.nextDue, vm.today).lowercase()}")
             } else {
-                "Bravo, tâche terminée !"
+                tr("Bravo, tâche terminée !", "Well done, task finished!")
             }
-            if (snackbar.showSnackbar(message, "Annuler", duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) {
+            if (snackbar.showSnackbar(message, tr("Annuler", "Undo"), duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) {
                 vm.undo(result)
             }
         }
@@ -129,11 +130,11 @@ fun TaskEditScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour") }
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("Retour", "Back")) }
                 },
                 actions = {
                     IconButton(onClick = { confirmDelete = true }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Supprimer la tâche")
+                        Icon(Icons.Filled.Delete, contentDescription = tr("Supprimer la tâche", "Delete task"))
                     }
                 },
             )
@@ -151,61 +152,61 @@ fun TaskEditScreen(
             TitleRow(task, onToggle = vm::toggleDone, onTitle = vm::setTitle)
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
-            Field(Icons.Filled.Event, "Échéance") {
+            Field(Icons.Filled.Event, tr("Échéance", "Due date")) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val due = task.dueDay?.let(LocalDate::ofEpochDay)
                     if (due != null) {
                         FilledTonalButton(onClick = { showDatePicker = true }) { Text(friendlyDate(due, vm.today)) }
                         if (task.recurrence == null) {
-                            IconButton(onClick = { vm.setDueDate(null) }) { Icon(Icons.Filled.Close, "Retirer l'échéance") }
+                            IconButton(onClick = { vm.setDueDate(null) }) { Icon(Icons.Filled.Close, tr("Retirer l'échéance", "Remove due date")) }
                         }
                     } else {
-                        AssistChip(onClick = { vm.setDueDate(vm.today) }, label = { Text("Aujourd'hui") })
-                        AssistChip(onClick = { vm.setDueDate(vm.today.plusDays(1)) }, label = { Text("Demain") })
-                        AssistChip(onClick = { showDatePicker = true }, label = { Text("Choisir…") })
+                        AssistChip(onClick = { vm.setDueDate(vm.today) }, label = { Text(tr("Aujourd'hui", "Today")) })
+                        AssistChip(onClick = { vm.setDueDate(vm.today.plusDays(1)) }, label = { Text(tr("Demain", "Tomorrow")) })
+                        AssistChip(onClick = { showDatePicker = true }, label = { Text(tr("Choisir…", "Choose…")) })
                     }
                 }
             }
 
-            Field(Icons.Filled.Repeat, "Répétition") {
+            Field(Icons.Filled.Repeat, tr("Répétition", "Repeat")) {
                 val rec = Recurrence.parse(task.recurrence)
                 OutlinedButton(onClick = { showRecurrence = true }) {
                     Text(
                         when {
-                            rec == null -> "Ne se répète pas"
-                            task.repeatFromCompletion -> rec.describe() + ", après la fin"
+                            rec == null -> tr("Ne se répète pas", "Does not repeat")
+                            task.repeatFromCompletion -> rec.describe() + tr(", après la fin", ", after completion")
                             else -> rec.describe()
                         }
                     )
                 }
             }
 
-            Field(Icons.Filled.Flag, "Priorité") {
+            Field(Icons.Filled.Flag, tr("Priorité", "Priority")) {
                 PrioritySelector(task.priority, vm::setPriority)
             }
 
-            Field(Icons.Filled.Star, "Difficulté") {
+            Field(Icons.Filled.Star, tr("Difficulté", "Difficulty")) {
                 DifficultySelector(task.difficulty, vm::setDifficulty)
             }
 
-            Field(Icons.AutoMirrored.Filled.List, "Liste") {
+            Field(Icons.AutoMirrored.Filled.List, tr("Liste", "List")) {
                 ListSelector(task.listId, state.lists, vm::setList)
             }
 
-            Field(Icons.AutoMirrored.Filled.Notes, "Notes") {
+            Field(Icons.AutoMirrored.Filled.Notes, tr("Notes", "Notes")) {
                 var notes by remember(task.id) { mutableStateOf(task.notes) }
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it; vm.setNotes(it) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Ajouter une note") },
+                    placeholder = { Text(tr("Ajouter une note", "Add a note")) },
                     minLines = 2,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 )
             }
 
             if (task.parentId == null) {
-                Field(Icons.Filled.Check, "Sous-tâches") {
+                Field(Icons.Filled.Check, tr("Sous-tâches", "Subtasks")) {
                     Subtasks(
                         subtasks = state.subtasks,
                         onAdd = vm::addSubtask,
@@ -217,7 +218,7 @@ fun TaskEditScreen(
 
             if (task.completionCount > 0) {
                 Text(
-                    if (task.completionCount == 1) "Validée 1 fois" else "Validée ${task.completionCount} fois",
+                    if (task.completionCount == 1) tr("Validée 1 fois", "Completed once") else tr("Validée ${task.completionCount} fois", "Completed ${task.completionCount} times"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -243,10 +244,10 @@ fun TaskEditScreen(
         if (confirmDelete) {
             AlertDialog(
                 onDismissRequest = { confirmDelete = false },
-                title = { Text("Supprimer cette tâche ?") },
-                text = { Text("« ${task.title} » et ses sous-tâches seront supprimées.") },
-                confirmButton = { TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text("Supprimer") } },
-                dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Garder") } },
+                title = { Text(tr("Supprimer cette tâche ?", "Delete this task?")) },
+                text = { Text(tr("« ${task.title} » et ses sous-tâches seront supprimées.", "“${task.title}” and its subtasks will be deleted.")) },
+                confirmButton = { TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text(tr("Supprimer", "Delete")) } },
+                dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(tr("Garder", "Keep")) } },
             )
         }
     }
@@ -288,7 +289,7 @@ private fun Field(icon: ImageVector, label: String, content: @Composable () -> U
     }
 }
 
-private val PriorityLabels = listOf("Aucune", "Basse", "Moyenne", "Haute")
+private val PriorityLabels = listOf(tr("Aucune", "None"), tr("Basse", "Low"), tr("Moyenne", "Medium"), tr("Haute", "High"))
 
 @Composable
 private fun PrioritySelector(selected: Int, onSelect: (Int) -> Unit) {
@@ -321,10 +322,10 @@ private fun ListSelector(selected: Long?, lists: List<app.sentier.data.TaskList>
                 Box(Modifier.size(10.dp).clip(CircleShape).background(Color(current.color)))
                 Spacer(Modifier.width(8.dp))
             }
-            Text(current?.name ?: "Aucune liste")
+            Text(current?.name ?: tr("Aucune liste", "No list"))
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            DropdownMenuItem(text = { Text("Aucune liste") }, onClick = { onSelect(null); open = false })
+            DropdownMenuItem(text = { Text(tr("Aucune liste", "No list")) }, onClick = { onSelect(null); open = false })
             for (l in lists) {
                 DropdownMenuItem(
                     text = { Text(l.name) },
@@ -353,7 +354,7 @@ private fun Subtasks(
                     textDecoration = if (sub.isCompleted) TextDecoration.LineThrough else null,
                     color = if (sub.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 )
-                IconButton(onClick = { onDelete(sub) }) { Icon(Icons.Filled.Close, contentDescription = "Supprimer la sous-tâche") }
+                IconButton(onClick = { onDelete(sub) }) { Icon(Icons.Filled.Close, contentDescription = tr("Supprimer la sous-tâche", "Delete subtask")) }
             }
         }
         var text by rememberSaveable { mutableStateOf("") }
@@ -362,7 +363,7 @@ private fun Subtasks(
             value = text,
             onValueChange = { text = it },
             modifier = Modifier.fillMaxWidth().testTag("subtaskAdd"),
-            placeholder = { Text("Ajouter une sous-tâche") },
+            placeholder = { Text(tr("Ajouter une sous-tâche", "Add a subtask")) },
             leadingIcon = { Icon(Icons.Filled.Add, null) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
@@ -386,7 +387,7 @@ private fun DueDateDialog(initial: LocalDate, onDismiss: () -> Unit, onPick: (Lo
                 } ?: onDismiss()
             }) { Text("OK") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Annuler", "Cancel")) } },
     ) {
         DatePicker(state = pickerState)
     }

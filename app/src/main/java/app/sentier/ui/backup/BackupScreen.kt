@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.backup
 
+import app.sentier.domain.tr
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -73,8 +74,8 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Sauvegarde") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(tr("Sauvegarde", "Backup")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
             )
         },
     ) { padding ->
@@ -83,16 +84,16 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                "Tes données restent sur ton téléphone. Pour les garder en cas de perte ou les passer sur un nouveau téléphone, " +
-                    "enregistre une sauvegarde dans un fichier, puis range-le où tu veux (Drive, ordinateur, clé USB…).",
+                tr("Tes données restent sur ton téléphone. Pour les garder en cas de perte ou les passer sur un nouveau téléphone, ", "Your data stays on your phone. To keep it safe or move it to a new phone, ") +
+                    tr("enregistre une sauvegarde dans un fichier, puis range-le où tu veux (Drive, ordinateur, clé USB…).", "save a backup to a file, then keep it wherever you like (Drive, computer, USB stick…)."),
                 style = MaterialTheme.typography.bodyLarge,
             )
 
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Exporter", style = MaterialTheme.typography.titleMedium)
+                    Text(tr("Exporter", "Export"), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "Tâches, habitudes, pas, XP, or, badges, voyage et réglages, dans un seul fichier.",
+                        tr("Tâches, habitudes, pas, XP, or, badges, voyage et réglages, dans un seul fichier.", "Tasks, habits, steps, XP, gold, badges, journey and settings, in a single file."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Button(
@@ -101,16 +102,16 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
                     ) {
                         Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Exporter mes données")
+                        Text(tr("Exporter mes données", "Export my data"))
                     }
                 }
             }
 
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Importer", style = MaterialTheme.typography.titleMedium)
+                    Text(tr("Importer", "Import"), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "Remplace toutes les données de l'appli par celles d'une sauvegarde. On te demande de confirmer avant.",
+                        tr("Remplace toutes les données de l'appli par celles d'une sauvegarde. On te demande de confirmer avant.", "Replaces all the app's data with a backup's. You are asked to confirm first."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     OutlinedButton(
@@ -119,7 +120,7 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
                     ) {
                         Icon(Icons.Filled.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Importer une sauvegarde")
+                        Text(tr("Importer une sauvegarde", "Import a backup"))
                     }
                 }
             }
@@ -128,33 +129,33 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     val a = auto.settings
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Sauvegarde automatique", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        Text(tr("Sauvegarde automatique", "Automatic backup"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                         Switch(
                             checked = a.on && a.folder != null,
                             onCheckedChange = { on -> if (on) folderPicker.launch(null) else vm.turnOffAuto() },
                             enabled = !state.busy,
-                            modifier = Modifier.semantics { contentDescription = "Sauvegarde automatique" },
+                            modifier = Modifier.semantics { contentDescription = tr("Sauvegarde automatique", "Automatic backup") },
                         )
                     }
                     Text(
-                        "Chaque semaine, Sentier enregistre une sauvegarde dans le dossier de ton choix " +
-                            "et garde les ${AutoBackup.KEEP} dernières. Choisis un dossier synchronisé pour l'avoir aussi ailleurs.",
+                        tr("Chaque semaine, Sentier enregistre une sauvegarde dans le dossier de ton choix ", "Every week, Sentier saves a backup to the folder of your choice ") +
+                            tr("et garde les ${AutoBackup.KEEP} dernières. Choisis un dossier synchronisé pour l'avoir aussi ailleurs.", "and keeps the last ${AutoBackup.KEEP}. Pick a synced folder to have it elsewhere too."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     if (a.on && a.folder != null) {
                         Text(
-                            "Dossier : " + (auto.folderName ?: "inaccessible"),
+                            tr("Dossier : ", "Folder: ") + (auto.folderName ?: "inaccessible"),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Text(
-                            a.lastAt?.let { "Dernière sauvegarde : " + formatDate(it) } ?: "Pas encore de sauvegarde.",
+                            a.lastAt?.let { tr("Dernière sauvegarde : ", "Last backup: ") + formatDate(it) } ?: tr("Pas encore de sauvegarde.", "No backup yet."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         a.error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = vm::backUpNow, enabled = !state.busy) { Text("Sauvegarder maintenant") }
-                            TextButton(onClick = { folderPicker.launch(null) }, enabled = !state.busy) { Text("Changer de dossier") }
+                            OutlinedButton(onClick = vm::backUpNow, enabled = !state.busy) { Text(tr("Sauvegarder maintenant", "Back up now")) }
+                            TextButton(onClick = { folderPicker.launch(null) }, enabled = !state.busy) { Text(tr("Changer de dossier", "Change folder")) }
                         }
                     }
                 }
@@ -178,7 +179,7 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Le fichier n'est pas chiffré et contient toutes tes données : ne le partage qu'avec toi-même.",
+                    tr("Le fichier n'est pas chiffré et contient toutes tes données : ne le partage qu'avec toi-même.", "The file is not encrypted and holds all your data: share it only with yourself."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -190,19 +191,19 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
         val date = file.createdAt?.let(::formatDate)
         AlertDialog(
             onDismissRequest = vm::cancelRestore,
-            title = { Text("Remplacer tes données ?") },
+            title = { Text(tr("Remplacer tes données ?", "Replace your data?")) },
             text = {
                 Text(
-                    (date?.let { "Sauvegarde du $it : " } ?: "Cette sauvegarde contient ") +
-                        "${file.tasks} tâches, ${file.habits} habitudes et ${file.events} actions dans l'historique du jeu. " +
-                        "Toutes les données actuelles de l'appli seront remplacées.",
+                    (date?.let { tr("Sauvegarde du $it : ", "Backup from $it: ") } ?: tr("Cette sauvegarde contient ", "This backup contains ")) +
+                        tr("${file.tasks} tâches, ${file.habits} habitudes et ${file.events} actions dans l'historique du jeu. ", "${file.tasks} tasks, ${file.habits} habits and ${file.events} actions in the game history. ") +
+                        tr("Toutes les données actuelles de l'appli seront remplacées.", "All the app's current data will be replaced."),
                 )
             },
-            confirmButton = { TextButton(onClick = vm::confirmRestore) { Text("Remplacer") } },
-            dismissButton = { TextButton(onClick = vm::cancelRestore) { Text("Annuler") } },
+            confirmButton = { TextButton(onClick = vm::confirmRestore) { Text(tr("Remplacer", "Replace")) } },
+            dismissButton = { TextButton(onClick = vm::cancelRestore) { Text(tr("Annuler", "Cancel")) } },
         )
     }
 }
 
 private fun formatDate(millis: Long): String =
-    DateTimeFormatter.ofPattern("d MMMM yyyy 'à' HH:mm", Locale.FRANCE).format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()))
+    DateTimeFormatter.ofPattern(tr("d MMMM yyyy 'à' HH:mm", "d MMMM yyyy 'at' HH:mm"), app.sentier.domain.Lang.locale).format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()))

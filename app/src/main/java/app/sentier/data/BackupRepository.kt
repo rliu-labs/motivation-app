@@ -5,6 +5,7 @@
  */
 package app.sentier.data
 
+import app.sentier.domain.tr
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -60,18 +61,18 @@ class BackupRepository(
 
     /** Lit et vérifie une sauvegarde, sans rien modifier. */
     fun read(text: String): BackupFile {
-        if (text.length > MAX_CHARS) throw BackupException("Ce fichier est trop gros pour être une sauvegarde de Sentier.")
+        if (text.length > MAX_CHARS) throw BackupException(tr("Ce fichier est trop gros pour être une sauvegarde de Sentier.", "This file is too big to be a Sentier backup."))
         val json = try {
             JSONObject(text)
         } catch (e: JSONException) {
-            throw BackupException("Ce fichier n'est pas une sauvegarde de Sentier.")
+            throw BackupException(tr("Ce fichier n'est pas une sauvegarde de Sentier.", "This file is not a Sentier backup."))
         }
-        if (json.optString("format") != FORMAT) throw BackupException("Ce fichier n'est pas une sauvegarde de Sentier.")
+        if (json.optString("format") != FORMAT) throw BackupException(tr("Ce fichier n'est pas une sauvegarde de Sentier.", "This file is not a Sentier backup."))
         val schema = json.optInt("schema", -1)
-        if (schema > SCHEMA) throw BackupException("Cette sauvegarde vient d'une version plus récente de Sentier. Mets l'appli à jour, puis réessaie.")
-        if (schema < MIN_SCHEMA) throw BackupException("Cette sauvegarde vient d'une version trop ancienne de Sentier.")
-        val tables = json.optJSONObject("tables") ?: throw BackupException("Cette sauvegarde est incomplète.")
-        if (REQUIRED_TABLES.any { tables.optJSONArray(it) == null }) throw BackupException("Cette sauvegarde est incomplète.")
+        if (schema > SCHEMA) throw BackupException(tr("Cette sauvegarde vient d'une version plus récente de Sentier. Mets l'appli à jour, puis réessaie.", "This backup comes from a newer version of Sentier. Update the app, then try again."))
+        if (schema < MIN_SCHEMA) throw BackupException(tr("Cette sauvegarde vient d'une version trop ancienne de Sentier.", "This backup comes from a version of Sentier that is too old."))
+        val tables = json.optJSONObject("tables") ?: throw BackupException(tr("Cette sauvegarde est incomplète.", "This backup is incomplete."))
+        if (REQUIRED_TABLES.any { tables.optJSONArray(it) == null }) throw BackupException(tr("Cette sauvegarde est incomplète.", "This backup is incomplete."))
         return BackupFile(
             json = json,
             createdAt = json.optLong("created_at", 0L).takeIf { it > 0 },
@@ -95,7 +96,7 @@ class BackupRepository(
                     // Une table ajoutée après la sauvegarde (les notes, par exemple) reste vide.
                     val rows = tables.optJSONArray(table) ?: JSONArray()
                     for (i in 0 until rows.length()) {
-                        val row = rows.optJSONObject(i) ?: throw BackupException("Cette sauvegarde est abîmée.")
+                        val row = rows.optJSONObject(i) ?: throw BackupException(tr("Cette sauvegarde est abîmée.", "This backup is damaged."))
                         sql.insert(table, SQLiteDatabase.CONFLICT_ABORT, valuesOf(row, columns))
                     }
                 }
@@ -103,7 +104,7 @@ class BackupRepository(
         } catch (e: BackupException) {
             throw e
         } catch (e: Exception) {
-            throw BackupException("Cette sauvegarde est abîmée : rien n'a été modifié.")
+            throw BackupException(tr("Cette sauvegarde est abîmée : rien n'a été modifié.", "This backup is damaged: nothing was changed."))
         }
         file.json.optJSONObject("settings")?.let { settings.importJson(it) }
     }
@@ -167,7 +168,7 @@ class BackupRepository(
                     is Boolean -> values.put(name, if (v) 1L else 0L)
                     is String -> values.put(name, v)
                     is Number -> values.put(name, v.toDouble())
-                    else -> throw BackupException("Cette sauvegarde est abîmée.")
+                    else -> throw BackupException(tr("Cette sauvegarde est abîmée.", "This backup is damaged."))
                 }
             }
             return values

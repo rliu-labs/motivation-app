@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.tasks
 
+import app.sentier.domain.tr
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -181,17 +182,17 @@ class TasksViewModel(private val repo: TaskRepository, private val settings: Set
             for (t in tasks) {
                 val due = t.dueDay?.let(LocalDate::ofEpochDay)
                 val key = when {
-                    due == null -> "Sans date"
-                    due.isBefore(today) -> "En retard"
-                    due == today -> "Aujourd'hui"
-                    due == today.plusDays(1) -> "Demain"
-                    !due.isAfter(endOfWeek) -> "Cette semaine"
-                    else -> "Plus tard"
+                    due == null -> tr("Sans date", "No date")
+                    due.isBefore(today) -> tr("En retard", "Overdue")
+                    due == today -> tr("Aujourd'hui", "Today")
+                    due == today.plusDays(1) -> tr("Demain", "Tomorrow")
+                    !due.isAfter(endOfWeek) -> tr("Cette semaine", "This week")
+                    else -> tr("Plus tard", "Later")
                 }
                 buckets.getOrPut(key) { mutableListOf() }.add(t)
             }
-            val order = listOf("En retard", "Aujourd'hui", "Demain", "Cette semaine", "Plus tard", "Sans date")
-            return order.mapNotNull { k -> buckets[k]?.let { TaskGroup(k, it, late = k == "En retard") } }
+            val order = listOf(tr("En retard", "Overdue"), tr("Aujourd'hui", "Today"), tr("Demain", "Tomorrow"), tr("Cette semaine", "This week"), tr("Plus tard", "Later"), tr("Sans date", "No date"))
+            return order.mapNotNull { k -> buckets[k]?.let { TaskGroup(k, it, late = k == tr("En retard", "Overdue")) } }
         }
     }
 }

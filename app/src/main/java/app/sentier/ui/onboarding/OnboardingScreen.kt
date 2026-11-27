@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.onboarding
 
+import app.sentier.domain.tr
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -121,7 +122,7 @@ fun OnboardingContent(onFinish: (OnboardingChoices) -> Unit, onSkip: () -> Unit)
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxSize().safeDrawingPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
-                if (page < PAGES - 1) TextButton(onClick = onSkip) { Text("Passer") } else Spacer(Modifier.height(48.dp))
+                if (page < PAGES - 1) TextButton(onClick = onSkip) { Text(tr("Passer", "Skip")) } else Spacer(Modifier.height(48.dp))
             }
             AnimatedContent(
                 targetState = page,
@@ -151,14 +152,14 @@ fun OnboardingContent(onFinish: (OnboardingChoices) -> Unit, onSkip: () -> Unit)
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (page > 0) TextButton(onClick = { page-- }) { Text("Retour") }
+                if (page > 0) TextButton(onClick = { page-- }) { Text(tr("Retour", "Back")) }
                 Spacer(Modifier.weight(1f))
                 Button(onClick = { if (page < PAGES - 1) page++ else finish() }) {
                     Text(
                         when (page) {
-                            0 -> "Commencer"
-                            PAGES - 1 -> "C'est parti"
-                            else -> "Suivant"
+                            0 -> tr("Commencer", "Start")
+                            PAGES - 1 -> tr("C'est parti", "Let's go")
+                            else -> tr("Suivant", "Next")
                         }
                     )
                 }
@@ -171,7 +172,7 @@ fun OnboardingContent(onFinish: (OnboardingChoices) -> Unit, onSkip: () -> Unit)
 private fun Dots(page: Int) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.semantics { contentDescription = "Étape ${page + 1} sur $PAGES" },
+        modifier = Modifier.semantics { contentDescription = tr("Étape ${page + 1} sur $PAGES", "Step ${page + 1} of $PAGES") },
     ) {
         repeat(PAGES) { i ->
             Box(
@@ -209,12 +210,12 @@ private fun PageHeader(icon: ImageVector, title: String, text: String) {
 private fun WelcomePage() {
     PageHeader(
         Icons.Filled.WbSunny,
-        "Bienvenue sur Sentier",
-        "Un peu de progrès chaque jour, sans pression. Tout reste sur ton téléphone.",
+        tr("Bienvenue sur Sentier", "Welcome to Sentier"),
+        tr("Un peu de progrès chaque jour, sans pression. Tout reste sur ton téléphone.", "A little progress every day, without pressure. Everything stays on your phone."),
     )
-    Feature(Icons.Filled.Checklist, "Tes tâches et tes habitudes du jour, réunies sur un seul écran.")
-    Feature(Icons.Filled.Map, "Tes pas te font voyager autour du monde, puis en France et en Europe, escale par escale.")
-    Feature(Icons.Filled.EmojiEvents, "De l'XP, de l'or et des trésors à gagner. Rien n'est jamais perdu.")
+    Feature(Icons.Filled.Checklist, tr("Tes tâches et tes habitudes du jour, réunies sur un seul écran.", "Your tasks and habits for the day, together on one screen."))
+    Feature(Icons.Filled.Map, tr("Tes pas te font voyager autour du monde, puis en France et en Europe, escale par escale.", "Your steps take you around the world, then through France and Europe, stop by stop."))
+    Feature(Icons.Filled.EmojiEvents, tr("De l'XP, de l'or et des trésors à gagner. Rien n'est jamais perdu.", "XP, gold and treasures to earn. Nothing is ever lost."))
 }
 
 @Composable
@@ -229,8 +230,8 @@ private fun Feature(icon: ImageVector, text: String) {
 private fun HabitsPage(selected: List<Int>, onToggle: (Int) -> Unit) {
     PageHeader(
         Icons.Filled.SelfImprovement,
-        "Tes premières habitudes",
-        "Choisis-en une ou deux pour commencer. Tu pourras les modifier ou en créer d'autres à tout moment.",
+        tr("Tes premières habitudes", "Your first habits"),
+        tr("Choisis-en une ou deux pour commencer. Tu pourras les modifier ou en créer d'autres à tout moment.", "Pick one or two to start. You can change them or create others at any time."),
     )
     HabitTemplates.forEachIndexed { i, t ->
         val checked = i in selected
@@ -257,7 +258,7 @@ private fun HabitsPage(selected: List<Int>, onToggle: (Int) -> Unit) {
 }
 
 private fun templateDetail(target: Double, unit: String, freqNum: Int, freqDen: Int): String {
-    val freq = if (freqNum >= freqDen) "chaque jour" else if (freqDen == 7) "$freqNum fois par semaine" else "$freqNum fois tous les $freqDen jours"
+    val freq = if (freqNum >= freqDen) tr("chaque jour", "every day") else if (freqDen == 7) tr("$freqNum fois par semaine", "$freqNum times a week") else tr("$freqNum fois tous les $freqDen jours", "$freqNum times every $freqDen days")
     return if (unit.isNotBlank()) "${target.toInt()} $unit, $freq" else freq.replaceFirstChar { it.uppercase() }
 }
 
@@ -266,19 +267,19 @@ private fun templateDetail(target: Double, unit: String, freqNum: Int, freqDen: 
 private fun StepsPage(goal: Int, adaptive: Boolean, onGoal: (Int) -> Unit, onAdaptive: (Boolean) -> Unit) {
     PageHeader(
         Icons.AutoMirrored.Filled.DirectionsWalk,
-        "Ton objectif de pas",
-        "Combien de pas veux-tu faire par jour ? Pour compter tes pas, active-les ensuite dans l'onglet Habitudes.",
+        tr("Ton objectif de pas", "Your step goal"),
+        tr("Combien de pas veux-tu faire par jour ? Pour compter tes pas, active-les ensuite dans l'onglet Habitudes.", "How many steps do you want to walk a day? To count your steps, turn them on later in the Habits tab."),
     )
-    val format = NumberFormat.getIntegerInstance(Locale.FRANCE)
+    val format = NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), modifier = Modifier.fillMaxWidth()) {
         for (g in GOALS) {
-            FilterChip(selected = g == goal, onClick = { onGoal(g) }, label = { Text("${format.format(g)} pas") })
+            FilterChip(selected = g == goal, onClick = { onGoal(g) }, label = { Text(tr("${format.format(g)} pas", "${format.format(g)} steps")) })
         }
     }
     Spacer(Modifier.height(16.dp))
     SwitchRow(
-        title = "Objectif adaptatif",
-        text = "Il suit ton rythme réel des deux dernières semaines, pour rester à ta portée.",
+        title = tr("Objectif adaptatif", "Adaptive goal"),
+        text = tr("Il suit ton rythme réel des deux dernières semaines, pour rester à ta portée.", "It follows your real pace of the last two weeks, so it stays within reach."),
         checked = adaptive,
         onChange = onAdaptive,
     )
@@ -288,18 +289,18 @@ private fun StepsPage(goal: Int, adaptive: Boolean, onGoal: (Int) -> Unit, onAda
 private fun RemindersPage(morning: Boolean, evening: Boolean, onMorning: (Boolean) -> Unit, onEvening: (Boolean) -> Unit) {
     PageHeader(
         Icons.Filled.NotificationsActive,
-        "Un petit rappel ?",
-        "Sentier peut te donner le programme le matin et te dire le soir ce qui reste. Tu pourras changer les heures dans les réglages.",
+        tr("Un petit rappel ?", "A little reminder?"),
+        tr("Sentier peut te donner le programme le matin et te dire le soir ce qui reste. Tu pourras changer les heures dans les réglages.", "Sentier can give you the plan in the morning and tell you in the evening what is left. You can change the times in the settings."),
     )
     SwitchRow(
-        title = "Le matin à ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_MORNING)}",
-        text = "Le programme de la journée.",
+        title = tr("Le matin à ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_MORNING)}", "In the morning at ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_MORNING)}"),
+        text = tr("Le programme de la journée.", "The plan for the day."),
         checked = morning,
         onChange = onMorning,
     )
     SwitchRow(
-        title = "Le soir à ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_EVENING)}",
-        text = "Ce qui reste, seulement s'il reste quelque chose.",
+        title = tr("Le soir à ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_EVENING)}", "In the evening at ${ReminderContent.formatMinute(ReminderSettings.DEFAULT_EVENING)}"),
+        text = tr("Ce qui reste, seulement s'il reste quelque chose.", "What is left, only if something is left."),
         checked = evening,
         onChange = onEvening,
     )

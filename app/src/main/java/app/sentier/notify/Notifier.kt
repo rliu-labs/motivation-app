@@ -5,6 +5,7 @@
  */
 package app.sentier.notify
 
+import app.sentier.domain.tr
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -49,8 +50,8 @@ object Notifier {
     fun ensureChannel(context: Context) {
         NotificationManagerCompat.from(context).createNotificationChannel(
             NotificationChannelCompat.Builder(CHANNEL, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-                .setName("Rappels")
-                .setDescription("Le programme du matin et ce qui reste à faire le soir")
+                .setName(tr("Rappels", "Reminders"))
+                .setDescription(tr("Le programme du matin et ce qui reste à faire le soir", "The morning plan and what is left to do in the evening"))
                 .build()
         )
     }
@@ -58,8 +59,8 @@ object Notifier {
     fun ensureHabitChannel(context: Context) {
         NotificationManagerCompat.from(context).createNotificationChannel(
             NotificationChannelCompat.Builder(CHANNEL_HABITS, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-                .setName("Rappels des habitudes")
-                .setDescription("Le rappel de chaque habitude, à l'heure choisie")
+                .setName(tr("Rappels des habitudes", "Habit reminders"))
+                .setDescription(tr("Le rappel de chaque habitude, à l'heure choisie", "Each habit's reminder, at the chosen time"))
                 .build()
         )
     }
@@ -69,8 +70,8 @@ object Notifier {
         if (!canPost(context)) return
         NotificationManagerCompat.from(context).createNotificationChannel(
             NotificationChannelCompat.Builder(CHANNEL_WEEKLY, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-                .setName("Bilan de la semaine")
-                .setDescription("Le résumé de ta semaine, chaque dimanche")
+                .setName(tr("Bilan de la semaine", "Weekly review"))
+                .setDescription(tr("Le résumé de ta semaine, chaque dimanche", "A summary of your week, every Sunday"))
                 .build()
         )
         val notification = base(context, title, text, CHANNEL_WEEKLY)
@@ -89,7 +90,7 @@ object Notifier {
         val id = itemId(item.type, item.id)
         val builder = base(context, message.title, message.text, CHANNEL_HABITS)
         if (item.canComplete) {
-            builder.addAction(0, "Fait", ReminderActionReceiver.intent(context, item.type, item.id, id))
+            builder.addAction(0, tr("Fait", "Done"), ReminderActionReceiver.intent(context, item.type, item.id, id))
         }
         post(context, id, builder.build())
     }
@@ -122,11 +123,11 @@ object Notifier {
             .build()
         for (item in message.items) {
             val id = itemId(item.type, item.id)
-            val builder = base(context, item.title, item.detail ?: "À faire aujourd'hui")
+            val builder = base(context, item.title, item.detail ?: tr("À faire aujourd'hui", "To do today"))
                 .setGroup(GROUP_EVENING)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
             if (item.canComplete) {
-                builder.addAction(0, "Fait", ReminderActionReceiver.intent(context, item.type, item.id, id))
+                builder.addAction(0, tr("Fait", "Done"), ReminderActionReceiver.intent(context, item.type, item.id, id))
             }
             post(context, id, builder.build())
         }
@@ -136,7 +137,7 @@ object Notifier {
     /** Remplace la notification d'une chose validée par un bravo qui s'efface tout seul. */
     fun showDone(context: Context, notificationId: Int, text: String) {
         if (!canPost(context)) return
-        val notification = base(context, "Bravo !", text)
+        val notification = base(context, tr("Bravo !", "Well done!"), text)
             .setGroup(GROUP_EVENING)
             .setSilent(true)
             .setTimeoutAfter(4_000)

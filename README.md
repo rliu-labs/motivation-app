@@ -24,7 +24,7 @@ and a daily note per habit help you see how far you have come.
 
 It works on phones, tablets and foldables, in portrait or landscape, and takes you on an illustrated walk around the world.
 
-No account, no ads, no tracking: your data stays on your phone. The app's interface is in French.
+No account, no ads, no tracking: your data stays on your phone. The app is in French or English: pick the language in settings (Progress tab), or let it follow the phone.
 
 ## Screenshots
 
@@ -161,7 +161,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | Notifications | Reminders work on every supported version; Android 13+ asks for permission when you turn them on |
 | Look | Material 3 colors that follow your wallpaper on Android 12+, Sentier's green theme before that; light, dark or system theme everywhere |
 | Accessibility | Screen reader labels on charts, maps and buttons; animations follow the phone's "remove animations" setting |
-| Language | Interface in French |
+| Language | French or English, chosen in settings (or following the phone's language). Journey stop descriptions are still in French for now |
 | Offline | Works fully offline; data stays on the phone |
 
 ## Roadmap
@@ -183,6 +183,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 13. Looking back | Weekly review with highlights and goal, year heatmap, daily habit notes | ✅ v0.13 |
 | 14. Journeys by country | Tour de France, then Italy, Spain, Portugal, United Kingdom and Germany, with country maps | ✅ v0.14 |
 | 15. Passport and seasons | Travel passport, seasonal challenges with rare badges, automatic sleep and workouts | ✅ v0.15 |
+| 16. English | Language setting (French, English or the phone's language), English interface | ✅ v0.16 |
 | 16. More of Europe | The other European countries | Planned |
 | 17. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 

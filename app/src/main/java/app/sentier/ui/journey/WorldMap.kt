@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.journey
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
@@ -52,8 +53,8 @@ fun JourneyMap(progress: TourProgress, modifier: Modifier = Modifier) {
     val legIndex = progress.currentIndex
     val next = progress.nextStop
 
-    val description = "Carte du voyage ${progress.journey.title} : ${formatKm(km)} km parcourus, dernière escale ${progress.current.city}" +
-        (next?.let { ", prochaine escale ${it.city}" } ?: "")
+    val description = tr("Carte du voyage ${progress.journey.title} : ${formatKm(km)} km parcourus, dernière escale ${progress.current.city}", "Map of the journey ${progress.journey.title}: ${formatKm(km)} km walked, latest stop ${progress.current.city}") +
+        (next?.let { tr(", prochaine escale ${it.city}", ", next stop ${it.city}") } ?: "")
 
     Box(
         modifier

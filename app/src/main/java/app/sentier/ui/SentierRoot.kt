@@ -5,6 +5,7 @@
  */
 package app.sentier.ui
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -71,11 +72,11 @@ import app.sentier.ui.tasks.TasksScreen
 import app.sentier.ui.today.TodayScreen
 
 private enum class Tab(val route: String, val label: String, val icon: ImageVector) {
-    TODAY("today", "Aujourd'hui", Icons.Filled.WbSunny),
-    TASKS("tasks", "Tâches", Icons.Filled.Checklist),
-    HABITS("habits", "Habitudes", Icons.Filled.SelfImprovement),
-    JOURNEY("journey", "Voyage", Icons.Filled.Map),
-    PROGRESS("progress", "Progrès", Icons.Filled.EmojiEvents),
+    TODAY("today", tr("Aujourd'hui", "Today"), Icons.Filled.WbSunny),
+    TASKS("tasks", tr("Tâches", "Tasks"), Icons.Filled.Checklist),
+    HABITS("habits", tr("Habitudes", "Habits"), Icons.Filled.SelfImprovement),
+    JOURNEY("journey", tr("Voyage", "Journey"), Icons.Filled.Map),
+    PROGRESS("progress", tr("Progrès", "Progress"), Icons.Filled.EmojiEvents),
 }
 
 /** Largeur à partir de laquelle la navigation passe sur le côté. */
@@ -100,7 +101,7 @@ fun SentierRoot(
     LaunchedEffect(rewards) {
         rewards.challengeDone.collect { c ->
             confetti = "defi-${c.index}-${System.currentTimeMillis()}"
-            snackbar.showSnackbar("Défi relevé : ${c.title} ! +${c.xp} XP, +${c.gold} or")
+            snackbar.showSnackbar(tr("Défi relevé : ${c.title} ! +${c.xp} XP, +${c.gold} or", "Challenge completed: ${c.title}! +${c.xp} XP, +${c.gold} gold"))
         }
     }
     LaunchedEffect(openRequest) {
@@ -244,11 +245,11 @@ fun SentierRoot(
             val others = newTreasures.size - 1
             TreasureDialog(
                 best,
-                title = "Nouveau trésor : ${best.name}",
+                title = tr("Nouveau trésor : ${best.name}", "New treasure: ${best.name}"),
                 footer = when (others) {
-                    0 -> "Il rejoint ton carnet de voyage, dans l'onglet Voyage."
-                    1 -> "Avec 1 autre trésor, il rejoint ton carnet de voyage, dans l'onglet Voyage."
-                    else -> "Avec $others autres trésors, il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                    0 -> tr("Il rejoint ton carnet de voyage, dans l'onglet Voyage.", "It joins your travel journal, in the Journey tab.")
+                    1 -> tr("Avec 1 autre trésor, il rejoint ton carnet de voyage, dans l'onglet Voyage.", "With 1 other treasure, it joins your travel journal, in the Journey tab.")
+                    else -> tr("Avec $others autres trésors, il rejoint ton carnet de voyage, dans l'onglet Voyage.", "With $others other treasures, it joins your travel journal, in the Journey tab.")
                 },
                 onDismiss = { rewards.markSeen(newTreasures) },
             )

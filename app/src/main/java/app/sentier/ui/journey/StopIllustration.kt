@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.journey
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -90,7 +91,7 @@ fun StopIllustration(journey: Journey, index: Int, modifier: Modifier = Modifier
         modifier
             .fillMaxWidth()
             .height(140.dp)
-            .semantics { contentDescription = "Illustration : ${scene.label}" },
+            .semantics { contentDescription = tr("Illustration : ", "Illustration: ") + scene.label },
     ) { drawScene(scene) }
 }
 

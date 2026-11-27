@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.today
 
+import app.sentier.domain.tr
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -100,12 +101,12 @@ fun TodayScreen(
     LaunchedEffect(vm) {
         vm.completions.collect { result ->
             val base = if (result.nextDue != null) {
-                "Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, state.today).lowercase()}"
+                tr("Bravo ! Prochaine fois : ${friendlyDate(result.nextDue, state.today).lowercase()}", "Well done! Next time: ${friendlyDate(result.nextDue, state.today).lowercase()}")
             } else {
-                "Bravo, « ${result.before.title} » est faite !"
+                tr("Bravo, « ${result.before.title} » est faite !", "Well done, “${result.before.title}” is done!")
             }
-            val message = result.gain?.let { "$base +${it.xp} XP, +${it.gold} or" } ?: base
-            val action = snackbar.showSnackbar(message, actionLabel = "Annuler", duration = SnackbarDuration.Short)
+            val message = result.gain?.let { tr("$base +${it.xp} XP, +${it.gold} or", "$base +${it.xp} XP, +${it.gold} gold") } ?: base
+            val action = snackbar.showSnackbar(message, actionLabel = tr("Annuler", "Undo"), duration = SnackbarDuration.Short)
             if (action == SnackbarResult.ActionPerformed) vm.undo(result)
         }
     }
@@ -115,19 +116,19 @@ fun TodayScreen(
             item {
                 Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
-                        Text("Aujourd'hui", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Text(tr("Aujourd'hui", "Today"), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(longDate(state.today), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         GameSummary(game, onClick = onOpenProgress, modifier = Modifier.padding(top = 12.dp))
                     }
                     IconButton(onClick = onOpenReminders, modifier = Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 8.dp)) {
-                        Icon(Icons.Outlined.Notifications, contentDescription = "Rappels", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Notifications, contentDescription = tr("Rappels", "Reminders"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             item { ProgressCard(done = state.done.size, total = state.total) }
             item { StepsMiniCard(habits.steps, onClick = onOpenHabits) }
             if (habits.habits.isNotEmpty()) {
-                item { SectionHeader("Habitudes du jour") }
+                item { SectionHeader(tr("Habitudes du jour", "Today's habits")) }
                 items(habits.habits, key = { "h-${it.habit.id}" }) { h ->
                     TodayHabitRow(
                         h = h,
@@ -140,7 +141,7 @@ fun TodayScreen(
             }
 
             if (state.todo.isNotEmpty()) {
-                item { SectionHeader("À faire") }
+                item { SectionHeader(tr("À faire", "To do")) }
                 items(state.todo, key = { it.id }) { task ->
                     TaskRow(
                         task = task, checked = false, list = task.listId?.let(state.lists::get), today = state.today,
@@ -150,7 +151,7 @@ fun TodayScreen(
                 }
             }
             if (state.done.isNotEmpty()) {
-                item { SectionHeader("Fait aujourd'hui") }
+                item { SectionHeader(tr("Fait aujourd'hui", "Done today")) }
                 items(state.done, key = { it.id }) { task ->
                     TaskRow(
                         task = task, checked = true, list = task.listId?.let(state.lists::get), today = state.today,
@@ -161,7 +162,7 @@ fun TodayScreen(
             }
             item { Spacer(Modifier.size(16.dp)) }
         }
-        QuickAddBar(placeholder = "Ajouter une tâche pour aujourd'hui", onAdd = vm::add)
+        QuickAddBar(placeholder = tr("Ajouter une tâche pour aujourd'hui", "Add a task for today"), onAdd = vm::add)
     }
 
     editingHabit?.let { habit ->
@@ -201,7 +202,7 @@ private fun TodayHabitRow(h: HabitWithStats, today: Long, note: String?, onClick
         IconButton(onClick = onNote) {
             Icon(
                 if (note != null) Icons.Filled.EditNote else Icons.Outlined.EditNote,
-                contentDescription = if (note != null) "Modifier la note : ${h.habit.name}" else "Note du jour : ${h.habit.name}",
+                contentDescription = if (note != null) tr("Modifier la note : ${h.habit.name}", "Edit the note: ${h.habit.name}") else tr("Note du jour : ${h.habit.name}", "Note of the day: ${h.habit.name}"),
                 tint = if (note != null) color else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -219,7 +220,7 @@ private fun TodayHabitRow(h: HabitWithStats, today: Long, note: String?, onClick
                     .clip(CircleShape)
                     .background(if (done) color else Color.Transparent)
                     .border(2.dp, if (done) color else MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                    .semantics { contentDescription = if (done) "${h.habit.name} : fait" else "Cocher ${h.habit.name}" },
+                    .semantics { contentDescription = if (done) tr("${h.habit.name} : fait", "${h.habit.name}: done") else tr("Cocher ${h.habit.name}", "Check ${h.habit.name}") },
                 contentAlignment = Alignment.Center,
             ) {
                 if (done) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
@@ -257,7 +258,7 @@ private fun ProgressCard(done: Int, total: Int) {
                 if (total > 0 && done < total) {
                     val left = total - done
                     Text(
-                        if (left == 1) "Plus qu'une tâche." else "Encore $left tâches.",
+                        if (left == 1) tr("Plus qu'une tâche.", "Just one task left.") else tr("Encore $left tâches.", "$left tasks left."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
@@ -268,9 +269,9 @@ private fun ProgressCard(done: Int, total: Int) {
 }
 
 internal fun encouragement(done: Int, total: Int): String = when {
-    total == 0 -> "Rien de prévu. Ajoute une petite tâche pour bien démarrer !"
-    done == 0 -> "Un petit pas suffit pour commencer."
-    done == total -> "Tout est fait, bravo ! 🎉"
-    done * 2 >= total -> "Bien joué, déjà $done sur $total !"
-    else -> "C'est parti, continue comme ça !"
+    total == 0 -> tr("Rien de prévu. Ajoute une petite tâche pour bien démarrer !", "Nothing planned. Add a small task to get started!")
+    done == 0 -> tr("Un petit pas suffit pour commencer.", "One small step is enough to start.")
+    done == total -> tr("Tout est fait, bravo ! 🎉", "All done, well done! 🎉")
+    done * 2 >= total -> tr("Bien joué, déjà $done sur $total !", "Nice, already $done of $total!")
+    else -> tr("C'est parti, continue comme ça !", "Off you go, keep it up!")
 }

@@ -5,6 +5,7 @@
  */
 package app.sentier.data
 
+import app.sentier.domain.tr
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -73,15 +74,15 @@ object AutoBackup {
     /** Écrit une sauvegarde maintenant. Renvoie un message d'erreur, ou null si tout s'est bien passé. */
     suspend fun run(app: SentierApplication, now: Long = System.currentTimeMillis()): String? {
         val s = app.settings.currentAutoBackup()
-        val folder = s.folder?.let(Uri::parse) ?: return "Choisis d'abord un dossier."
+        val folder = s.folder?.let(Uri::parse) ?: return tr("Choisis d'abord un dossier.", "Choose a folder first.")
         val error = try {
             val text = app.backup.export(now)
             withContext(Dispatchers.IO) { write(app, folder, fileName(LocalDate.now()), text) }
             null
         } catch (e: SecurityException) {
-            "Sentier n'a plus accès au dossier choisi : choisis-le à nouveau."
+            tr("Sentier n'a plus accès au dossier choisi : choisis-le à nouveau.", "Sentier no longer has access to the chosen folder: choose it again.")
         } catch (e: Exception) {
-            "La sauvegarde automatique n'a pas pu être écrite dans le dossier choisi."
+            tr("La sauvegarde automatique n'a pas pu être écrite dans le dossier choisi.", "The automatic backup could not be written to the chosen folder.")
         }
         app.settings.setAutoBackupResult(if (error == null) now else null, error)
         return error
@@ -105,9 +106,9 @@ object AutoBackup {
         // Celle du jour remplace une éventuelle sauvegarde du même jour.
         val target = existing[name]
             ?: DocumentsContract.createDocument(resolver, parent, "application/json", name)
-            ?: throw IllegalStateException("Création du fichier impossible")
+            ?: throw IllegalStateException(tr("Création du fichier impossible", "Could not create the file"))
         resolver.openOutputStream(target, "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) }
-            ?: throw IllegalStateException("Écriture impossible")
+            ?: throw IllegalStateException(tr("Écriture impossible", "Could not write"))
         for (old in toDelete(existing.keys.toList() + name)) {
             existing[old]?.let { runCatching { DocumentsContract.deleteDocument(resolver, it) } }
         }

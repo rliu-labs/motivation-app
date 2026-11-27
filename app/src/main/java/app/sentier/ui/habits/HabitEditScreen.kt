@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.habits
 
+import app.sentier.domain.tr
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -82,7 +83,7 @@ import kotlin.math.roundToInt
 /** Heure proposée pour un nouveau rappel d'habitude : 9 h. */
 private const val DEFAULT_HABIT_REMINDER = 9 * 60
 
-private enum class FreqMode(val label: String) { DAILY("Chaque jour"), WEEK("Par semaine"), MONTH("Par mois") }
+private enum class FreqMode(val label: String) { DAILY(tr("Chaque jour", "Every day")), WEEK(tr("Par semaine", "Per week")), MONTH(tr("Par mois", "Per month")) }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -109,11 +110,11 @@ fun HabitEditScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (vm.isNew) "Nouvelle habitude" else "Modifier l'habitude") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(if (vm.isNew) tr("Nouvelle habitude", "New habit") else tr("Modifier l'habitude", "Edit habit")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
                 actions = {
                     if (!vm.isNew) {
-                        IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Filled.Delete, "Supprimer l'habitude") }
+                        IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Filled.Delete, tr("Supprimer l'habitude", "Delete habit")) }
                     }
                 },
             )
@@ -130,14 +131,14 @@ fun HabitEditScreen(
                         StrengthRing(s.strength, Color(s.habit.color), HabitIcons.of(s.habit.icon), size = 56)
                         Spacer(Modifier.width(16.dp))
                         Column {
-                            Text("Force : ${(s.strength * 100).roundToInt()} %", style = MaterialTheme.typography.titleMedium)
+                            Text(tr("Force : ${(s.strength * 100).roundToInt()} %", "Strength: ${(s.strength * 100).roundToInt()}%"), style = MaterialTheme.typography.titleMedium)
                             val count = s.values.count { (d, _) -> s.isDoneOn(d) }
                             Text(
-                                if (count == 1) "Réalisée 1 fois" else "Réalisée $count fois",
+                                if (count == 1) tr("Réalisée 1 fois", "Done once") else tr("Réalisée $count fois", "Done $count times"),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Text(
-                                "Un jour raté fait baisser la force doucement, sans tout remettre à zéro.",
+                                tr("Un jour raté fait baisser la force doucement, sans tout remettre à zéro.", "A missed day lowers the strength gently, without resetting everything."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -151,7 +152,7 @@ fun HabitEditScreen(
             }
 
             if (vm.isNew) {
-                Text("Modèles", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Modèles", "Templates"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     for (t in HabitTemplates) {
                         AssistChip(
@@ -166,24 +167,24 @@ fun HabitEditScreen(
             OutlinedTextField(
                 value = h.name,
                 onValueChange = { v -> vm.edit { it.copy(name = v) } },
-                label = { Text("Nom") },
+                label = { Text(tr("Nom", "Name")) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag("habitName"),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             )
 
-            Text("Type", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Type", "Type"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 SegmentedButton(
                     selected = !h.isNumeric,
                     onClick = { vm.edit { it.copy(type = Habit.TYPE_BOOLEAN) } },
                     shape = SegmentedButtonDefaults.itemShape(0, 2),
-                ) { Text("Oui / non") }
+                ) { Text(tr("Oui / non", "Yes / no")) }
                 SegmentedButton(
                     selected = h.isNumeric,
                     onClick = { vm.edit { it.copy(type = Habit.TYPE_NUMERIC, target = if (it.target <= 1.0) 8.0 else it.target) } },
                     shape = SegmentedButtonDefaults.itemShape(1, 2),
-                ) { Text("Chiffrée") }
+                ) { Text(tr("Chiffrée", "Measurable")) }
             }
             if (h.isNumeric) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -194,7 +195,7 @@ fun HabitEditScreen(
                             targetText = v
                             v.replace(',', '.').toDoubleOrNull()?.let { t -> vm.edit { it.copy(target = t) } }
                         },
-                        label = { Text("Objectif par jour") },
+                        label = { Text(tr("Objectif par jour", "Daily goal")) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.weight(1f),
@@ -202,7 +203,7 @@ fun HabitEditScreen(
                     OutlinedTextField(
                         value = h.unit,
                         onValueChange = { v -> vm.edit { it.copy(unit = v) } },
-                        label = { Text("Unité") },
+                        label = { Text(tr("Unité", "Unit")) },
                         placeholder = { Text("verres") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
@@ -210,7 +211,7 @@ fun HabitEditScreen(
                 }
             }
 
-            Text("Fréquence", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Fréquence", "Frequency"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             val mode = when {
                 h.freqNum >= h.freqDen -> FreqMode.DAILY
                 h.freqDen == 7 -> FreqMode.WEEK
@@ -236,19 +237,19 @@ fun HabitEditScreen(
             if (mode != FreqMode.DAILY) {
                 val max = if (mode == FreqMode.WEEK) 6 else 29
                 Stepper(
-                    label = if (mode == FreqMode.WEEK) "Fois par semaine" else "Fois par mois",
+                    label = if (mode == FreqMode.WEEK) tr("Fois par semaine", "Times per week") else tr("Fois par mois", "Times per month"),
                     value = "${h.freqNum}",
                     onMinus = { vm.edit { it.copy(freqNum = (it.freqNum - 1).coerceAtLeast(1)) } },
                     onPlus = { vm.edit { it.copy(freqNum = (it.freqNum + 1).coerceAtMost(max)) } },
                 )
             }
 
-            Text("Rappel", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Rappel", "Reminder"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Me le rappeler chaque jour", style = MaterialTheme.typography.bodyLarge)
+                    Text(tr("Me le rappeler chaque jour", "Remind me every day"), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Seulement si elle n'est pas encore faite.",
+                        tr("Seulement si elle n'est pas encore faite.", "Only if it isn't done yet."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -259,7 +260,7 @@ fun HabitEditScreen(
                         vm.edit { it.copy(reminderMinute = if (on) DEFAULT_HABIT_REMINDER else null) }
                         if (on) askNotifications()
                     },
-                    modifier = Modifier.semantics { contentDescription = "Rappel de l'habitude" },
+                    modifier = Modifier.semantics { contentDescription = tr("Rappel de l'habitude", "Habit reminder") },
                 )
             }
             h.reminderMinute?.let { minute ->
@@ -269,7 +270,7 @@ fun HabitEditScreen(
                 ) {
                     Icon(Icons.Filled.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Text(
-                        "À ${ReminderContent.formatMinute(minute)}",
+                        tr("À ${ReminderContent.formatMinute(minute)}", "At ${ReminderContent.formatMinute(minute)}"),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 8.dp),
@@ -277,17 +278,17 @@ fun HabitEditScreen(
                 }
                 if (!canPost) {
                     Text(
-                        "Les notifications de Sentier sont bloquées : autorise-les pour recevoir ce rappel.",
+                        tr("Les notifications de Sentier sont bloquées : autorise-les pour recevoir ce rappel.", "Sentier's notifications are blocked: allow them to get this reminder."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
             }
 
-            Text("Difficulté", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Difficulté", "Difficulty"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             DifficultySelector(h.difficulty) { d -> vm.edit { it.copy(difficulty = d) } }
 
-            Text("Couleur", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Couleur", "Color"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 for (c in ListPalette) {
                     Box(
@@ -297,12 +298,12 @@ fun HabitEditScreen(
                             .background(Color(c))
                             .then(if (c == h.color) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
                             .clickable { vm.edit { it.copy(color = c) } }
-                            .semantics { contentDescription = "Couleur" },
+                            .semantics { contentDescription = tr("Couleur", "Color") },
                     )
                 }
             }
 
-            Text("Icône", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Icône", "Icon"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 for ((name, icon) in HabitIcons.all) {
                     val selected = name == h.icon
@@ -323,7 +324,7 @@ fun HabitEditScreen(
                 onClick = { vm.save(onBack) },
                 enabled = h.name.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            ) { Text("Enregistrer") }
+            ) { Text(tr("Enregistrer", "Save")) }
             Spacer(Modifier.size(24.dp))
         }
 
@@ -342,10 +343,10 @@ fun HabitEditScreen(
         if (confirmDelete) {
             AlertDialog(
                 onDismissRequest = { confirmDelete = false },
-                title = { Text("Supprimer cette habitude ?") },
-                text = { Text("« ${h.name} » et tout son historique seront supprimés.") },
-                confirmButton = { TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text("Supprimer") } },
-                dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Garder") } },
+                title = { Text(tr("Supprimer cette habitude ?", "Delete this habit?")) },
+                text = { Text(tr("« ${h.name} » et tout son historique seront supprimés.", "“${h.name}” and all its history will be deleted.")) },
+                confirmButton = { TextButton(onClick = { confirmDelete = false; vm.delete(onBack) }) { Text(tr("Supprimer", "Delete")) } },
+                dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(tr("Garder", "Keep")) } },
             )
         }
     }

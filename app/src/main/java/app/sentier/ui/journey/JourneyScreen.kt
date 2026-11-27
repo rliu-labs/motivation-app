@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.journey
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -102,29 +103,29 @@ fun JourneyScreen(
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)) {
                 Text(journey.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    if (viewing != null) "Voyage terminé : retrouve ses escales et ses souvenirs."
-                    else "Chaque pas te rapproche de la prochaine escale.",
+                    if (viewing != null) tr("Voyage terminé : retrouve ses escales et ses souvenirs.", "Journey finished: see its stops and souvenirs again.")
+                    else tr("Chaque pas te rapproche de la prochaine escale.", "Every step brings you closer to the next stop."),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (viewing != null) {
                     TextButton(onClick = { viewingId = null }, modifier = Modifier.padding(top = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Text("Revenir à « ${state.journey.title} »", modifier = Modifier.padding(start = 8.dp))
+                        Text(tr("Revenir à « ${state.journey.title} »", "Back to “${state.journey.title}”"), modifier = Modifier.padding(start = 8.dp))
                     }
                 }
             }
         }
         item { ProgressCard(p, state.stepLengthCm, next = if (viewing == null) state.next else null, onChoose = { choosing = true }) }
         item {
-            SectionHeader(if (p.currentIndex == 0 && !p.done) "Point de départ" else "Dernière escale")
+            SectionHeader(if (p.currentIndex == 0 && !p.done) tr("Point de départ", "Starting point") else tr("Dernière escale", "Latest stop"))
             StopCard(journey, p.currentIndex, p.current, Modifier.padding(horizontal = 16.dp))
         }
         item {
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp)) {
-                Text("Carnet de voyage", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text(tr("Carnet de voyage", "Travel journal"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Les souvenirs rapportés de chaque escale, et les trésors rares gagnés avec tes niveaux, tes séries, tes badges et tes défis.",
+                    tr("Les souvenirs rapportés de chaque escale, et les trésors rares gagnés avec tes niveaux, tes séries, tes badges et tes défis.", "Souvenirs brought back from each stop, and rare treasures earned with your levels, streaks, badges and challenges."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -133,14 +134,14 @@ fun JourneyScreen(
         item { PassportEntry(onClick = onOpenPassport) }
         item {
             val owned = p.reached.size
-            SectionHeader("Souvenirs ($owned sur ${journey.stops.size})")
+            SectionHeader(tr("Souvenirs ($owned sur ${journey.stops.size})", "Souvenirs ($owned of ${journey.stops.size})"))
             SouvenirGrid(journey, p.currentIndex, onOpen = { opened = it })
         }
         item {
-            SectionHeader("Trésors rares (${treasures.count { it.owned }} sur ${treasures.size})")
+            SectionHeader(tr("Trésors rares (${treasures.count { it.owned }} sur ${treasures.size})", "Rare treasures (${treasures.count { it.owned }} of ${treasures.size})"))
             TreasureGrid(treasures, onOpen = { openedTreasure = it })
         }
-        item { SectionHeader("Itinéraire") }
+        item { SectionHeader(tr("Itinéraire", "Route")) }
         itemsIndexed(journey.stops, key = { i, _ -> "stop-${journey.id}-$i" }) { i, stop ->
             val reached = i <= p.currentIndex
             val isNext = i == p.currentIndex + 1
@@ -165,7 +166,7 @@ fun JourneyScreen(
                     Text(
                         when {
                             reached -> "${stop.country} · ${stop.souvenir.name}"
-                            isNext -> "${stop.country} · dans ${formatKm(p.kmToNext)} km"
+                            isNext -> tr("${stop.country} · dans ${formatKm(p.kmToNext)} km", "${stop.country} · in ${formatKm(p.kmToNext)} km")
                             else -> stop.country
                         }
                     )
@@ -175,7 +176,7 @@ fun JourneyScreen(
                 modifier = if (reached) Modifier.clickable { opened = stop } else Modifier,
             )
         }
-        item { SectionHeader("Mes voyages") }
+        item { SectionHeader(tr("Mes voyages", "My journeys")) }
         items(Journeys.all, key = { "journey-${it.id}" }) { j ->
             JourneyRow(
                 j, state,
@@ -208,12 +209,12 @@ fun JourneyScreen(
         val latest = state.unseen.last()
         val n = state.unseen.size
         val xp = WorldTour.STOP_XP * n
-        val gain = (if (n > 1) "+$xp XP, +${xp / 5} or pour $n escales et leurs souvenirs" else "+$xp XP, +${xp / 5} or") +
-            (if (n > 1) "\n$n tampons ajoutés à ton passeport." else "\nTampon ajouté à ton passeport.")
+        val gain = (if (n > 1) tr("+$xp XP, +${xp / 5} or pour $n escales et leurs souvenirs", "+$xp XP, +${xp / 5} gold for $n stops and their souvenirs") else tr("+$xp XP, +${xp / 5} or", "+$xp XP, +${xp / 5} gold")) +
+            (if (n > 1) tr("\n$n tampons ajoutés à ton passeport.", "\n$n stamps added to your passport.") else tr("\nTampon ajouté à ton passeport.", "\nStamp added to your passport."))
         val footer = if (latest.index == latest.journey.stops.lastIndex) {
-            "$gain\n${latest.journey.title} bouclé ! Choisis ton prochain voyage sous la carte."
+            tr("$gain\n${latest.journey.title} bouclé ! Choisis ton prochain voyage sous la carte.", "$gain\n${latest.journey.title} complete! Choose your next journey below the map.")
         } else gain
-        StopDialog(latest.journey, latest.stop, title = "Escale : ${latest.stop.city}", footer = footer, onDismiss = { vm.dismissNews() })
+        StopDialog(latest.journey, latest.stop, title = tr("Escale : ${latest.stop.city}", "Stop: ${latest.stop.city}"), footer = footer, onDismiss = { vm.dismissNews() })
     }
 }
 
@@ -233,12 +234,12 @@ private fun ProgressCard(p: TourProgress, stepLengthCm: Int, next: List<Journey>
             )
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${formatKm(p.km.coerceAtMost(journey.lengthKm))} km sur ${formatKm(journey.lengthKm)}",
+                    tr("${formatKm(p.km.coerceAtMost(journey.lengthKm))} km sur ${formatKm(journey.lengthKm)}", "${formatKm(p.km.coerceAtMost(journey.lengthKm))} km of ${formatKm(journey.lengthKm)}"),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    "Escale ${p.currentIndex} sur ${p.stops.lastIndex}",
+                    tr("Escale ${p.currentIndex} sur ${p.stops.lastIndex}", "Stop ${p.currentIndex} of ${p.stops.lastIndex}"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -247,12 +248,12 @@ private fun ProgressCard(p: TourProgress, stepLengthCm: Int, next: List<Journey>
             Text(
                 when {
                     p.done && next != null && next.isEmpty() ->
-                        "${journey.title} bouclé. Tu as fait tous les voyages proposés pour l'instant : d'autres arrivent bientôt !"
-                    p.done -> "${journey.title} bouclé : ${formatKm(journey.lengthKm)} km parcourus. Chapeau !"
+                        tr("${journey.title} bouclé. Tu as fait tous les voyages proposés pour l'instant : d'autres arrivent bientôt !", "${journey.title} complete. You have done every journey available for now: more are coming soon!")
+                    p.done -> tr("${journey.title} bouclé : ${formatKm(journey.lengthKm)} km parcourus. Chapeau !", "${journey.title} complete: ${formatKm(journey.lengthKm)} km walked. Hats off!")
                     p.km == 0.0 && journey.id == WorldTour.journey.id ->
-                        "Active le comptage des pas dans l'onglet Habitudes pour te mettre en route."
-                    nextStop != null -> "Prochaine escale : ${nextStop.city} (${nextStop.country}), dans ${formatKm(p.kmToNext)} km, " +
-                        "environ ${formatSteps(p.kmToNext, stepLengthCm)} pas."
+                        tr("Active le comptage des pas dans l'onglet Habitudes pour te mettre en route.", "Turn on step counting in the Habits tab to get going.")
+                    nextStop != null -> tr("Prochaine escale : ${nextStop.city} (${nextStop.country}), dans ${formatKm(p.kmToNext)} km, ", "Next stop: ${nextStop.city} (${nextStop.country}), in ${formatKm(p.kmToNext)} km, ") +
+                        tr("environ ${formatSteps(p.kmToNext, stepLengthCm)} pas.", "about ${formatSteps(p.kmToNext, stepLengthCm)} steps.")
                     else -> ""
                 },
                 style = MaterialTheme.typography.bodyMedium,
@@ -261,7 +262,7 @@ private fun ProgressCard(p: TourProgress, stepLengthCm: Int, next: List<Journey>
             if (p.done && !next.isNullOrEmpty()) {
                 Button(onClick = onChoose, modifier = Modifier.padding(top = 12.dp)) {
                     Icon(Icons.Filled.Flight, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text("Choisir le prochain voyage", modifier = Modifier.padding(start = 8.dp))
+                    Text(tr("Choisir le prochain voyage", "Choose the next journey"), modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }
@@ -281,11 +282,11 @@ private fun JourneyRow(j: Journey, state: JourneyState, viewing: Boolean, onOpen
         else -> Icons.Filled.Lock to colors.outline
     }
     val status = when {
-        current && finished -> "Bouclé · ${formatKm(j.lengthKm)} km"
-        current -> "En cours · ${formatKm(state.progress.km)} km sur ${formatKm(j.lengthKm)}"
-        finished -> "Bouclé · ${j.stops.size - 1} souvenirs rapportés"
-        ready -> "Prêt à partir · ${j.stops.size - 1} escales, ${formatKm(j.lengthKm)} km"
-        else -> "Après : ${Journeys.prerequisite(j)?.title ?: "le voyage précédent"}"
+        current && finished -> tr("Bouclé · ${formatKm(j.lengthKm)} km", "Complete · ${formatKm(j.lengthKm)} km")
+        current -> tr("En cours · ${formatKm(state.progress.km)} km sur ${formatKm(j.lengthKm)}", "In progress · ${formatKm(state.progress.km)} km of ${formatKm(j.lengthKm)}")
+        finished -> tr("Bouclé · ${j.stops.size - 1} souvenirs rapportés", "Complete · ${j.stops.size - 1} souvenirs brought back")
+        ready -> tr("Prêt à partir · ${j.stops.size - 1} escales, ${formatKm(j.lengthKm)} km", "Ready to go · ${j.stops.size - 1} stops, ${formatKm(j.lengthKm)} km")
+        else -> tr("Après : ", "After: ") + (Journeys.prerequisite(j)?.title ?: tr("le voyage précédent", "the previous journey"))
     }
     ListItem(
         leadingContent = { Icon(icon, contentDescription = null, tint = tint) },
@@ -302,11 +303,11 @@ private fun ChooseJourneyDialog(options: List<Journey>, onChoose: (Journey) -> U
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Flight, contentDescription = null) },
-        title = { Text("Prochain voyage") },
+        title = { Text(tr("Prochain voyage", "Next journey")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    "Les pas faits depuis la fin de ton dernier voyage comptent déjà pour le suivant.",
+                    tr("Les pas faits depuis la fin de ton dernier voyage comptent déjà pour le suivant.", "Steps walked since the end of your last journey already count for the next one."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp),
@@ -314,7 +315,7 @@ private fun ChooseJourneyDialog(options: List<Journey>, onChoose: (Journey) -> U
                 options.forEach { j ->
                     ListItem(
                         headlineContent = { Text(j.title, fontWeight = FontWeight.SemiBold) },
-                        supportingContent = { Text("${j.tagline}\n${j.stops.size - 1} escales · ${formatKm(j.lengthKm)} km") },
+                        supportingContent = { Text(tr("${j.tagline}\n${j.stops.size - 1} escales · ${formatKm(j.lengthKm)} km", "${j.tagline}\n${j.stops.size - 1} stops · ${formatKm(j.lengthKm)} km")) },
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                         modifier = Modifier
                             .padding(vertical = 4.dp)
@@ -324,7 +325,7 @@ private fun ChooseJourneyDialog(options: List<Journey>, onChoose: (Journey) -> U
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Plus tard") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Plus tard", "Later")) } },
     )
 }
 
@@ -345,21 +346,21 @@ private fun StopCard(journey: Journey, index: Int, stop: Stop, modifier: Modifie
 
 @Composable
 private fun StopHeader(stop: Stop) {
-    Text(stop.country.uppercase(Locale.FRANCE), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+    Text(stop.country.uppercase(app.sentier.domain.Lang.locale), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
     Text(stop.city, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
 }
 
 @Composable
 private fun StopDetails(stop: Stop, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Topic(Icons.Filled.AccountBalance, "Architecture", stop.architecture)
-        Topic(Icons.Filled.Celebration, "Culture", stop.culture)
-        Topic(Icons.Filled.Lightbulb, "Le savais-tu ?", stop.anecdote)
+        Topic(Icons.Filled.AccountBalance, tr("Architecture", "Architecture"), stop.architecture)
+        Topic(Icons.Filled.Celebration, tr("Culture", "Culture"), stop.culture)
+        Topic(Icons.Filled.Lightbulb, tr("Le savais-tu ?", "Did you know?"), stop.anecdote)
         HorizontalDivider()
         Row(verticalAlignment = Alignment.CenterVertically) {
             SouvenirBadge(stop, owned = true, size = 44)
             Column(Modifier.padding(start = 12.dp)) {
-                Text("Souvenir : ${stop.souvenir.name}", style = MaterialTheme.typography.titleSmall)
+                Text(tr("Souvenir : ${stop.souvenir.name}", "Souvenir: ${stop.souvenir.name}"), style = MaterialTheme.typography.titleSmall)
                 Text(stop.souvenir.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -407,7 +408,7 @@ private fun SouvenirGrid(journey: Journey, currentIndex: Int, onOpen: (Stop) -> 
                             .clip(MaterialTheme.shapes.medium)
                             .then(if (owned) Modifier.clickable { onOpen(stop) } else Modifier)
                             .padding(vertical = 4.dp)
-                            .semantics { contentDescription = if (owned) "Souvenir : ${stop.souvenir.name}" else "Souvenir à découvrir : ${stop.country}" },
+                            .semantics { contentDescription = if (owned) tr("Souvenir : ${stop.souvenir.name}", "Souvenir: ${stop.souvenir.name}") else tr("Souvenir à découvrir : ${stop.country}", "Souvenir to discover: ${stop.country}") },
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         SouvenirBadge(stop, owned, size = 48)
@@ -452,13 +453,13 @@ internal fun StopDialog(journey: Journey, stop: Stop, title: String, footer: Str
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(if (footer != null) "Continuer" else "Fermer") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(if (footer != null) tr("Continuer", "Continue") else tr("Fermer", "Close")) } },
     )
 }
 
 /** Kilomètres à la française, sans décimale au-delà de 100 km (ex. « 3,2 », « 245 »). */
 fun formatKm(km: Double): String =
-    if (km >= 100 || km == Math.floor(km)) "%.0f".format(Locale.FRANCE, km) else "%.1f".format(Locale.FRANCE, km)
+    if (km >= 100 || km == Math.floor(km)) "%.0f".format(app.sentier.domain.Lang.locale, km) else "%.1f".format(app.sentier.domain.Lang.locale, km)
 
 private fun formatSteps(km: Double, stepLengthCm: Int): String =
-    NumberFormat.getIntegerInstance(Locale.FRANCE).format(Math.round(km * 100_000 / stepLengthCm.coerceAtLeast(1)))
+    NumberFormat.getIntegerInstance(app.sentier.domain.Lang.locale).format(Math.round(km * 100_000 / stepLengthCm.coerceAtLeast(1)))

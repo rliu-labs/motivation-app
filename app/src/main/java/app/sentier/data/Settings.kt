@@ -16,6 +16,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import app.sentier.domain.AppLanguage
+import app.sentier.domain.tr
 import app.sentier.domain.Journeys
 import app.sentier.domain.WorldTour
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +41,9 @@ data class StepSettings(
 )
 
 /** Thème de l'appli : celui du téléphone, ou toujours clair, ou toujours sombre. */
-enum class ThemeMode(val label: String) { SYSTEM("Comme le téléphone"), LIGHT("Clair"), DARK("Sombre") }
+enum class ThemeMode(val label: String) {
+    SYSTEM(tr("Comme le téléphone", "Same as the phone")), LIGHT(tr("Clair", "Light")), DARK(tr("Sombre", "Dark"))
+}
 
 /** Sauvegarde automatique chaque semaine dans un dossier choisi. */
 data class AutoBackupSettings(
@@ -53,7 +57,9 @@ data class AutoBackupSettings(
 )
 
 /** Présentation de l'onglet Tâches. */
-enum class TaskView(val label: String) { BY_DATE("Par date"), MANUAL("Mon ordre"), CALENDAR("Calendrier") }
+enum class TaskView(val label: String) {
+    BY_DATE(tr("Par date", "By date")), MANUAL(tr("Mon ordre", "My order")), CALENDAR(tr("Calendrier", "Calendar"))
+}
 
 /** Rappels du matin et du soir. Les heures sont en minutes depuis minuit. */
 data class ReminderSettings(
@@ -106,7 +112,15 @@ class Settings(private val context: Context) {
         val autoBackupLast = longPreferencesKey("auto_backup_last")
         val autoBackupError = stringPreferencesKey("auto_backup_error")
         val healthAuto = booleanPreferencesKey("health_sleep_sport")
+        val language = stringPreferencesKey("language")
     }
+
+    /** Langue de l'appli. Français par défaut, comme avant l'arrivée de l'anglais. */
+    val language: Flow<AppLanguage> = context.dataStore.data.map { p ->
+        p[Keys.language]?.let { v -> AppLanguage.entries.firstOrNull { it.name == v } } ?: AppLanguage.FR
+    }
+
+    suspend fun setLanguage(language: AppLanguage) = context.dataStore.edit { it[Keys.language] = language.name }
 
     /** Sommeil et sport lus dans Health Connect pour cocher les habitudes (propre à ce téléphone). */
     val healthAuto: Flow<Boolean> = context.dataStore.data.map { it[Keys.healthAuto] ?: false }

@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.tasks
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,24 +74,24 @@ fun TaskCalendar(
     Column(modifier.fillMaxWidth().widthIn(max = 520.dp).padding(horizontal = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { onMonth(month.minusMonths(1)) }) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Mois précédent")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = tr("Mois précédent", "Previous month"))
             }
-            val title = month.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.FRANCE)
-                .replaceFirstChar { it.titlecase(Locale.FRANCE) } + " " + month.year
+            val title = month.month.getDisplayName(TextStyle.FULL_STANDALONE, app.sentier.domain.Lang.locale)
+                .replaceFirstChar { it.titlecase(app.sentier.domain.Lang.locale) } + " " + month.year
             Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
             IconButton(onClick = { onMonth(month.plusMonths(1)) }) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Mois suivant")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = tr("Mois suivant", "Next month"))
             }
         }
         if (YearMonth.from(today) != month || selected != today) {
             TextButton(onClick = { onSelect(today) }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Revenir à aujourd'hui")
+                Text(tr("Revenir à aujourd'hui", "Back to today"))
             }
         }
         Row(Modifier.fillMaxWidth()) {
             for (d in DayOfWeek.entries) {
                 Text(
-                    d.getDisplayName(TextStyle.NARROW, Locale.FRANCE).uppercase(Locale.FRANCE),
+                    d.getDisplayName(TextStyle.NARROW, app.sentier.domain.Lang.locale).uppercase(app.sentier.domain.Lang.locale),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -132,9 +133,9 @@ private fun DayCell(
     val colors = MaterialTheme.colorScheme
     val late = day.isBefore(today) && tasks.isNotEmpty()
     val count = when (tasks.size) {
-        0 -> "aucune tâche"
-        1 -> "1 tâche"
-        else -> "${tasks.size} tâches"
+        0 -> tr("aucune tâche", "no tasks")
+        1 -> tr("1 tâche", "1 task")
+        else -> tr("${tasks.size} tâches", "${tasks.size} tasks")
     }
     Column(
         Modifier

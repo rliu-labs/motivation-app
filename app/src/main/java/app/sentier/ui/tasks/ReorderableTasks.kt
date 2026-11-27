@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.tasks
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -127,8 +128,8 @@ fun LazyListScope.reorderableTasks(
 @Composable
 private fun DragHandle(task: TaskWithCounts, index: Int, state: ReorderState) {
     val actions = buildList {
-        if (index > 0) add(CustomAccessibilityAction("Monter") { state.moveBy(task.id, -1) })
-        if (index < state.items.lastIndex) add(CustomAccessibilityAction("Descendre") { state.moveBy(task.id, 1) })
+        if (index > 0) add(CustomAccessibilityAction(tr("Monter", "Move up")) { state.moveBy(task.id, -1) })
+        if (index < state.items.lastIndex) add(CustomAccessibilityAction(tr("Descendre", "Move down")) { state.moveBy(task.id, 1) })
     }
     Box(
         Modifier
@@ -145,7 +146,7 @@ private fun DragHandle(task: TaskWithCounts, index: Int, state: ReorderState) {
                 )
             }
             .semantics {
-                contentDescription = "Déplacer ${task.title}"
+                contentDescription = tr("Déplacer ${task.title}", "Move ${task.title}")
                 customActions = actions
             },
         contentAlignment = Alignment.Center,

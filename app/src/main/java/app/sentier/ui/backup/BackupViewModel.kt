@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.backup
 
+import app.sentier.domain.tr
 import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
@@ -50,13 +51,13 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
             val text = sentier.backup.export()
             withContext(Dispatchers.IO) {
                 sentier.contentResolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) }
-                    ?: throw BackupException("Impossible d'écrire le fichier.")
+                    ?: throw BackupException(tr("Impossible d'écrire le fichier.", "Could not write the file."))
             }
-            BackupUiState(message = "Sauvegarde enregistrée. Garde ce fichier en lieu sûr : il contient toutes tes données.")
+            BackupUiState(message = tr("Sauvegarde enregistrée. Garde ce fichier en lieu sûr : il contient toutes tes données.", "Backup saved. Keep this file somewhere safe: it holds all your data."))
         } catch (e: BackupException) {
             BackupUiState(message = e.message, error = true)
         } catch (e: Exception) {
-            BackupUiState(message = "Impossible d'écrire le fichier.", error = true)
+            BackupUiState(message = tr("Impossible d'écrire le fichier.", "Could not write the file."), error = true)
         }
     }
 
@@ -67,15 +68,15 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
             val text = withContext(Dispatchers.IO) {
                 sentier.contentResolver.openInputStream(uri)?.use { input ->
                     val bytes = input.readNBytesCompat(MAX_BYTES + 1)
-                    if (bytes.size > MAX_BYTES) throw BackupException("Ce fichier est trop gros pour être une sauvegarde de Sentier.")
+                    if (bytes.size > MAX_BYTES) throw BackupException(tr("Ce fichier est trop gros pour être une sauvegarde de Sentier.", "This file is too big to be a Sentier backup."))
                     String(bytes, Charsets.UTF_8)
-                } ?: throw BackupException("Impossible de lire ce fichier.")
+                } ?: throw BackupException(tr("Impossible de lire ce fichier.", "Could not read this file."))
             }
             BackupUiState(pending = sentier.backup.read(text))
         } catch (e: BackupException) {
             BackupUiState(message = e.message, error = true)
         } catch (e: Exception) {
-            BackupUiState(message = "Impossible de lire ce fichier.", error = true)
+            BackupUiState(message = tr("Impossible de lire ce fichier.", "Could not read this file."), error = true)
         }
     }
 
@@ -88,11 +89,11 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
                 Reminders.apply(sentier, sentier.settings.currentReminders())
                 runCatching { HabitReminders.rescheduleAll(sentier) }
                 if (Widgets.anyPlaced(sentier)) runCatching { Widgets.updateAll(sentier) }
-                BackupUiState(message = "Données restaurées : ${file.tasks} tâches, ${file.habits} habitudes et tout ton historique.")
+                BackupUiState(message = tr("Données restaurées : ${file.tasks} tâches, ${file.habits} habitudes et tout ton historique.", "Data restored: ${file.tasks} tasks, ${file.habits} habits and all your history."))
             } catch (e: BackupException) {
                 BackupUiState(message = e.message, error = true)
             } catch (e: Exception) {
-                BackupUiState(message = "La restauration a échoué : rien n'a été modifié.", error = true)
+                BackupUiState(message = tr("La restauration a échoué : rien n'a été modifié.", "The restore failed: nothing was changed."), error = true)
             }
         }
     }
@@ -110,7 +111,7 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
     fun chooseFolder(folder: Uri) = viewModelScope.launch {
         val ok = runCatching { AutoBackup.keepAccess(sentier, folder) }.isSuccess
         if (!ok) {
-            _state.value = BackupUiState(message = "Sentier ne peut pas écrire dans ce dossier. Choisis-en un autre.", error = true)
+            _state.value = BackupUiState(message = tr("Sentier ne peut pas écrire dans ce dossier. Choisis-en un autre.", "Sentier can't write to this folder. Choose another one."), error = true)
             return@launch
         }
         sentier.settings.setAutoBackup(true, folder.toString())
@@ -127,7 +128,7 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
         _state.value = BackupUiState(busy = true)
         val error = AutoBackup.run(sentier)
         _state.value = if (error == null) {
-            BackupUiState(message = "Sauvegarde automatique faite. La prochaine aura lieu dans une semaine.")
+            BackupUiState(message = tr("Sauvegarde automatique faite. La prochaine aura lieu dans une semaine.", "Automatic backup done. The next one will be in a week."))
         } else {
             BackupUiState(message = error, error = true)
         }

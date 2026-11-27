@@ -3,6 +3,22 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.16.0] - 2026-11-27
+
+Sentier parle anglais : choix de la langue dans les réglages.
+
+### Ajouté
+- Réglage « Langue » (onglet Progrès) : Comme le téléphone, Français ou English. L'appli redémarre pour appliquer le choix.
+- Toute l'interface en anglais : écrans, notifications, rappels, widgets, bilan de la semaine, défis, badges, trésors,
+  défis saisonniers et modèles d'habitudes. Dates, heures et nombres suivent la langue choisie.
+
+### À venir
+- Les textes des escales des voyages (villes, architecture, culture, anecdotes) restent en français pour l'instant ;
+  leur traduction arrive dans une prochaine version.
+
+### Conservé
+- Le français reste la langue par défaut. Toutes les données sont gardées ; la base de données ne change pas.
+
 ## [0.15.0] - 2026-11-27
 
 Passeport de voyage, défis saisonniers, sommeil et sport automatiques.

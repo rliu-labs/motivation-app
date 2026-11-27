@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.stats
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
@@ -53,9 +54,9 @@ private val MONTH_LABELS = 14.dp
 
 /** Mots pour une intensité, pour la légende et les lecteurs d'écran. */
 internal fun actionsText(n: Int): String = when (n) {
-    0 -> "aucune action"
-    1 -> "1 action"
-    else -> "$n actions"
+    0 -> tr("aucune action", "no actions")
+    1 -> tr("1 action", "1 action")
+    else -> tr("$n actions", "$n actions")
 }
 
 /**
@@ -80,7 +81,7 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
 
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            "${year.activeDays} jours actifs sur l'année · ${actionsText(year.total)} · plus longue série ${year.bestRun} j",
+            tr("${year.activeDays} jours actifs sur l'année · ${actionsText(year.total)} · plus longue série ${year.bestRun} j", "${year.activeDays} active days this year · ${actionsText(year.total)} · longest streak ${year.bestRun} d"),
             style = MaterialTheme.typography.bodyMedium,
         )
         BoxWithConstraints {
@@ -96,8 +97,8 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
                     .height(MONTH_LABELS + step * 7)
                     .testTag("yearHeatmap")
                     .semantics {
-                        contentDescription = "Calendrier de l'année : ${year.activeDays} jours actifs, " +
-                            "${actionsText(year.total)}, plus longue série de ${year.bestRun} jours"
+                        contentDescription = tr("Calendrier de l'année : ${year.activeDays} jours actifs, ", "Year calendar: ${year.activeDays} active days, ") +
+                            tr("${actionsText(year.total)}, plus longue série de ${year.bestRun} jours", "${actionsText(year.total)}, longest streak of ${year.bestRun} days")
                     }
                     .pointerInput(year) {
                         detectTapGestures { p ->
@@ -116,7 +117,7 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
                 val c = cell.toPx()
                 val radius = CornerRadius(c / 4, c / 4)
                 // Initiales des jours, une ligne sur deux.
-                for ((row, label) in listOf(0 to "L", 2 to "M", 4 to "V")) {
+                for ((row, label) in listOf(0 to tr("L", "M"), 2 to tr("M", "W"), 4 to tr("V", "F"))) {
                     val text = measurer.measure(label, TextStyle(color = labelColor, fontSize = labelStyle.fontSize))
                     drawText(text, topLeft = Offset(0f, top + row * s + (c - text.size.height) / 2))
                 }
@@ -125,7 +126,7 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
                     val weekStart = LocalDate.ofEpochDay(startDay + col * 7L)
                     if (weekStart.monthValue != lastMonth && col < weeks - 2) {
                         if (lastMonth != -1 || weekStart.dayOfMonth <= 7) {
-                            val name = weekStart.month.getDisplayName(DateStyle.SHORT, Locale.FRANCE).trimEnd('.')
+                            val name = weekStart.month.getDisplayName(DateStyle.SHORT, app.sentier.domain.Lang.locale).trimEnd('.')
                             val text = measurer.measure(name, TextStyle(color = labelColor, fontSize = labelStyle.fontSize))
                             drawText(text, topLeft = Offset(left + col * s, 0f))
                         }
@@ -147,7 +148,7 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
             val day = selected
             Text(
                 if (day == null) {
-                    "Touche une case pour voir le détail d'une journée."
+                    tr("Touche une case pour voir le détail d'une journée.", "Tap a square to see a day's details.")
                 } else {
                     "${longDate(LocalDate.ofEpochDay(day))} : ${actionsText(year.countOn(day))}"
                 },
@@ -155,13 +156,13 @@ fun YearHeatmap(year: YearActivity, modifier: Modifier = Modifier) {
                 color = labelColor,
                 modifier = Modifier.weight(1f),
             )
-            Text("Moins", style = labelStyle, color = labelColor)
+            Text(tr("Moins", "Less"), style = labelStyle, color = labelColor)
             for (color in levels) {
                 Canvas(Modifier.padding(horizontal = 1.dp).size(10.dp)) {
                     drawRoundRect(color, cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()))
                 }
             }
-            Text("Plus", style = labelStyle, color = labelColor)
+            Text(tr("Plus", "More"), style = labelStyle, color = labelColor)
         }
     }
 }

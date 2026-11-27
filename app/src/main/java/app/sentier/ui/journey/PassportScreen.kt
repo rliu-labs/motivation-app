@@ -5,6 +5,7 @@
  */
 package app.sentier.ui.journey
 
+import app.sentier.domain.tr
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -104,7 +105,7 @@ private val Inks = listOf(
 
 fun inkOf(country: String): Color = Inks[abs(country.hashCode()) % Inks.size]
 
-private val StampDate: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.FRANCE)
+private val StampDate: DateTimeFormatter get() = DateTimeFormatter.ofPattern("d MMM yyyy", app.sentier.domain.Lang.locale)
 
 /** Accès au passeport depuis l'onglet Voyage. */
 @Composable
@@ -123,9 +124,9 @@ fun PassportEntry(onClick: () -> Unit, modifier: Modifier = Modifier) {
             ) { Icon(Icons.Filled.Public, contentDescription = null, tint = CoverGold) }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text("Mon passeport", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = CoverGold)
+                Text(tr("Mon passeport", "My passport"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = CoverGold)
                 Text(
-                    "Un tampon à chaque escale atteinte, tous voyages confondus",
+                    tr("Un tampon à chaque escale atteinte, tous voyages confondus", "A stamp for every stop reached, across all journeys"),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.85f),
                 )
@@ -144,8 +145,8 @@ fun PassportScreen(onBack: () -> Unit, vm: PassportViewModel = viewModel(factory
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mon passeport") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                title = { Text(tr("Mon passeport", "My passport")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back")) } },
             )
         },
     ) { padding ->
@@ -154,7 +155,7 @@ fun PassportScreen(onBack: () -> Unit, vm: PassportViewModel = viewModel(factory
             if (!state.loading && state.stamps == 0) {
                 item {
                     Text(
-                        "Ton premier tampon t'attend à la prochaine escale. Marche, et le passeport se remplira page après page.",
+                        tr("Ton premier tampon t'attend à la prochaine escale. Marche, et le passeport se remplira page après page.", "Your first stamp is waiting at the next stop. Walk, and the passport will fill up page after page."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
@@ -172,7 +173,7 @@ fun PassportScreen(onBack: () -> Unit, vm: PassportViewModel = viewModel(factory
         StopDialog(
             s.journey, s.stop,
             title = "${s.stop.city}, ${s.stop.country}",
-            footer = s.day?.let { "Tamponné le ${longDate(LocalDate.ofEpochDay(it)).replaceFirstChar { c -> c.lowercase() }}" },
+            footer = s.day?.let { tr("Tamponné le ${longDate(LocalDate.ofEpochDay(it)).replaceFirstChar { c -> c.lowercase() }}", "Stamped on ${longDate(LocalDate.ofEpochDay(it))}") },
             onDismiss = { opened = null },
         )
     }
@@ -190,7 +191,7 @@ private fun Cover(state: PassportState) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                "PASSEPORT DE VOYAGEUR",
+                tr("PASSEPORT DE VOYAGEUR", "TRAVELLER'S PASSPORT"),
                 style = MaterialTheme.typography.labelLarge,
                 letterSpacing = 3.sp,
                 color = CoverGold,
@@ -201,13 +202,13 @@ private fun Cover(state: PassportState) {
             ) { Icon(Icons.Filled.Public, contentDescription = null, tint = CoverGold, modifier = Modifier.size(40.dp)) }
             Text("Sentier", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = CoverGold)
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                CoverStat(state.stamps, if (state.stamps > 1) "tampons" else "tampon")
-                CoverStat(state.countries, "pays")
-                CoverStat(state.journeysDone, if (state.journeysDone > 1) "voyages bouclés" else "voyage bouclé")
+                CoverStat(state.stamps, if (state.stamps > 1) tr("tampons", "stamps") else tr("tampon", "stamp"))
+                CoverStat(state.countries, if (state.countries > 1) tr("pays", "countries") else tr("pays", "country"))
+                CoverStat(state.journeysDone, if (state.journeysDone > 1) tr("voyages bouclés", "journeys done") else tr("voyage bouclé", "journey done"))
             }
             state.firstDay?.let {
                 Text(
-                    "Premier tampon le ${longDate(LocalDate.ofEpochDay(it)).replaceFirstChar { c -> c.lowercase() }}",
+                    tr("Premier tampon le ${longDate(LocalDate.ofEpochDay(it)).replaceFirstChar { c -> c.lowercase() }}", "First stamp on ${longDate(LocalDate.ofEpochDay(it))}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.8f),
                 )
@@ -235,7 +236,7 @@ private fun PageCard(page: PassportPage, number: Int, onOpen: (Stamp) -> Unit) {
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                "PAGE $number",
+                tr("PAGE $number", "PAGE $number"),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -260,7 +261,7 @@ private fun PageCard(page: PassportPage, number: Int, onOpen: (Stamp) -> Unit) {
             )
             if (page.complete) {
                 Text(
-                    "Voyage bouclé : toutes les escales sont tamponnées.",
+                    tr("Voyage bouclé : toutes les escales sont tamponnées.", "Journey complete: every stop is stamped."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -293,9 +294,9 @@ fun StampView(s: Stamp, isNext: Boolean, onClick: () -> Unit, modifier: Modifier
             .then(if (s.stamped) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
             .semantics(mergeDescendants = true) {
                 contentDescription = if (s.stamped) {
-                    "Tampon de ${s.stop.city}, ${s.stop.country}, le ${StampDate.format(LocalDate.ofEpochDay(s.day!!))}"
+                    tr("Tampon de ${s.stop.city}, ${s.stop.country}, le ${StampDate.format(LocalDate.ofEpochDay(s.day!!))}", "Stamp of ${s.stop.city}, ${s.stop.country}, on ${StampDate.format(LocalDate.ofEpochDay(s.day!!))}")
                 } else {
-                    "Escale à venir : ${s.stop.city}"
+                    tr("Escale à venir : ${s.stop.city}", "Stop to come: ${s.stop.city}")
                 }
             },
         contentAlignment = Alignment.Center,
@@ -327,7 +328,7 @@ fun StampView(s: Stamp, isNext: Boolean, onClick: () -> Unit, modifier: Modifier
                     modifier = Modifier.padding(horizontal = 14.dp),
                 ) {
                     Text(
-                        s.stop.country.uppercase(Locale.FRANCE),
+                        s.stop.country.uppercase(app.sentier.domain.Lang.locale),
                         fontSize = 8.sp,
                         letterSpacing = 1.sp,
                         color = ink,
@@ -345,7 +346,7 @@ fun StampView(s: Stamp, isNext: Boolean, onClick: () -> Unit, modifier: Modifier
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        StampDate.format(LocalDate.ofEpochDay(s.day!!)).uppercase(Locale.FRANCE),
+                        StampDate.format(LocalDate.ofEpochDay(s.day!!)).uppercase(app.sentier.domain.Lang.locale),
                         fontSize = 8.sp,
                         color = ink,
                         maxLines = 1,
@@ -372,7 +373,7 @@ fun StampView(s: Stamp, isNext: Boolean, onClick: () -> Unit, modifier: Modifier
                 )
                 if (isNext) {
                     Text(
-                        "prochaine",
+                        tr("prochaine", "next"),
                         fontSize = 8.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier

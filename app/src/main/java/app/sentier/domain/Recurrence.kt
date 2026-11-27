@@ -85,15 +85,15 @@ data class Recurrence(
 
     /** Description en français, par ex. « Tous les 2 jours ». */
     fun describe(): String = when (frequency) {
-        Frequency.DAILY -> if (interval == 1) "Chaque jour" else "Tous les $interval jours"
-        Frequency.MONTHLY -> if (interval == 1) "Chaque mois" else "Tous les $interval mois"
+        Frequency.DAILY -> if (interval == 1) tr("Chaque jour", "Every day") else tr("Tous les $interval jours", "Every $interval days")
+        Frequency.MONTHLY -> if (interval == 1) tr("Chaque mois", "Every month") else tr("Tous les $interval mois", "Every $interval months")
         Frequency.WEEKLY -> {
-            val prefix = if (interval == 1) "Chaque semaine" else "Toutes les $interval semaines"
+            val prefix = if (interval == 1) tr("Chaque semaine", "Every week") else tr("Toutes les $interval semaines", "Every $interval weeks")
             when {
                 days.isEmpty() -> prefix
-                days == WEEKDAYS -> if (interval == 1) "En semaine (lun.–ven.)" else "$prefix, du lundi au vendredi"
-                days.size == 7 && interval == 1 -> "Chaque jour"
-                else -> "$prefix : " + days.sorted().joinToString(", ") { it.shortFr() }
+                days == WEEKDAYS -> if (interval == 1) tr("En semaine (lun.–ven.)", "Weekdays (Mon–Fri)") else tr("$prefix, du lundi au vendredi", "$prefix, Monday to Friday")
+                days.size == 7 && interval == 1 -> tr("Chaque jour", "Every day")
+                else -> tr("$prefix : ", "$prefix: ") + days.sorted().joinToString(", ") { it.shortFr() }
             }
         }
     }
@@ -137,21 +137,21 @@ data class Recurrence(
 fun DayOfWeek.rruleCode(): String = name.take(2)
 
 fun DayOfWeek.shortFr(): String = when (this) {
-    DayOfWeek.MONDAY -> "lun."
-    DayOfWeek.TUESDAY -> "mar."
-    DayOfWeek.WEDNESDAY -> "mer."
-    DayOfWeek.THURSDAY -> "jeu."
-    DayOfWeek.FRIDAY -> "ven."
-    DayOfWeek.SATURDAY -> "sam."
-    DayOfWeek.SUNDAY -> "dim."
+    DayOfWeek.MONDAY -> tr("lun.", "Mon")
+    DayOfWeek.TUESDAY -> tr("mar.", "Tue")
+    DayOfWeek.WEDNESDAY -> tr("mer.", "Wed")
+    DayOfWeek.THURSDAY -> tr("jeu.", "Thu")
+    DayOfWeek.FRIDAY -> tr("ven.", "Fri")
+    DayOfWeek.SATURDAY -> tr("sam.", "Sat")
+    DayOfWeek.SUNDAY -> tr("dim.", "Sun")
 }
 
 fun DayOfWeek.letterFr(): String = when (this) {
-    DayOfWeek.MONDAY -> "L"
-    DayOfWeek.TUESDAY -> "M"
-    DayOfWeek.WEDNESDAY -> "M"
-    DayOfWeek.THURSDAY -> "J"
-    DayOfWeek.FRIDAY -> "V"
-    DayOfWeek.SATURDAY -> "S"
-    DayOfWeek.SUNDAY -> "D"
+    DayOfWeek.MONDAY -> tr("L", "M")
+    DayOfWeek.TUESDAY -> tr("M", "T")
+    DayOfWeek.WEDNESDAY -> tr("M", "W")
+    DayOfWeek.THURSDAY -> tr("J", "T")
+    DayOfWeek.FRIDAY -> tr("V", "F")
+    DayOfWeek.SATURDAY -> tr("S", "S")
+    DayOfWeek.SUNDAY -> tr("D", "S")
 }
