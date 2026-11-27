@@ -109,6 +109,7 @@ class AppSmokeTest {
         rule.onNodeWithText("30 jours").performClick()
         rule.onNodeWithText("12 mois").performClick()
         rule.onNodeWithText("Aucun pas enregistré sur la période.").assertExists()
+        rule.waitUntil(5_000) { rule.onAllNodes(androidx.compose.ui.test.hasTestTag("yearHeatmap")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("yearHeatmap").performScrollTo().assertIsDisplayed()
         rule.onNodeWithText("0 jours actifs sur l'année", substring = true).assertExists()
         rule.onNodeWithContentDescription("Retour").performClick()
@@ -180,7 +181,8 @@ class AppSmokeTest {
 
         rule.onNodeWithText("Habitudes").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }
-        rule.onAllNodes(hasTextExactly("Méditer"))[0].performClick()
+        // Toucher le nom (et pas le milieu de la ligne, où sont les cases des jours).
+        rule.onAllNodes(hasTextExactly("Méditer"), useUnmergedTree = true)[0].performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Journal")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Dix minutes au calme").assertExists()
     }
