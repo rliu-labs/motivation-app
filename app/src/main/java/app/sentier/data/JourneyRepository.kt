@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.first
 import kotlin.math.ceil
 
 data class JourneyState(
-    val journey: Journey = WorldTour.journey,
-    val progress: TourProgress = WorldTour.progress(0.0),
+    val journey: Journey = Journeys.first,
+    val progress: TourProgress = Journeys.first.progress(0.0),
     /** Escales atteintes pas encore annoncées à l'écran (la plus récente en dernier). */
     val unseen: List<ReachedStop> = emptyList(),
     val stepLengthCm: Int = 75,
@@ -42,7 +42,7 @@ class JourneyRepository(
 ) {
     fun observe(): Flow<JourneyState> =
         combine(dao.observeTotalSteps(), settings.steps, settings.journey) { total, s, j ->
-            val journey = Journeys.byId(j.current) ?: WorldTour.journey
+            val journey = Journeys.byId(j.current) ?: Journeys.first
             val km = kmOf(total, j.startSteps, s.stepLengthCm)
             val progress = journey.progress(km)
             val reached = journey.reachedStops(km)
@@ -77,7 +77,7 @@ class JourneyRepository(
      */
     suspend fun start(id: String): Boolean {
         val j = settings.currentJourney()
-        val journey = Journeys.byId(j.current) ?: WorldTour.journey
+        val journey = Journeys.byId(j.current) ?: Journeys.first
         val total = dao.observeTotalSteps().first()
         val stepLength = settings.currentSteps().stepLengthCm.coerceAtLeast(1)
         if (kmOf(total, j.startSteps, stepLength) < journey.lengthKm) return false
@@ -91,7 +91,7 @@ class JourneyRepository(
 
     private suspend fun current(): Pair<Journey, Double> {
         val j = settings.currentJourney()
-        val journey = Journeys.byId(j.current) ?: WorldTour.journey
+        val journey = Journeys.byId(j.current) ?: Journeys.first
         return journey to kmOf(dao.observeTotalSteps().first(), j.startSteps, settings.currentSteps().stepLengthCm)
     }
 
