@@ -19,6 +19,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.json.JSONArray
+import org.json.JSONObject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "reglages")
 
@@ -62,6 +64,43 @@ class Settings(private val context: Context) {
         val eveningMinute = intPreferencesKey("reminder_evening_minute")
         val journeySeen = intPreferencesKey("journey_seen_stops")
         val treasuresSeen = stringSetPreferencesKey("treasures_seen")
+    }
+
+    /** Réglages copiés dans une sauvegarde (sans l'état du capteur, propre au téléphone). */
+    suspend fun exportJson(): JSONObject {
+        val p = context.dataStore.data.first()
+        return JSONObject().apply {
+            p[Keys.goal]?.let { put("step_goal", it) }
+            p[Keys.stepLength]?.let { put("step_length_cm", it) }
+            p[Keys.source]?.let { put("step_source", it) }
+            p[Keys.morningOn]?.let { put("reminder_morning_on", it) }
+            p[Keys.morningMinute]?.let { put("reminder_morning_minute", it) }
+            p[Keys.eveningOn]?.let { put("reminder_evening_on", it) }
+            p[Keys.eveningMinute]?.let { put("reminder_evening_minute", it) }
+            p[Keys.journeySeen]?.let { put("journey_seen_stops", it) }
+            p[Keys.treasuresSeen]?.let { put("treasures_seen", JSONArray(it.toList())) }
+        }
+    }
+
+    /** Remet les réglages d'une sauvegarde. Les valeurs inconnues ou invalides sont ignorées. */
+    suspend fun importJson(o: JSONObject) = context.dataStore.edit { p ->
+        fun int(name: String, range: IntRange): Int? = if (o.has(name)) o.optInt(name, Int.MIN_VALUE).takeIf { it in range } else null
+        fun bool(name: String): Boolean? = if (o.opt(name) is Boolean) o.getBoolean(name) else null
+        int("step_goal", 500..50_000)?.let { p[Keys.goal] = it }
+        int("step_length_cm", 30..150)?.let { p[Keys.stepLength] = it }
+        o.optString("step_source").takeIf { v -> StepSource.entries.any { it.name == v } }?.let { p[Keys.source] = it }
+        bool("reminder_morning_on")?.let { p[Keys.morningOn] = it }
+        int("reminder_morning_minute", 0 until 24 * 60)?.let { p[Keys.morningMinute] = it }
+        bool("reminder_evening_on")?.let { p[Keys.eveningOn] = it }
+        int("reminder_evening_minute", 0 until 24 * 60)?.let { p[Keys.eveningMinute] = it }
+        int("journey_seen_stops", 0..1000)?.let { p[Keys.journeySeen] = it }
+        o.optJSONArray("treasures_seen")?.let { a ->
+            p[Keys.treasuresSeen] = (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { it.length <= 40 }.toSet()
+        }
+        // Le capteur repart de zéro : son compteur est propre à chaque téléphone.
+        p.remove(Keys.sensorLastCounter)
+        p.remove(Keys.sensorDay)
+        p.remove(Keys.sensorToday)
     }
 
     /** Trésors déjà annoncés à l'écran. */

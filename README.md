@@ -82,6 +82,12 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Tick a task or a habit straight from the notification with the **Done** button, XP included.
 - Times of your choice; both are off until you turn them on.
 
+**Widgets and backup**
+- A "Today" home screen widget: streak, steps and what is left for today, ticked off with one tap without opening the app.
+- A small "Steps and streak" widget.
+- Export all your data to a JSON file you keep wherever you like, and restore it on the same or a new phone.
+  The restore asks for confirmation and is all-or-nothing: a damaged file changes nothing.
+
 **Steps**
 - Step count from Health Connect, with the phone's step sensor as a fallback.
 - Adjustable daily goal, distance, last 7 days and total distance walked.
@@ -108,7 +114,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 4. Reminders | Morning summary, evening reminder, complete from the notification | ✅ v0.4 |
 | 5. World tour | 25 stops around the world powered by your steps, culture, architecture and souvenirs | ✅ v0.5 |
 | 6. Challenges and treasures | Weekly challenges with bonuses, rare cultural treasures in the travel journal | ✅ v0.6 |
-| Next | Widgets, backup | 💡 |
+| 7. Widgets and backup | Home screen widgets with one-tap completion, export and import of all data | ✅ v0.7 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -121,16 +127,19 @@ Release notes are in the [changelog](CHANGELOG.md).
 | Data | Room (SQLite) with tested migrations, DataStore for settings; XP and gold kept as an event ledger, so any action can be undone |
 | Steps | Health Connect, `TYPE_STEP_COUNTER` sensor sampled by WorkManager |
 | Reminders | WorkManager jobs rescheduled daily, notification actions handled by a private broadcast receiver |
+| Widgets | Jetpack Glance, refreshed when data changes |
+| Backup | Plain JSON file through the system file picker (no storage permission), validated and restored in one transaction |
 | Tests | JUnit, Robolectric, Compose UI tests, database migration test, screenshot generation |
 | Release build | R8 code and resource shrinking, signed APK |
 | CI | GitHub Actions: tests, signed APK, smoke test of the shrunk APK on an Android emulator, preview build per pull request, release on every merge |
 
 ```
 app/src/main/java/app/sentier/
-├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey), settings
+├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey, backup), settings
 ├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), challenges, treasures, world tour
 ├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
+├── widget/    Home screen widgets (Glance)
 └── ui/        Compose screens and ViewModels (today, tasks, edit, habits, journey, progress, reminders, theme)
 ```
 

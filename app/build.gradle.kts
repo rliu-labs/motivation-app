@@ -6,7 +6,7 @@ plugins {
 }
 
 // Version affichée (à augmenter à chaque étape, voir CHANGELOG.md).
-val appVersion = "0.6.0"
+val appVersion = "0.7.0"
 
 // Numéro de build fourni par GitHub Actions (1 en local). Il sert de versionCode,
 // qui doit toujours augmenter pour qu'Android accepte la mise à jour.
@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.health.connect)
     implementation(libs.datastore.preferences)
     implementation(libs.work.runtime)
+    implementation(libs.glance.appwidget)
     debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit)

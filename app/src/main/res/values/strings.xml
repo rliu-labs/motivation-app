@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sentier</string>
+    <string name="widget_today_name">Sentier : aujourd\'hui</string>
+    <string name="widget_today_description">Ta série, tes pas et les choses à faire aujourd\'hui, à cocher sans ouvrir l\'appli.</string>
+    <string name="widget_steps_name">Sentier : pas et série</string>
+    <string name="widget_steps_description">Tes pas du jour et ta série en cours.</string>
 </resources>

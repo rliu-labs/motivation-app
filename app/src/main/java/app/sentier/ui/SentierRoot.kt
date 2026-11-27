@@ -38,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
+import app.sentier.ui.backup.BackupScreen
 import app.sentier.ui.edit.TaskEditScreen
 import app.sentier.ui.habits.HabitEditScreen
 import app.sentier.ui.habits.HabitsScreen
@@ -130,7 +131,7 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
             }
             composable(Tab.PROGRESS.route) {
                 Box(tabModifier) {
-                    ProgressScreen(onOpenCredits = { nav.navigate("credits") })
+                    ProgressScreen(onOpenCredits = { nav.navigate("credits") }, onOpenBackup = { nav.navigate("backup") })
                 }
             }
             composable("task/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -141,6 +142,9 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
             }
             composable("reminders") {
                 RemindersScreen(onBack = { nav.popBackStack() })
+            }
+            composable("backup") {
+                BackupScreen(onBack = { nav.popBackStack() })
             }
             composable("credits") {
                 CreditsScreen(onBack = { nav.popBackStack() })

@@ -23,3 +23,6 @@
 
 # Activités déclarées dans le manifeste (dont l'explication Health Connect).
 -keep class app.sentier.*Activity { *; }
+
+# Actions des widgets, créées par Glance à partir du nom de leur classe.
+-keep class * implements androidx.glance.appwidget.action.ActionCallback { <init>(); }

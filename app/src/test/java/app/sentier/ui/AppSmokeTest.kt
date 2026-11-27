@@ -85,6 +85,15 @@ class AppSmokeTest {
     }
 
     @Test
+    fun openBackup() {
+        rule.onNodeWithText("Progrès").performClick()
+        rule.onNodeWithText("Sauvegarde").performScrollTo().performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Exporter mes données")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Importer une sauvegarde").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Retour").performClick()
+    }
+
+    @Test
     fun openChallengesAndTreasures() {
         rule.onNodeWithText("Progrès").performClick()
         rule.onNodeWithText("Défis de la semaine (0 sur 6)").performScrollTo().assertIsDisplayed()

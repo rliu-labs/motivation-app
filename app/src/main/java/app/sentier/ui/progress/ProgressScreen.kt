@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -76,6 +77,7 @@ val GoldColor = Color(0xFFE0A100)
 @Composable
 fun ProgressScreen(
     onOpenCredits: () -> Unit,
+    onOpenBackup: () -> Unit = {},
     vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -134,6 +136,13 @@ fun ProgressScreen(
         SectionHeader("Badges ($unlocked sur ${state.badges.size})")
         for (badge in state.badges) BadgeRow(badge)
 
+        ListItem(
+            headlineContent = { Text("Sauvegarde") },
+            supportingContent = { Text("Exporter ou importer toutes tes données") },
+            leadingContent = { Icon(Icons.Filled.Backup, contentDescription = null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            modifier = Modifier.clickable(onClick = onOpenBackup).padding(horizontal = 4.dp),
+        )
         ListItem(
             headlineContent = { Text("Crédits et licence") },
             supportingContent = { Text("Logiciel libre, GPL-3.0") },

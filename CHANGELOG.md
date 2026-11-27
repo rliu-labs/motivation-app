@@ -3,6 +3,19 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.7.0] - 2026-11-27
+
+Widgets et sauvegarde.
+
+### Ajouté
+- Widget « Aujourd'hui » pour l'écran d'accueil : la série, les pas du jour et les choses à faire,
+  à cocher d'un geste sans ouvrir l'appli (XP et or compris).
+- Petit widget « Pas et série » : les pas du jour avec leur objectif, la série et le niveau.
+- Les widgets se mettent à jour dès qu'une tâche, une habitude ou les pas changent, et au moins toutes les 30 minutes.
+- Sauvegarde (onglet Progrès) : exporter toutes les données (tâches, habitudes, pas, jeu, voyage, réglages)
+  dans un fichier JSON rangé où l'on veut, et les restaurer sur ce téléphone ou un nouveau.
+- La restauration demande confirmation, vérifie le fichier et se fait en tout ou rien : un fichier abîmé ne change rien.
+
 ## [0.6.0] - 2026-11-26
 
 Défis et trésors.
