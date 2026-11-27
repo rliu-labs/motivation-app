@@ -6,7 +6,7 @@ plugins {
 }
 
 // Version affichée (à augmenter à chaque étape, voir CHANGELOG.md).
-val appVersion = "0.15.0"
+val appVersion = "0.16.0"
 
 // Numéro de build fourni par GitHub Actions (1 en local). Il sert de versionCode,
 // qui doit toujours augmenter pour qu'Android accepte la mise à jour.
