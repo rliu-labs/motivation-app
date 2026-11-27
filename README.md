@@ -16,7 +16,10 @@
 </div>
 
 Sentier (French for *path*) brings what matters in a day onto a single screen: tasks to do, habits to keep,
-and steps to walk. Every small win shows up right away, and a missed day never wipes out weeks of effort.
+and steps to walk. Every small win shows up right away, and a missed day never wipes out weeks of effort:
+rest days and streak freezes protect your streak, and nothing you earn is ever taken away.
+
+It works on phones, tablets and foldables, in portrait or landscape, and takes you on an illustrated walk around the world.
 
 No account, no ads, no tracking: your data stays on your phone. The app's interface is in French.
 
@@ -64,6 +67,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 **Habits**
 - Yes/no or measurable habits (8 glasses of water, 10 pages…) with flexible frequency (3 times a week…).
 - Last 5 days at a glance, a color and an icon per habit, 6 ready-made templates.
+- An optional reminder per habit, at the time you choose, only when it is still to do.
 - **Habit strength** score: it grows when the habit is done and decays gently when it is missed.
 
 **Game**
@@ -165,21 +169,23 @@ Release notes are in the [changelog](CHANGELOG.md).
 | Architecture | MVVM: Compose screens → ViewModels → repositories → Room |
 | Data | Room (SQLite) with tested migrations, DataStore for settings; XP and gold kept as an event ledger, so any action can be undone |
 | Steps | Health Connect, `TYPE_STEP_COUNTER` sensor sampled by WorkManager |
-| Reminders | WorkManager jobs rescheduled daily, notification actions handled by a private broadcast receiver |
+| Reminders | WorkManager jobs rescheduled daily (morning, evening and one per habit), notification actions handled by a private broadcast receiver |
 | Widgets | Jetpack Glance, refreshed when data changes |
-| Backup | Plain JSON file through the system file picker (no storage permission), validated and restored in one transaction |
+| Backup | Plain JSON file through the system file picker (no storage permission), validated and restored in one transaction; weekly automatic copy to a chosen folder via the Storage Access Framework |
+| Adaptive layout | Bottom bar on phones, navigation rail from 600 dp (tablets, foldables, landscape), content width capped for readability |
+| Illustrations | World tour scenes and map drawn with Compose Canvas: no image assets, no map service |
 | Tests | JUnit, Robolectric, Compose UI tests, database migration test, screenshot generation |
 | Release build | R8 code and resource shrinking, signed APK |
 | CI | GitHub Actions: tests, signed APK, smoke test of the shrunk APK on an Android emulator, preview build per pull request, release on every merge |
 
 ```
 app/src/main/java/app/sentier/
-├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey, backup), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), challenges, treasures, world tour, adaptive goal
-├── notify/    Reminders: content, scheduling, notifications and the Done button
+├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey, stats, backup, automatic backup), settings
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, freezes, badges), challenges, treasures, world tour, adaptive goal
+├── notify/    Reminders: content, scheduling (daily and per habit), notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 ├── widget/    Home screen widgets (Glance)
-└── ui/        Compose screens and ViewModels (today, tasks, edit, habits, journey, progress, reminders, theme)
+└── ui/        Compose screens and ViewModels (onboarding, today, tasks and calendar, edit, habits, journey and illustrations, progress, stats, backup, reminders, theme)
 ```
 
 ### Building
@@ -200,7 +206,8 @@ Sentier works fully offline and requires no account. Tasks, habits and steps are
 and the app itself never sends them anywhere. If Android backup is turned on, the phone's own backup may include
 Sentier's data in your Google account, like other apps' data, so it survives a phone change; you can turn this off
 in Android settings. Step access (Health Connect or sensor) and notifications can be revoked at any time in Android settings.
-Reminders are computed on the phone; no push service is involved.
+Reminders are computed on the phone; no push service is involved. The automatic backup only writes to the folder you choose; if that folder is synced
+(Google Drive, Nextcloud…), the sync app, not Sentier, sends the file.
 
 ## License and acknowledgements
 
