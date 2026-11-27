@@ -161,7 +161,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | Notifications | Reminders work on every supported version; Android 13+ asks for permission when you turn them on |
 | Look | Material 3 colors that follow your wallpaper on Android 12+, Sentier's green theme before that; light, dark or system theme everywhere |
 | Accessibility | Screen reader labels on charts, maps and buttons; animations follow the phone's "remove animations" setting |
-| Language | French or English, chosen in settings (or following the phone's language). Journey stop descriptions are still in French for now |
+| Language | French or English, chosen in settings (or following the phone's language), journeys included |
 | Offline | Works fully offline; data stays on the phone |
 
 ## Roadmap
@@ -185,8 +185,9 @@ To update, install the new APK the same way: it replaces the previous version an
 | 15. Passport and seasons | Travel passport, seasonal challenges with rare badges, automatic sleep and workouts | ✅ v0.15 |
 | 16. More of Europe | Netherlands, Belgium, Switzerland, Austria and Greece | ✅ v0.16 |
 | 17. English | Language setting (French, English or the phone's language), English interface | ✅ v0.17 |
-| 18. Northern and Eastern Europe | Ireland, Scandinavia, Central and Eastern Europe… | Planned |
-| 19. Themed journeys | Tour of Europe, the Silk Road… | Planned |
+| 18. Journeys in English | Every journey stop, souvenir and illustration in English | ✅ v0.18 |
+| 19. Northern and Eastern Europe | Ireland, Scandinavia, Central and Eastern Europe… | Planned |
+| 20. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 
 Release notes are in the [changelog](CHANGELOG.md).
 

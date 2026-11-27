@@ -3,6 +3,18 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.18.0] - 2026-11-27
+
+Les voyages en anglais : l'appli est maintenant entièrement bilingue.
+
+### Ajouté
+- En anglais, les voyages sont traduits en entier : villes, pays, architecture, culture, anecdotes et souvenirs
+  des 134 escales (tour du monde, tour de France et dix pays d'Europe), titres et présentations des voyages,
+  et descriptions des illustrations pour les lecteurs d'écran.
+
+### Conservé
+- Les tampons du passeport, les souvenirs gagnés et la progression ne changent pas ; la base de données non plus.
+
 ## [0.17.0] - 2026-11-27
 
 Sentier parle anglais : choix de la langue dans les réglages.
