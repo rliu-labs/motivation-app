@@ -3,6 +3,27 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.18.0] - 2026-11-27
+
+Huit nouveaux pays, au nord et à l'est de l'Europe.
+
+### Ajouté
+- Irlande : Dublin, Glendalough, Kilkenny, le rocher de Cashel, Blarney, Killarney, les falaises de Moher, Galway et les îles d'Aran.
+- Norvège : Oslo, Bygdøy, l'église en bois debout de Heddal, Preikestolen, Bergen, Flåm, Geiranger, Trondheim, les Lofoten et le cap Nord.
+- Suède : Stockholm, le musée Vasa, Uppsala, Mora, Göteborg, Malmö, Ales stenar, Visby et l'hôtel de glace de Jukkasjärvi.
+- Danemark : Copenhague, la Petite Sirène, Helsingør, Roskilde, Møns Klint, Odense, Billund, Aarhus et Skagen.
+- Pologne : Varsovie, la maison natale de Chopin, Toruń, Malbork, Gdańsk, Poznań, Wrocław, la mine de sel de Wieliczka et Cracovie.
+- Tchéquie : l'horloge et le pont Charles de Prague, le château de Prague, Karlštejn, Kutná Hora, Telč, Český Krumlov, Plzeň et Karlovy Vary.
+- Hongrie : le Parlement, les bains Széchenyi et le bastion des Pêcheurs à Budapest, Szentendre, Esztergom, le lac Balaton, Pécs, la puszta et Eger.
+- Croatie : Zagreb, Plitvice, Pula, Zadar, Split, Hvar, Ston et Dubrovnik.
+- 17 nouvelles illustrations : tour ronde irlandaise, falaises, église en bois debout, fjord, aurores boréales, drakkar,
+  Petite Sirène, maisons de quai colorées, remparts, Parlement de Budapest, bains thermaux, cascades, chapelle de sel,
+  briques de jeu, puits à balancier, cabanes des Lofoten, tour torsadée.
+- Ces pays se choisissent, comme les autres, une fois le tour de France bouclé.
+
+### Conservé
+- Toutes les données sont gardées à la mise à jour ; la base de données ne change pas.
+
 ## [0.17.0] - 2026-11-27
 
 Sentier parle anglais : choix de la langue dans les réglages.

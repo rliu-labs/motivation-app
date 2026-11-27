@@ -99,8 +99,9 @@ No account, no ads, no tracking: your data stays on your phone. The app is in Fr
   and brings back a typical souvenir for your collection: a Daruma from Japan, babouches from Morocco, a Persian rug…
 - Once the world tour is done, the Tour de France unlocks: 14 stops from Notre-Dame to the Arc de Triomphe,
   by Strasbourg, Chamonix, Avignon, Carcassonne, Biarritz, Chambord, Carnac and Mont-Saint-Michel (about 210 km).
-- After France, pick the next country yourself: Italy, Spain, Portugal, the United Kingdom, Germany,
-  the Netherlands, Belgium, Switzerland, Austria or Greece (8 to 9 stops each, 70 to 120 km). Steps walked after finishing a journey already count for the next one.
+- After France, pick the next country yourself among 18: Italy, Spain, Portugal, the United Kingdom, Germany,
+  the Netherlands, Belgium, Switzerland, Austria, Greece, Ireland, Norway, Sweden, Denmark, Poland, the Czech Republic,
+  Hungary or Croatia (9 to 10 stops each, 70 to 130 km). Steps walked after finishing a journey already count for the next one.
 - A **travel passport**: a dated stamp in the country's ink for every stop reached, across all journeys, one page per journey.
 - "My journeys" lists every journey: finished ones can be opened again with their stops and souvenirs.
 - A dotted map drawn by the app shows the legs travelled and where you are, the whole world or a detailed map of the country:
@@ -185,7 +186,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 15. Passport and seasons | Travel passport, seasonal challenges with rare badges, automatic sleep and workouts | ✅ v0.15 |
 | 16. More of Europe | Netherlands, Belgium, Switzerland, Austria and Greece | ✅ v0.16 |
 | 17. English | Language setting (French, English or the phone's language), English interface | ✅ v0.17 |
-| 18. Northern and Eastern Europe | Ireland, Scandinavia, Central and Eastern Europe… | Planned |
+| 18. Northern and Eastern Europe | Ireland, Norway, Sweden, Denmark, Poland, Czech Republic, Hungary and Croatia | ✅ v0.18 |
 | 19. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 
 Release notes are in the [changelog](CHANGELOG.md).
