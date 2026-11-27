@@ -213,7 +213,7 @@ private fun WelcomePage() {
         "Un peu de progrès chaque jour, sans pression. Tout reste sur ton téléphone.",
     )
     Feature(Icons.Filled.Checklist, "Tes tâches et tes habitudes du jour, réunies sur un seul écran.")
-    Feature(Icons.Filled.Map, "Tes pas te font voyager autour du monde, étape par étape.")
+    Feature(Icons.Filled.Map, "Tes pas te font voyager autour du monde, puis en France et en Europe, escale par escale.")
     Feature(Icons.Filled.EmojiEvents, "De l'XP, de l'or et des trésors à gagner. Rien n'est jamais perdu.")
 }
 

@@ -45,6 +45,9 @@ class JourneyViewModel(
     /** Les nouvelles étapes ont été annoncées. */
     fun dismissNews() = viewModelScope.launch { journey.markSeen() }
 
+    /** Part pour le voyage suivant choisi. */
+    fun start(id: String) = viewModelScope.launch { journey.start(id) }
+
     companion object {
         val Factory = viewModelFactory { initializer { JourneyViewModel(app().journey, app().steps, app().game) } }
     }

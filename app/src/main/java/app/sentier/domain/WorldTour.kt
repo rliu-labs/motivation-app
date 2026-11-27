@@ -9,8 +9,8 @@ package app.sentier.domain
 data class Souvenir(val name: String, val description: String, val icon: String)
 
 /**
- * Une escale du tour du monde, atteinte après [km] kilomètres de marche depuis le départ.
- * Les kilomètres sont ceux de la marche, pas ceux de la carte : le tour fait environ 700 km à pied.
+ * Une escale d'un voyage, atteinte après [km] kilomètres de marche depuis le départ.
+ * Les kilomètres sont ceux de la marche, pas ceux de la carte : le tour du monde fait environ 700 km à pied.
  */
 data class Stop(
     val city: String,
@@ -23,25 +23,6 @@ data class Stop(
     val anecdote: String,
     val souvenir: Souvenir,
 )
-
-/** Où l'on en est du tour du monde. */
-data class TourProgress(val km: Double) {
-    val stops: List<Stop> get() = WorldTour.stops
-    /** Index de la dernière escale atteinte (0 = départ). */
-    val currentIndex: Int get() = stops.indexOfLast { it.km <= km }.coerceAtLeast(0)
-    val current: Stop get() = stops[currentIndex]
-    val nextStop: Stop? get() = stops.getOrNull(currentIndex + 1)
-    val kmToNext: Double get() = nextStop?.let { it.km - km } ?: 0.0
-    val done: Boolean get() = km >= WorldTour.lengthKm
-    val fraction: Float get() = (km / WorldTour.lengthKm).toFloat().coerceIn(0f, 1f)
-    /** Escales atteintes, départ compris. */
-    val reached: List<Stop> get() = stops.take(currentIndex + 1)
-}
-
-/** Une escale atteinte (hors départ), avec sa clé unique pour la récompense. */
-data class ReachedStop(val index: Int, val stop: Stop) {
-    val key: Long get() = WorldTour.keyOf(index)
-}
 
 /** Le tour du monde, vers l'est, de Paris à Paris. */
 object WorldTour {
@@ -233,16 +214,26 @@ object WorldTour {
         ),
     )
 
-    val lengthKm: Double get() = stops.last().km
+    /** Le tour du monde, premier voyage. Ses clés (1000 + n° d'escale) sont celles des versions précédentes. */
+    val journey: Journey = Journey(
+        id = "monde",
+        title = "Tour du monde",
+        kind = JourneyKind.WORLD,
+        tagline = "De Paris à Paris, vers l'est, en 25 escales sur les cinq continents.",
+        keyBase = 1_000L,
+        area = null,
+        stops = stops,
+    )
+
+    val lengthKm: Double get() = journey.lengthKm
 
     /** Distance parcourue à partir d'un nombre de pas et de la longueur d'un pas. */
     fun kmFor(steps: Long, stepLengthCm: Int): Double = steps * stepLengthCm / 100_000.0
 
-    fun progress(km: Double): TourProgress = TourProgress(km.coerceAtLeast(0.0))
+    fun progress(km: Double): TourProgress = journey.progress(km)
 
     /** Escales atteintes (hors départ), dans l'ordre. */
-    fun reachedStops(km: Double): List<ReachedStop> =
-        stops.mapIndexedNotNull { i, s -> if (i > 0 && s.km <= km) ReachedStop(i, s) else null }
+    fun reachedStops(km: Double): List<ReachedStop> = journey.reachedStops(km)
 
-    fun keyOf(index: Int): Long = 1_000L + index
+    fun keyOf(index: Int): Long = journey.keyOf(index)
 }

@@ -24,6 +24,15 @@ import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.material.icons.filled.Toys
 import androidx.compose.material.icons.filled.CardTravel
 import androidx.compose.material.icons.filled.Hiking
+import androidx.compose.material.icons.automirrored.filled.DirectionsBike
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Sailing
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Soap
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.WineBar
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /** Icônes des souvenirs (icônes Material). */
@@ -47,7 +56,19 @@ object SouvenirIcons {
         "art" to Icons.Filled.Palette,
         "car" to Icons.Filled.LocalTaxi,
         "globe" to Icons.Filled.Public,
+        "wine" to Icons.Filled.WineBar,
+        "food" to Icons.Filled.Restaurant,
+        "soap" to Icons.Filled.Soap,
+        "key" to Icons.Filled.Key,
+        "bike" to Icons.AutoMirrored.Filled.DirectionsBike,
+        "boat" to Icons.Filled.Sailing,
+        "book" to Icons.AutoMirrored.Filled.MenuBook,
+        "sun" to Icons.Filled.WbSunny,
+        "clock" to Icons.Filled.Schedule,
     )
+
+    /** Noms connus, pour vérifier que chaque souvenir a son icône. */
+    val names: Set<String> get() = byName.keys
 
     fun of(name: String): ImageVector = byName[name] ?: Icons.Filled.AutoAwesome
 }

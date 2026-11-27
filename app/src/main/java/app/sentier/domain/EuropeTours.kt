@@ -1,0 +1,408 @@
+/*
+ * Sentier — appli de motivation personnelle.
+ * Copyright (C) 2026 Les auteurs de Sentier
+ * Licence GPL-3.0 ou ultérieure, voir le fichier LICENSE.
+ */
+package app.sentier.domain
+
+/** Les tours des pays d'Europe, à faire dans l'ordre qu'on veut une fois le tour de France bouclé. */
+object EuropeTours {
+
+    val italie = Journey(
+        id = "italie",
+        title = "Italie",
+        kind = JourneyKind.COUNTRY,
+        tagline = "De Venise aux trulli des Pouilles, en passant par Florence, Rome et Pompéi.",
+        keyBase = 3_000L,
+        area = MapArea(latTop = 47.2, latBottom = 37.8, lonLeft = 6.5, lonRight = 18.7),
+        requires = "france",
+        stops = listOf(
+            Stop(
+                "Venise", "Italie", 0.0, 45.44, 12.33,
+                "Plus de 400 ponts enjambent quelque 150 canaux ; la ville repose sur des millions de pieux de bois enfoncés dans la lagune.",
+                "Le carnaval et ses masques, et les gondoliers qui se transmettent leur métier depuis des siècles.",
+                "Une gondole est volontairement asymétrique : un côté est plus large que l'autre pour compenser le poids du gondolier, qui rame d'un seul côté.",
+                Souvenir("Masque vénitien", "Masque de papier mâché doré, porté pendant le carnaval.", "mask"),
+            ),
+            Stop(
+                "Milan", "Italie", 8.0, 45.46, 9.19,
+                "Le Duomo, cathédrale gothique de marbre blanc hérissée de 135 flèches et de plus de 3 000 statues.",
+                "La Scala, l'un des opéras les plus célèbres du monde, inaugurée en 1778.",
+                "La Cène de Léonard de Vinci est peinte sur le mur du réfectoire d'un couvent de la ville ; il faut réserver longtemps à l'avance pour la voir.",
+                Souvenir("Partition d'opéra", "Un air de Verdi, dont plusieurs opéras ont été créés à la Scala.", "music"),
+            ),
+            Stop(
+                "Cinque Terre", "Italie", 22.0, 44.13, 9.71,
+                "Cinq villages de maisons colorées accrochées aux falaises, reliés par des sentiers en corniche au-dessus de la mer.",
+                "Les vignes poussent en terrasses retenues par des murets de pierre sèche, montés à la main au fil des siècles.",
+                "On dit que les maisons étaient peintes de couleurs vives pour que les pêcheurs reconnaissent la leur depuis la mer.",
+                Souvenir("Mortier à pesto", "Mortier de marbre et pilon de bois, pour piler le basilic de Ligurie.", "food"),
+            ),
+            Stop(
+                "Pise", "Italie", 30.0, 43.72, 10.40,
+                "La tour penchée, campanile de la cathédrale commencé en 1173 ; elle s'est inclinée dès les premiers étages, sur un sol trop mou.",
+                "La place des Miracles réunit cathédrale, baptistère, tour et cimetière de marbre blanc sur une pelouse.",
+                "Des travaux achevés en 2001 l'ont redressée d'une quarantaine de centimètres : elle penche toujours, mais ne risque plus de tomber.",
+                Souvenir("Lunette de Galilée", "Galilée est né à Pise ; il aurait lâché des boules du haut de la tour pour étudier leur chute.", "eye"),
+            ),
+            Stop(
+                "Florence", "Italie", 37.0, 43.77, 11.25,
+                "Le Ponte Vecchio, bordé de boutiques d'orfèvres, et la coupole de Brunelleschi, élevée au XVe siècle sans charpente pour la soutenir.",
+                "Berceau de la Renaissance : le David de Michel-Ange et les tableaux de Botticelli y sont exposés.",
+                "Le Ponte Vecchio est le seul pont de Florence que les troupes allemandes n'ont pas détruit en 1944.",
+                Souvenir("Papier marbré", "Feuilles décorées à la main de volutes colorées, une spécialité florentine.", "art"),
+            ),
+            Stop(
+                "Sienne", "Italie", 44.0, 43.32, 11.33,
+                "La Piazza del Campo, en forme de coquille, et la tour du Mangia, haute de près de 90 mètres.",
+                "Le Palio : deux fois par été, dix chevaux montés à cru font trois tours de la place.",
+                "La course ne dure qu'environ 90 secondes, et un cheval peut gagner même s'il a perdu son cavalier.",
+                Souvenir("Foulard de contrade", "Aux couleurs d'un des 17 quartiers de la ville qui s'affrontent au Palio.", "flag"),
+            ),
+            Stop(
+                "Rome", "Italie", 62.0, 41.89, 12.49,
+                "Le Colisée, amphithéâtre inauguré en l'an 80, pouvait accueillir environ 50 000 spectateurs.",
+                "La carbonara et la cacio e pepe, plats de pâtes romains aux quelques ingrédients bien choisis.",
+                "Rome entoure un pays entier : le Vatican, le plus petit État du monde.",
+                Souvenir("Sesterce", "Réplique d'une pièce de la monnaie de l'Empire romain.", "jewel"),
+            ),
+            Stop(
+                "Pompéi", "Italie", 80.0, 40.75, 14.49,
+                "Une ville romaine figée par l'éruption du Vésuve en 79 : rues pavées, maisons, fresques et boulangeries.",
+                "Naples, toute proche, a inventé la pizza ; l'art du pizzaiolo napolitain est inscrit au patrimoine immatériel de l'UNESCO.",
+                "Son amphithéâtre est le plus ancien amphithéâtre romain en pierre parvenu jusqu'à nous.",
+                Souvenir("Cornicello", "Petite corne rouge qui protège du mauvais sort, selon la tradition napolitaine.", "jewel"),
+            ),
+            Stop(
+                "Matera", "Italie", 98.0, 40.67, 16.61,
+                "Les Sassi, quartiers de maisons et d'églises creusées dans la roche, habités depuis la préhistoire.",
+                "Autrefois, chaque famille marquait son pain de son propre tampon avant de le cuire au four commun.",
+                "Ses ruelles ont servi de décor à plusieurs films situés à Jérusalem, dont « La Passion du Christ ».",
+                Souvenir("Tampon à pain", "Un tampon de bois sculpté aux initiales de la famille.", "art"),
+            ),
+            Stop(
+                "Alberobello", "Italie", 106.0, 40.78, 17.24,
+                "Les trulli, maisons blanches en pierre sèche coiffées de toits coniques, montées sans mortier.",
+                "Les Pouilles produisent une grande part de l'huile d'olive d'Italie, sous des oliviers parfois millénaires.",
+                "On les bâtissait sans mortier, dit-on, pour pouvoir les démonter vite et échapper à l'impôt sur les maisons.",
+                Souvenir("Trullo miniature", "Le trophée de ceux qui ont parcouru l'Italie.", "art"),
+            ),
+        ),
+    )
+
+    val espagne = Journey(
+        id = "espagne",
+        title = "Espagne",
+        kind = JourneyKind.COUNTRY,
+        tagline = "De la Sagrada Família à Saint-Jacques-de-Compostelle, par l'Andalousie et Madrid.",
+        keyBase = 4_000L,
+        area = MapArea(latTop = 44.0, latBottom = 35.8, lonLeft = -9.6, lonRight = 3.6),
+        requires = "france",
+        stops = listOf(
+            Stop(
+                "Barcelone", "Espagne", 0.0, 41.40, 2.17,
+                "La Sagrada Família de Gaudí, en construction depuis 1882, dont les tours s'élèvent au-dessus de la ville.",
+                "Les castells, tours humaines de plusieurs étages, sont inscrits au patrimoine immatériel de l'UNESCO.",
+                "Gaudí a voulu que la plus haute tour reste un peu plus basse que la colline de Montjuïc, pour ne pas dépasser l'œuvre de Dieu.",
+                Souvenir("Lézard en mosaïque", "Réplique du dragon du parc Güell, couvert d'éclats de céramique.", "art"),
+            ),
+            Stop(
+                "Valence", "Espagne", 8.0, 39.46, -0.35,
+                "La Cité des arts et des sciences, bâtiments blancs aux formes d'œil et de squelette, dans l'ancien lit du fleuve Turia.",
+                "Les Fallas : en mars, d'immenses statues de carton sont brûlées dans les rues ; la fête est inscrite à l'UNESCO.",
+                "La paella vient d'ici : son nom est celui de la poêle large et plate dans laquelle on la cuit.",
+                Souvenir("Éventail peint", "Un éventail décoré à la main, une tradition valencienne.", "art"),
+            ),
+            Stop(
+                "Grenade", "Espagne", 26.0, 37.18, -3.59,
+                "L'Alhambra, palais et forteresse des souverains nasrides, aux salles décorées de stucs fins comme de la dentelle.",
+                "Dans les bars, une tapa est souvent offerte avec chaque boisson commandée.",
+                "Alhambra vient de l'arabe « la rouge », à cause de la couleur de ses murs.",
+                Souvenir("Grenade en céramique", "Le fruit qui a donné son nom à la ville, peint sur la faïence bleue et verte de Fajalauza.", "pottery"),
+            ),
+            Stop(
+                "Séville", "Espagne", 36.0, 37.39, -5.99,
+                "La Giralda, ancien minaret devenu clocher de la cathédrale, la plus grande cathédrale gothique du monde.",
+                "Le flamenco, chant, danse et guitare, est inscrit au patrimoine immatériel de l'UNESCO.",
+                "On monte en haut de la Giralda par des rampes, et non par des marches, pour qu'on puisse y monter à cheval.",
+                Souvenir("Castagnettes", "Deux coquilles de bois qui claquent au rythme du flamenco.", "music"),
+            ),
+            Stop(
+                "Cordoue", "Espagne", 42.0, 37.88, -4.78,
+                "La Mezquita, mosquée-cathédrale et sa forêt de plus de 800 colonnes portant des arcs rayés de rouge et de blanc.",
+                "En mai, la fête des patios : les habitants ouvrent leurs cours fleuries aux visiteurs.",
+                "Au XVIe siècle, une cathédrale a été bâtie au milieu de la mosquée, sans la détruire tout entière.",
+                Souvenir("Pot de fleurs bleu", "Comme ceux qui couvrent les murs blancs des patios.", "spice"),
+            ),
+            Stop(
+                "Madrid", "Espagne", 56.0, 40.42, -3.71,
+                "Le Palais royal, avec plus de 3 000 pièces, l'un des plus grands palais d'Europe.",
+                "Le musée du Prado réunit Velázquez, Goya et le Greco.",
+                "Sur la Puerta del Sol, une plaque marque le kilomètre zéro des routes d'Espagne.",
+                Souvenir("Tasse à chocolat", "Pour tremper les churros dans un chocolat chaud épais.", "coffee"),
+            ),
+            Stop(
+                "Ségovie", "Espagne", 62.0, 40.95, -4.12,
+                "L'aqueduc romain, 167 arches de granit assemblées sans mortier, qui alimentait encore la ville au XXe siècle.",
+                "Le cochon de lait rôti, si tendre qu'on le découpe avec le bord d'une assiette.",
+                "L'Alcázar, château aux tours pointues perché sur un rocher, aurait inspiré les châteaux des dessins animés de Disney.",
+                Souvenir("Arche miniature", "Une petite arche de granit, réplique de celles de l'aqueduc.", "art"),
+            ),
+            Stop(
+                "Bilbao", "Espagne", 80.0, 43.27, -2.93,
+                "Le musée Guggenheim de Frank Gehry, aux courbes couvertes de titane, inauguré en 1997.",
+                "Les pintxos, petites bouchées piquées d'un cure-dent, se dégustent debout au comptoir.",
+                "Devant le musée, Puppy, un chiot géant de plus de 12 mètres couvert de fleurs, change de couleur au fil des saisons.",
+                Souvenir("Txapela", "Le béret porté au Pays basque.", "textile"),
+            ),
+            Stop(
+                "Saint-Jacques-de-Compostelle", "Espagne", 104.0, 42.88, -8.54,
+                "La cathédrale romane, au bout du chemin de Saint-Jacques, derrière sa façade baroque de l'Obradoiro.",
+                "Pendant certaines messes, le botafumeiro, un encensoir d'environ 50 kilos, se balance d'un bout à l'autre du transept.",
+                "Les pèlerins qui ont parcouru au moins 100 km à pied reçoivent la Compostela, un certificat de pèlerinage.",
+                Souvenir("Coquille Saint-Jacques", "Le trophée des pèlerins, accrochée au sac tout le long du chemin.", "jewel"),
+            ),
+        ),
+    )
+
+    val portugal = Journey(
+        id = "portugal",
+        title = "Portugal",
+        kind = JourneyKind.COUNTRY,
+        tagline = "Des falaises de l'Algarve aux vignes du Douro, par Lisbonne et Porto.",
+        keyBase = 5_000L,
+        area = MapArea(latTop = 42.3, latBottom = 36.8, lonLeft = -10.0, lonRight = -6.0),
+        requires = "france",
+        stops = listOf(
+            Stop(
+                "Lagos", "Portugal", 0.0, 37.08, -8.67,
+                "Les falaises dorées de la Ponta da Piedade, creusées d'arches et de grottes, et leur petit phare.",
+                "L'Algarve fut un point de départ des grandes navigations du XVe siècle, au temps d'Henri le Navigateur.",
+                "Les pêcheurs emmènent les visiteurs en barque dans les grottes, qu'on ne peut atteindre que par la mer.",
+                Souvenir("Cataplana", "Marmite de cuivre en forme de coquillage, pour cuire poissons et fruits de mer.", "pottery"),
+            ),
+            Stop(
+                "Évora", "Portugal", 7.0, 38.57, -7.91,
+                "Un temple romain aux colonnes corinthiennes, au cœur d'une vieille ville aux maisons blanchies à la chaux.",
+                "Le Portugal produit environ la moitié du liège du monde ; on n'écorce un chêne-liège que tous les neuf ans.",
+                "La chapelle des Os a ses murs tapissés d'ossements, avec une inscription qui invite à méditer sur le temps qui passe.",
+                Souvenir("Sac en liège", "Un petit sac en liège, souple et léger comme du tissu.", "art"),
+            ),
+            Stop(
+                "Lisbonne", "Portugal", 19.0, 38.71, -9.14,
+                "Des façades couvertes d'azulejos, carreaux de faïence peints, et la tour de Belém au bord du Tage.",
+                "Le fado, chant mélancolique accompagné de la guitare portugaise, est inscrit au patrimoine immatériel de l'UNESCO.",
+                "Le tramway 28, jaune et en bois, grimpe des rues si étroites qu'il frôle les façades dans les virages.",
+                Souvenir("Azulejo", "Un carreau de faïence bleu et blanc peint à la main.", "pottery"),
+            ),
+            Stop(
+                "Sintra", "Portugal", 22.0, 38.79, -9.39,
+                "Le palais de Pena, aux tours jaunes et rouges, perché sur une colline couverte de forêts.",
+                "Les travesseiros, feuilletés à la crème d'amande, se dégustent ici depuis des générations.",
+                "Le poète Lord Byron décrivait Sintra comme un « glorieux Éden ».",
+                Souvenir("Lanterne de forêt", "Pour suivre les sentiers brumeux de la serra de Sintra.", "light"),
+            ),
+            Stop(
+                "Óbidos", "Portugal", 30.0, 39.36, -9.16,
+                "Une petite ville entièrement entourée de remparts médiévaux, dont on peut faire le tour à pied.",
+                "La ginja, liqueur de griotte, se boit dans un petit gobelet en chocolat.",
+                "En 1282, le roi Denis offrit la ville en cadeau de mariage à la reine Isabelle ; ses successeurs ont longtemps fait de même.",
+                Souvenir("Gobelet en chocolat", "Pour goûter la ginja, puis croquer le gobelet.", "food"),
+            ),
+            Stop(
+                "Nazaré", "Portugal", 36.0, 39.60, -9.07,
+                "Le fort Saint-Michel-Archange et son phare rouge, sur un promontoire au-dessus de l'océan.",
+                "Les barques colorées des pêcheurs étaient autrefois tirées sur la plage par des bœufs.",
+                "Ses vagues sont parmi les plus hautes jamais surfées, plus de 25 mètres, grâce à un canyon sous-marin.",
+                Souvenir("Barque peinte", "Une miniature des barques de pêche aux yeux peints sur la proue.", "boat"),
+            ),
+            Stop(
+                "Coimbra", "Portugal", 46.0, 40.21, -8.43,
+                "La tour de l'une des plus anciennes universités d'Europe et la bibliothèque Joanina, toute de bois doré.",
+                "Les étudiants portent une cape noire et chantent le fado de Coimbra, à la guitare, sous les fenêtres.",
+                "Des chauves-souris vivent dans la bibliothèque Joanina : la nuit, elles mangent les insectes qui abîmeraient les livres.",
+                Souvenir("Cape d'étudiant", "La longue cape noire des étudiants de Coimbra.", "textile"),
+            ),
+            Stop(
+                "Porto", "Portugal", 58.0, 41.14, -8.61,
+                "Le quartier de la Ribeira, aux maisons colorées serrées au bord du Douro, et le pont Dom-Luís aux arches de fer.",
+                "Le vin de Porto vieillit dans les caves de Vila Nova de Gaia, sur l'autre rive.",
+                "Les habitants sont surnommés « tripeiros », mangeurs de tripes : ils auraient donné leur viande aux navires partis en 1415.",
+                Souvenir("Coq de Barcelos", "Le coq de céramique coloré, symbole du Portugal, né d'une légende du nord du pays.", "art"),
+            ),
+            Stop(
+                "Vallée du Douro", "Portugal", 70.0, 41.19, -7.55,
+                "Des vignes en terrasses sculptent les collines au-dessus du fleuve, inscrites au patrimoine mondial de l'UNESCO.",
+                "Les vendanges se font à la main ; le raisin est encore parfois foulé aux pieds dans des cuves de pierre, les lagares.",
+                "Les barques rabelo descendaient autrefois les tonneaux de vin jusqu'à Porto par le fleuve.",
+                Souvenir("Bouteille de porto", "Le trophée de ceux qui ont parcouru le Portugal.", "wine"),
+            ),
+        ),
+    )
+
+    val royaumeUni = Journey(
+        id = "royaume-uni",
+        title = "Royaume-Uni",
+        kind = JourneyKind.COUNTRY,
+        tagline = "De Big Ben à la chaussée des Géants, par Stonehenge, l'Écosse et le pays de Galles.",
+        keyBase = 6_000L,
+        area = MapArea(latTop = 59.0, latBottom = 49.8, lonLeft = -8.4, lonRight = 2.0),
+        requires = "france",
+        stops = listOf(
+            Stop(
+                "Londres", "Angleterre", 0.0, 51.50, -0.12,
+                "La tour Elizabeth et son horloge, au bout du palais de Westminster, au bord de la Tamise.",
+                "Le thé de l'après-midi, avec scones, crème épaisse et confiture.",
+                "« Big Ben » n'est pas le nom de la tour mais celui de sa grosse cloche, qui pèse plus de 13 tonnes.",
+                Souvenir("Bus à impériale", "Une miniature du bus rouge à deux étages.", "car"),
+            ),
+            Stop(
+                "Oxford", "Angleterre", 6.0, 51.75, -1.25,
+                "La Radcliffe Camera, rotonde à coupole, au milieu des « flèches rêveuses » des collèges.",
+                "La plus ancienne université du monde anglophone : on y enseignait déjà à la fin du XIe siècle.",
+                "Lewis Carroll y enseignait les mathématiques ; il a inventé « Alice au pays des merveilles » pour la fille du doyen de son collège.",
+                Souvenir("Alice au pays des merveilles", "Une édition illustrée du conte né sur une barque, sur la rivière d'Oxford.", "book"),
+            ),
+            Stop(
+                "Stonehenge", "Angleterre", 18.0, 51.18, -1.83,
+                "Un cercle de pierres géantes dressées il y a environ 4 500 ans ; les plus petites viennent du pays de Galles, à plus de 200 km.",
+                "Au solstice d'été, des milliers de personnes viennent voir le soleil se lever dans l'axe des pierres.",
+                "On ne sait toujours pas avec certitude à quoi servait le monument : temple, calendrier ou lieu de sépulture.",
+                Souvenir("Cadran solaire", "Un cadran de poche, pour lire l'heure au soleil comme avant les horloges.", "sun"),
+            ),
+            Stop(
+                "Bath", "Angleterre", 23.0, 51.38, -2.36,
+                "Les thermes romains, construits autour d'une source chaude, et le Royal Crescent, arc de 30 maisons georgiennes.",
+                "Jane Austen y a vécu et y a situé deux de ses romans.",
+                "L'eau de la source sort à environ 46 °C, comme du temps des Romains.",
+                Souvenir("Tasse de porcelaine", "Pour le thé, avec sa soucoupe à fleurs.", "tea"),
+            ),
+            Stop(
+                "Snowdonia", "Pays de Galles", 34.0, 53.07, -4.08,
+                "Les châteaux d'Édouard Ier, comme Caernarfon et Conwy, gardent les vallées au pied du mont Snowdon.",
+                "Le gallois, langue celtique, est parlé par des centaines de milliers de personnes ; les panneaux sont bilingues.",
+                "Un village de l'île voisine d'Anglesey porte un nom de 58 lettres, l'un des plus longs du monde.",
+                Souvenir("Cuillère d'amour", "La lovespoon, cuillère de bois sculptée qu'on offrait autrefois à sa bien-aimée.", "art"),
+            ),
+            Stop(
+                "Liverpool", "Angleterre", 46.0, 53.40, -2.99,
+                "Le Royal Liver Building, sur les quais, coiffé de deux oiseaux de cuivre, les Liver Birds.",
+                "Les Beatles y ont fait leurs débuts au Cavern Club, au début des années 1960.",
+                "La légende dit que si les Liver Birds s'envolaient, la ville cesserait d'exister.",
+                Souvenir("Disque vinyle", "Un 45 tours des Beatles.", "music"),
+            ),
+            Stop(
+                "York", "Angleterre", 60.0, 53.96, -1.08,
+                "York Minster, l'une des plus grandes cathédrales gothiques d'Europe du Nord, et son vitrail est, grand comme un court de tennis.",
+                "Les Shambles, ruelle médiévale aux maisons à encorbellement qui se touchent presque.",
+                "Fondée par les Romains, la ville devint Jorvik, une capitale des Vikings.",
+                Souvenir("Petit drakkar", "Une miniature du navire des Vikings de Jorvik.", "boat"),
+            ),
+            Stop(
+                "Édimbourg", "Écosse", 80.0, 55.95, -3.20,
+                "Le château, sur un ancien volcan, domine le Royal Mile qui descend jusqu'au palais de Holyrood.",
+                "En août, le Fringe, le plus grand festival des arts du monde, envahit toutes les salles de la ville.",
+                "Chaque jour sauf le dimanche, un coup de canon est tiré du château à 13 heures.",
+                Souvenir("Kilt en tartan", "La jupe écossaise aux carreaux d'un clan.", "textile"),
+            ),
+            Stop(
+                "Loch Ness", "Écosse", 96.0, 57.32, -4.44,
+                "Les ruines du château d'Urquhart, au bord d'un lac long de 37 km.",
+                "La cornemuse accompagne les fêtes et les Highland Games, où l'on lance des troncs d'arbre.",
+                "Le loch contient plus d'eau douce que tous les lacs d'Angleterre et du pays de Galles réunis.",
+                Souvenir("Peluche de Nessie", "Le monstre du loch, qu'on cherche depuis 1933.", "toy"),
+            ),
+            Stop(
+                "Chaussée des Géants", "Irlande du Nord", 116.0, 55.24, -6.51,
+                "Environ 40 000 colonnes de basalte, la plupart hexagonales, nées du refroidissement d'une coulée de lave.",
+                "Les musiques traditionnelles résonnent dans les pubs : violon, flûte et bodhrán.",
+                "La légende dit que le géant Finn McCool construisit la chaussée pour aller combattre un géant écossais.",
+                Souvenir("Bodhrán", "Le trophée de ceux qui ont parcouru le Royaume-Uni : un tambour en peau joué avec une petite baguette.", "music"),
+            ),
+        ),
+    )
+
+    val allemagne = Journey(
+        id = "allemagne",
+        title = "Allemagne",
+        kind = JourneyKind.COUNTRY,
+        tagline = "De la porte de Brandebourg au port de Hambourg, par la Bavière et la Forêt-Noire.",
+        keyBase = 7_000L,
+        area = MapArea(latTop = 55.1, latBottom = 47.2, lonLeft = 5.7, lonRight = 15.2),
+        requires = "france",
+        stops = listOf(
+            Stop(
+                "Berlin", "Allemagne", 0.0, 52.52, 13.38,
+                "La porte de Brandebourg, surmontée d'un quadrige, symbole de la réunification depuis la chute du Mur en 1989.",
+                "Cinq grands musées occupent une île de la Spree, l'île aux Musées, inscrite à l'UNESCO.",
+                "Une double rangée de pavés marque au sol le tracé du Mur à travers la ville.",
+                Souvenir("Ampelmännchen", "Le petit bonhomme à chapeau des feux piétons de Berlin-Est, devenu mascotte de la ville.", "toy"),
+            ),
+            Stop(
+                "Potsdam", "Allemagne", 5.0, 52.40, 13.04,
+                "Le palais de Sanssouci, résidence d'été de Frédéric le Grand, au sommet de vignes en terrasses.",
+                "Les parcs et palais de Potsdam forment l'un des plus vastes ensembles inscrits à l'UNESCO en Allemagne.",
+                "Des visiteurs posent des pommes de terre sur la tombe de Frédéric II, qui a encouragé leur culture en Prusse.",
+                Souvenir("Flûte traversière", "Frédéric le Grand en jouait et composait pour elle.", "music"),
+            ),
+            Stop(
+                "Dresde", "Allemagne", 18.0, 51.05, 13.74,
+                "La Frauenkirche, église baroque à coupole de pierre, détruite en 1945 et reconstruite à l'identique en 2005.",
+                "Le Striezelmarkt, marché de Noël tenu depuis 1434, et le stollen, gâteau de Noël aux fruits secs.",
+                "Les pierres d'origine, noircies, ont été remises à leur place : elles forment des taches sombres sur la façade claire.",
+                Souvenir("Casse-noisettes", "Le soldat de bois peint des monts Métallifères, tout proches.", "toy"),
+            ),
+            Stop(
+                "Nuremberg", "Allemagne", 34.0, 49.45, 11.08,
+                "Des maisons à colombages et le château impérial, au-dessus d'une vieille ville entourée de remparts.",
+                "Les petites saucisses grillées de Nuremberg se servent par trois dans un petit pain.",
+                "Le peintre Albrecht Dürer y est né en 1471 ; sa maison se visite toujours.",
+                Souvenir("Pain d'épices", "Les Lebkuchen, pains d'épices ronds de Nuremberg.", "food"),
+            ),
+            Stop(
+                "Munich", "Allemagne", 46.0, 48.14, 11.58,
+                "Le nouvel hôtel de ville néogothique et son carillon, dont les figurines dansent chaque jour sur la Marienplatz.",
+                "L'Oktoberfest, la plus grande fête de la bière du monde, commence en septembre.",
+                "La première Oktoberfest, en 1810, célébrait le mariage du prince héritier Louis de Bavière.",
+                Souvenir("Chope en grès", "La grande chope à couvercle d'étain.", "pottery"),
+            ),
+            Stop(
+                "Neuschwanstein", "Allemagne", 56.0, 47.56, 10.75,
+                "Le château de conte de fées de Louis II de Bavière, perché sur un éperon rocheux au-dessus des gorges.",
+                "Louis II admirait les opéras de Wagner : les salles du château en reprennent les légendes.",
+                "Le château a inspiré celui de la Belle au bois dormant chez Disney.",
+                Souvenir("Boule à neige", "Le château sous la neige, en miniature.", "globe"),
+            ),
+            Stop(
+                "Forêt-Noire", "Allemagne", 72.0, 48.13, 8.23,
+                "Des fermes aux immenses toits qui descendent presque jusqu'au sol, au milieu des sapins.",
+                "Le gâteau Forêt-Noire : chocolat, cerises et crème, parfumé au kirsch de la région.",
+                "On y trouve des horloges à coucou si grandes qu'on peut entrer dedans.",
+                Souvenir("Horloge à coucou", "Sculptée dans le bois, avec son oiseau qui sort à chaque heure.", "clock"),
+            ),
+            Stop(
+                "Heidelberg", "Allemagne", 84.0, 49.41, 8.71,
+                "Les ruines de grès rouge du château dominent le Neckar et le Vieux Pont.",
+                "La plus ancienne université d'Allemagne, fondée en 1386.",
+                "La cave du château abrite un tonneau géant de plus de 200 000 litres.",
+                Souvenir("Baiser d'étudiant", "Le Studentenkuss, chocolat qu'offraient autrefois les étudiants.", "food"),
+            ),
+            Stop(
+                "Cologne", "Allemagne", 100.0, 50.94, 6.96,
+                "La cathédrale gothique et ses deux flèches de 157 mètres, achevée en 1880 après six siècles de chantier.",
+                "Le carnaval, la « cinquième saison », s'ouvre chaque 11 novembre à 11 h 11.",
+                "L'eau de Cologne a été créée ici au début du XVIIIe siècle par un parfumeur italien, Jean-Marie Farina.",
+                Souvenir("Flacon d'eau de Cologne", "Le parfum frais aux agrumes qui porte le nom de la ville.", "spice"),
+            ),
+            Stop(
+                "Hambourg", "Allemagne", 122.0, 53.54, 9.98,
+                "Les entrepôts de brique de la Speicherstadt et l'Elbphilharmonie, salle de concert de verre en forme de vague.",
+                "Le marché aux poissons du dimanche ouvre dès 5 heures du matin, quand les noctambules rentrent.",
+                "La ville compte plus de ponts que Venise et Amsterdam réunies.",
+                Souvenir("Casquette de capitaine", "Le trophée de ceux qui ont parcouru l'Allemagne.", "textile"),
+            ),
+        ),
+    )
+
+    val all: List<Journey> = listOf(italie, espagne, portugal, royaumeUni, allemagne)
+}

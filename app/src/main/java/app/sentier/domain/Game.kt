@@ -125,7 +125,7 @@ data class GameStats(
     val rewardsTaken: Int = 0,
     val level: Int = 1,
     val bestStreak: Int = 0,
-    /** Escales du tour du monde atteintes. */
+    /** Escales atteintes, tous voyages confondus. */
     val stops: Int = 0,
     /** Défis de la semaine relevés. */
     val challenges: Int = 0,
