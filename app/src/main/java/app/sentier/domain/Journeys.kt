@@ -62,7 +62,7 @@ data class ReachedStop(val journey: Journey, val index: Int, val stop: Stop) {
  * puis les pays d'Europe, à faire dans l'ordre qu'on veut.
  */
 object Journeys {
-    val all: List<Journey> = listOf(WorldTour.journey, TourDeFrance.journey) + EuropeTours.all + EuropeTours2.all
+    val all: List<Journey> = listOf(WorldTour.journey, TourDeFrance.journey) + EuropeTours.all + EuropeTours2.all + EuropeTours3.all
 
     fun byId(id: String?): Journey? = all.firstOrNull { it.id == id }
 

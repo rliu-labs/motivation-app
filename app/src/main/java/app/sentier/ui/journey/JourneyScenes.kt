@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import app.sentier.domain.WorldTour
 
 /** Les scènes de chaque voyage, une par escale, dans l'ordre des escales. */
@@ -154,6 +155,103 @@ object JourneyScenes {
         Scene(Landmark.BLUE_DOMES, 0xFF29B6F6, 0xFFE1F5FE, 0xFF1565C0, 0xFF1E5AA8, label = "les maisons blanches et les coupoles bleues de Santorin"),
     )
 
+    private val irlande = listOf(
+        Scene(Landmark.PALACE, 0xFFB0BEC5, 0xFFECEFF1, 0xFF6E9E6E, 0xFF8D8478, label = "le Trinity College de Dublin"),
+        Scene(Landmark.ROUND_TOWER, 0xFFB0BEC5, 0xFFE8F5E9, 0xFF558B2F, 0xFF6D6A60, label = "la tour ronde de Glendalough"),
+        Scene(Landmark.CASTLE, 0xFF90CAF9, 0xFFE3F2FD, 0xFF6A994E, 0xFF7D776B, label = "le château de Kilkenny"),
+        Scene(Landmark.HILL_CHURCH, 0xFFB0BEC5, 0xFFECEFF1, 0xFF7CB342, 0xFF6D6A60, label = "le rocher de Cashel"),
+        Scene(Landmark.CASTLE, 0xFFA5D6A7, 0xFFE8F5E9, 0xFF558B2F, 0xFF5D5A55, label = "le château de Blarney"),
+        Scene(Landmark.FOREST, 0xFFB3E5FC, 0xFFE8F5E9, 0xFF558B2F, 0xFF5D4037, label = "les forêts du parc de Killarney"),
+        Scene(Landmark.SEA_CLIFFS, 0xFF90A4AE, 0xFFECEFF1, 0xFF558B2F, 0xFF5D5A55, label = "les falaises de Moher"),
+        Scene(Landmark.HARBOUR, 0xFF90CAF9, 0xFFE3F2FD, 0xFF8D8D8D, 0xFF7B5E4A, label = "les quais colorés de Galway"),
+        Scene(Landmark.STONES, 0xFFB0BEC5, 0xFFECEFF1, 0xFF7CB342, 0xFF8D8478, label = "les murets de pierre des îles d'Aran"),
+    )
+
+    private val norvege = listOf(
+        Scene(Landmark.MODERN, 0xFF90CAF9, 0xFFE3F2FD, 0xFF4A7C8C, 0xFFF5F5F5, label = "l'opéra blanc d'Oslo"),
+        Scene(Landmark.VIKING_SHIP, 0xFF90CAF9, 0xFFE3F2FD, 0xFF2E6E9E, 0xFF5D4037, label = "un drakkar à tête de dragon"),
+        Scene(Landmark.STAVE_CHURCH, 0xFF81D4FA, 0xFFE1F5FE, 0xFF558B2F, 0xFF4E342E, label = "l'église en bois debout de Heddal"),
+        Scene(Landmark.FJORD, 0xFF64B5F6, 0xFFE3F2FD, 0xFF1E5A7A, 0xFF5D5A55, label = "le rocher de la Chaire au-dessus du Lysefjord"),
+        Scene(Landmark.QUAY_HOUSES, 0xFF90A4AE, 0xFFECEFF1, 0xFF607D8B, 0xFF4E342E, label = "les maisons de bois de Bryggen"),
+        Scene(Landmark.RAILWAY, 0xFF64B5F6, 0xFFE3F2FD, 0xFF558B2F, 0xFF4E5B4E, label = "le train de Flåm dans la montagne"),
+        Scene(Landmark.FJORD, 0xFF81D4FA, 0xFFE1F5FE, 0xFF1E5A7A, 0xFF4E5B4E, label = "le fjord de Geiranger et ses cascades"),
+        Scene(Landmark.CATHEDRAL, 0xFFB0BEC5, 0xFFECEFF1, 0xFF7E9C76, 0xFF6D6A60, label = "la cathédrale de Nidaros"),
+        Scene(Landmark.RORBU, 0xFF81D4FA, 0xFFE1F5FE, 0xFF1E5A7A, 0xFF455A64, label = "les cabanes rouges des Lofoten"),
+        Scene(Landmark.AURORA, 0xFF0D1B3E, 0xFF1A237E, 0xFFE3F2FD, 0xFF5D4037, night = true, label = "les aurores boréales au cap Nord"),
+    )
+
+    private val suede = listOf(
+        Scene(Landmark.QUAY_HOUSES, 0xFF90CAF9, 0xFFE3F2FD, 0xFF607D8B, 0xFF8D3B2F, label = "les maisons colorées de Gamla stan"),
+        Scene(Landmark.VIKING_SHIP, 0xFFB0BEC5, 0xFFECEFF1, 0xFF3D6E8C, 0xFF6D4C41, label = "un grand navire de bois"),
+        Scene(Landmark.CATHEDRAL, 0xFF90CAF9, 0xFFE3F2FD, 0xFF7E9C76, 0xFF9C4A3A, label = "la cathédrale d'Uppsala"),
+        Scene(Landmark.FOREST, 0xFFA5D6A7, 0xFFE8F5E9, 0xFF33691E, 0xFFB23A2E, label = "une maison rouge dans les sapins de Dalécarlie"),
+        Scene(Landmark.CANAL, 0xFF90CAF9, 0xFFE3F2FD, 0xFF3D6E8C, 0xFF8D6E63, label = "un canal de Göteborg"),
+        Scene(Landmark.TWISTED_TOWER, 0xFF81D4FA, 0xFFE1F5FE, 0xFF4A7C8C, 0xFFE0E0E0, label = "la tour torsadée du Turning Torso"),
+        Scene(Landmark.STONES, 0xFFFFCC80, 0xFFFFF3E0, 0xFF8BA36B, 0xFF6F6A60, label = "le navire de pierres d'Ales stenar"),
+        Scene(Landmark.CITY_WALLS, 0xFF90CAF9, 0xFFE3F2FD, 0xFF2E6E9E, 0xFF8D8478, label = "les remparts de Visby"),
+        Scene(Landmark.AURORA, 0xFF0D1B3E, 0xFF311B92, 0xFFE3F2FD, 0xFF90CAF9, night = true, label = "les aurores boréales de Laponie"),
+    )
+
+    private val danemark = listOf(
+        Scene(Landmark.QUAY_HOUSES, 0xFF90CAF9, 0xFFE3F2FD, 0xFF607D8B, 0xFF5D4037, label = "les maisons colorées de Nyhavn"),
+        Scene(Landmark.MERMAID, 0xFF90CAF9, 0xFFE3F2FD, 0xFF4A7C8C, 0xFF4E7D6A, label = "la Petite Sirène sur son rocher"),
+        Scene(Landmark.CASTLE, 0xFFB0BEC5, 0xFFECEFF1, 0xFF7E9C76, 0xFF4E6E58, label = "le château de Kronborg"),
+        Scene(Landmark.VIKING_SHIP, 0xFF90CAF9, 0xFFE3F2FD, 0xFF2E6E9E, 0xFF5D4037, label = "un bateau viking sur le fjord"),
+        Scene(Landmark.SEA_CLIFFS, 0xFF81D4FA, 0xFFE1F5FE, 0xFF7CB342, 0xFFF5F5F0, label = "les falaises de craie de Møns Klint"),
+        Scene(Landmark.HALF_TIMBERED, 0xFFB3E5FC, 0xFFFFF8E1, 0xFF8BA36B, 0xFF6D4C41, label = "les petites maisons d'Odense"),
+        Scene(Landmark.BRICKS, 0xFF81D4FA, 0xFFE1F5FE, 0xFF7CB342, 0xFF455A64, label = "une pile géante de briques de jeu"),
+        Scene(Landmark.MODERN, 0xFF90CAF9, 0xFFE3F2FD, 0xFF607D8B, 0xFFF5F5F5, label = "le musée d'art d'Aarhus"),
+        Scene(Landmark.LIGHTHOUSE, 0xFF81D4FA, 0xFFFFF8E1, 0xFF2E7D9A, 0xFFE0E0E0, label = "le phare de Skagen"),
+    )
+
+    private val pologne = listOf(
+        Scene(Landmark.PALACE, 0xFF90CAF9, 0xFFE3F2FD, 0xFF9E9E9E, 0xFFC0633A, label = "le château royal de Varsovie"),
+        Scene(Landmark.FOREST, 0xFFC5E1A5, 0xFFF1F8E9, 0xFF558B2F, 0xFF8D6E63, label = "le manoir natal de Chopin dans son parc"),
+        Scene(Landmark.WAREHOUSE, 0xFF90CAF9, 0xFFE3F2FD, 0xFF3D6E8C, 0xFF9C4A3A, label = "les maisons de brique de Toruń"),
+        Scene(Landmark.CASTLE, 0xFFFFCC80, 0xFFFFF3E0, 0xFF6A994E, 0xFF9C4A3A, label = "le château de Malbork"),
+        Scene(Landmark.QUAY_HOUSES, 0xFF90CAF9, 0xFFE3F2FD, 0xFF3D6E8C, 0xFF5D4037, label = "les maisons du quai de Gdańsk"),
+        Scene(Landmark.CLOCK_TOWER, 0xFFB3E5FC, 0xFFFFF8E1, 0xFF9E9E9E, 0xFFD7CCB7, label = "l'hôtel de ville de Poznań"),
+        Scene(Landmark.CATHEDRAL, 0xFF9FA8DA, 0xFFE8EAF6, 0xFF7E9C76, 0xFF9C4A3A, label = "la cathédrale de Wrocław"),
+        Scene(Landmark.SALT_HALL, 0xFF3E3A36, 0xFF4E4A44, 0xFF8D8478, 0xFFBCAAA4, night = true, label = "la chapelle de sel de Wieliczka"),
+        Scene(Landmark.CASTLE, 0xFFFFAB91, 0xFFFFE0B2, 0xFF7CB342, 0xFFB5523B, label = "le château du Wawel"),
+    )
+
+    private val tchequie = listOf(
+        Scene(Landmark.CLOCK_TOWER, 0xFFB3E5FC, 0xFFFFF8E1, 0xFF9E9E9E, 0xFF4E4A47, label = "l'horloge astronomique de Prague"),
+        Scene(Landmark.BRIDGE, 0xFFFFCC80, 0xFFFFF3E0, 0xFF5D8AA8, 0xFF5D5A55, label = "le pont Charles sur la Vltava"),
+        Scene(Landmark.CATHEDRAL, 0xFFFFAB91, 0xFFFFE0B2, 0xFF7E9C76, 0xFF4E4A52, label = "la cathédrale Saint-Guy"),
+        Scene(Landmark.CASTLE, 0xFFA5D6A7, 0xFFE8F5E9, 0xFF33691E, 0xFFBCAAA4, label = "le château de Karlštejn dans la forêt"),
+        Scene(Landmark.CATHEDRAL, 0xFF90CAF9, 0xFFE3F2FD, 0xFF8D9F7A, 0xFF8D7B68, label = "la cathédrale Sainte-Barbe"),
+        Scene(Landmark.QUAY_HOUSES, 0xFF90CAF9, 0xFFE3F2FD, 0xFF4A7C8C, 0xFF8D3B2F, label = "les pignons colorés de Telč"),
+        Scene(Landmark.FAIRY_CASTLE, 0xFF81D4FA, 0xFFE1F5FE, 0xFF4A7C8C, 0xFFF2C14E, label = "le château de Český Krumlov"),
+        Scene(Landmark.WAREHOUSE, 0xFFFFCC80, 0xFFFFF3E0, 0xFF5D8AA8, 0xFF9C4A3A, label = "la brasserie de brique de Plzeň"),
+        Scene(Landmark.TEMPLE, 0xFFB3E5FC, 0xFFFFF8E1, 0xFF9E9E9E, 0xFFD7CCB7, label = "la colonnade de Karlovy Vary"),
+    )
+
+    private val hongrie = listOf(
+        Scene(Landmark.PARLIAMENT, 0xFF90CAF9, 0xFFFFF3E0, 0xFF4A7C8C, 0xFFE0D6C2, label = "le Parlement au bord du Danube"),
+        Scene(Landmark.BATHS, 0xFF90CAF9, 0xFFE3F2FD, 0xFF9E9E9E, 0xFFF2C14E, label = "les bains Széchenyi"),
+        Scene(Landmark.CASTLE, 0xFF81D4FA, 0xFFE1F5FE, 0xFF7CB342, 0xFFEDE7DC, label = "le bastion des Pêcheurs"),
+        Scene(Landmark.HILL_CHURCH, 0xFFFFCC80, 0xFFFFF3E0, 0xFF7CB342, 0xFFBCAAA4, label = "les églises de Szentendre sur la colline"),
+        Scene(Landmark.DOME, 0xFF90CAF9, 0xFFE3F2FD, 0xFF4A7C8C, 0xFFD7CCB7, label = "la basilique d'Esztergom"),
+        Scene(Landmark.HARBOUR, 0xFF81D4FA, 0xFFE1F5FE, 0xFFC5B783, 0xFF8D6E63, label = "les voiliers du lac Balaton"),
+        Scene(Landmark.DOME, 0xFFFFCC80, 0xFFFFF3E0, 0xFF9E9E9E, 0xFFC9B48A, label = "l'ancienne mosquée de Pécs"),
+        Scene(Landmark.WELL_SWEEP, 0xFFFFE082, 0xFFFFF8E1, 0xFFC5B783, 0xFF5D4037, label = "un puits à balancier dans la puszta"),
+        Scene(Landmark.VINEYARD, 0xFFFFAB91, 0xFFFFE0B2, 0xFF8BA05A, 0xFF5B3A2E, label = "les vignes d'Eger"),
+    )
+
+    private val croatie = listOf(
+        Scene(Landmark.CATHEDRAL, 0xFF90CAF9, 0xFFE3F2FD, 0xFF9E9E9E, 0xFFD7CCB7, label = "la cathédrale de Zagreb"),
+        Scene(Landmark.QUAY_HOUSES, 0xFF90CAF9, 0xFFE3F2FD, 0xFF9E9E9E, 0xFFC62828, label = "les maisons colorées de la Ville haute"),
+        Scene(Landmark.WATERFALLS, 0xFF81D4FA, 0xFFE1F5FE, 0xFF26C6DA, 0xFF2E7D32, label = "les lacs et cascades de Plitvice"),
+        Scene(Landmark.COLOSSEUM, 0xFF81D4FA, 0xFFFFF8E1, 0xFFC9B48A, 0xFFD7CCB7, label = "l'amphithéâtre romain de Pula"),
+        Scene(Landmark.RUINS, 0xFFFFAB91, 0xFFFFE0B2, 0xFF8D9F6A, 0xFFE0D6C2, label = "le forum romain de Zadar au coucher du soleil"),
+        Scene(Landmark.TEMPLE, 0xFF81D4FA, 0xFFFFF8E1, 0xFFC9B48A, 0xFFEDE7DC, label = "le palais de Dioclétien"),
+        Scene(Landmark.HARBOUR, 0xFF4FC3F7, 0xFFE1F5FE, 0xFFE6D3A3, 0xFFD7CCB7, label = "le port de Hvar"),
+        Scene(Landmark.CITY_WALLS, 0xFF81D4FA, 0xFFFFF8E1, 0xFF1E88A8, 0xFFBCAAA4, label = "les remparts de Ston"),
+        Scene(Landmark.CITY_WALLS, 0xFF4FC3F7, 0xFFE1F5FE, 0xFF1E88A8, 0xFFD7CCB7, label = "les remparts de Dubrovnik au bord de la mer"),
+    )
+
     private val byId: Map<String, List<Scene>> = mapOf(
         WorldTour.journey.id to StopScenes,
         "france" to france,
@@ -167,6 +265,14 @@ object JourneyScenes {
         "suisse" to suisse,
         "autriche" to autriche,
         "grece" to grece,
+        "irlande" to irlande,
+        "norvege" to norvege,
+        "suede" to suede,
+        "danemark" to danemark,
+        "pologne" to pologne,
+        "tchequie" to tchequie,
+        "hongrie" to hongrie,
+        "croatie" to croatie,
     )
 
     fun of(journeyId: String): List<Scene> = byId[journeyId] ?: StopScenes
@@ -824,6 +930,284 @@ internal fun Units.europeLandmark(kind: Landmark, ink: Color, light: Color) {
             rect(35.6f, 6f, 0.8f, 4f, white)
             rect(56f, 18f, 8f, 8f, white)
             dome(60f, 18f, 4f, ink)
+        }
+        Landmark.ROUND_TOWER -> {
+            poly(ink, 44f to g, 46f to 12f, 54f to 12f, 56f to g)
+            tri(45f, 12f, 50f, 2f, 55f, 12f, ink)
+            archOpening(50f, 31f, 2.4f, 36f, Shade)
+            rect(49.2f, 16f, 1.6f, 2.4f, Shade)
+            rect(62f, 36f, 22f, 14f, ink.copy(alpha = 0.85f))
+            tri(62f, 36f, 73f, 28f, 84f, 36f, ink.copy(alpha = 0.85f))
+            archOpening(73f, 42f, 3f, g, Shade)
+            for (x in listOf(18f, 28f)) {
+                rect(x - 0.6f, 39f, 1.2f, 11f, ink)
+                rect(x - 3f, 42f, 6f, 1.2f, ink)
+                d.drawCircle(ink, radius = 2f * s, center = p(x, 42.6f), style = Stroke(0.6f * s))
+            }
+        }
+        Landmark.SEA_CLIFFS -> {
+            poly(ink.copy(alpha = 0.45f), -50f to 40f, -20f to 30f, 6f to 33f, 20f to 40f)
+            water(40f, Color(0xFF2E6E9E))
+            poly(ink, 30f to 60f, 33f to 34f, 38f to 24f, 42f to 14f, 150f to 10f, 150f to 60f)
+            poly(Color(0xFF7CB342), 42f to 14f, 150f to 10f, 150f to 13.5f, 43f to 16.5f)
+            for (y in listOf(24f, 32f, 40f)) line(40f, y, 150f, y - 3f, Color.Black.copy(alpha = 0.15f), 0.5f)
+            line(-50f, 50f, 34f, 50f, Color.White.copy(alpha = 0.5f), 0.5f)
+            for ((x, y) in listOf(14f to 20f, 21f to 15f, 26f to 22f)) {
+                line(x - 1.6f, y - 1f, x, y, Color(0xFF263238), 0.35f)
+                line(x, y, x + 1.6f, y - 1f, Color(0xFF263238), 0.35f)
+            }
+        }
+        Landmark.STAVE_CHURCH -> {
+            rect(30f, 38f, 40f, 12f, ink)
+            poly(ink, 24f to 40f, 34f to 32f, 66f to 32f, 76f to 40f)
+            rect(36f, 26f, 28f, 7f, ink)
+            poly(ink, 32f to 28f, 40f to 21f, 60f to 21f, 68f to 28f)
+            rect(42f, 16f, 16f, 6f, ink)
+            poly(ink, 39f to 18f, 45f to 12f, 55f to 12f, 61f to 18f)
+            rect(46.5f, 6f, 7f, 7f, ink)
+            tri(45f, 7f, 50f, -3f, 55f, 7f, ink)
+            for ((y, x1, x2) in listOf(Triple(36f, 29f, 71f), Triple(25f, 36f, 64f), Triple(15.5f, 42f, 58f))) {
+                line(x1, y, x2, y, Color.White.copy(alpha = 0.15f), 0.4f)
+            }
+            for ((x, y, dir) in listOf(Triple(24f, 40f, -1f), Triple(76f, 40f, 1f), Triple(32f, 28f, -1f), Triple(68f, 28f, 1f), Triple(39f, 18f, -1f), Triple(61f, 18f, 1f))) {
+                line(x, y, x + dir * 2.5f, y - 3f, ink, 0.8f)
+                circle(x + dir * 3f, y - 3.4f, 0.8f, ink)
+            }
+            archOpening(50f, 43f, 5f, g, Shade)
+            for (x in listOf(37f, 63f)) rect(x - 1f, 42f, 2f, 3f, Shade)
+        }
+        Landmark.FJORD -> {
+            poly(ink.copy(alpha = 0.5f), 30f to 36f, 42f to 22f, 50f to 26f, 58f to 18f, 70f to 36f)
+            tri(55f, 21f, 58f, 18f, 61f, 21f, Color.White.copy(alpha = 0.85f))
+            water(36f, Color(0xFF1E5A7A))
+            poly(ink, -50f to 60f, -50f to 4f, 10f to 6f, 26f to 18f, 36f to 36f, 32f to 60f)
+            poly(ink.copy(alpha = 0.85f), 64f to 60f, 66f to 36f, 72f to 16f, 88f to 4f, 150f to 8f, 150f to 60f)
+            for (x in listOf(74f, 79f)) line(x, 14f + (x - 74f), x - 1f, 36f, Color.White.copy(alpha = 0.7f), 0.5f)
+            poly(ink, 8f to 20f, 28f to 19f, 28f to 22f, 20f to 25f, 8f to 26f)
+            rect(25.6f, 17.2f, 0.9f, 1.8f, Color(0xFFD32F2F))
+            circle(26f, 16.6f, 0.6f, Color(0xFFD32F2F))
+            poly(Color.White, 46f to 45f, 54f to 45f, 53f to 46.8f, 47f to 46.8f)
+            line(36f, 48f, 64f, 48f, Color.White.copy(alpha = 0.3f), 0.4f)
+        }
+        Landmark.AURORA -> {
+            for (i in 0..13) circle(((i * 37) % 100).toFloat(), 2f + ((i * 13) % 16), 0.35f, Color.White.copy(alpha = 0.8f))
+            for (k in 0..2) {
+                val band = Path().apply {
+                    moveTo(ox - 50f * s, (16f + k * 5f) * s)
+                    cubicTo(ox + 10f * s, (2f + k * 5f) * s, ox + 50f * s, (28f + k * 4f) * s, ox + 150f * s, (8f + k * 6f) * s)
+                }
+                val c = if (k == 1) Color(0xFFB388FF) else Color(0xFF69F0AE)
+                d.drawPath(band, c.copy(alpha = 0.5f - k * 0.12f), style = Stroke((5f - k * 1.2f) * s))
+            }
+            poly(Color(0xFFCFD8DC), -50f to g, 0f to 38f, 30f to 43f, 62f to 35f, 100f to 41f, 150f to g)
+            tri(38f, g, 48f, 31f, 58f, g, ink)
+            line(46f, 29f, 48.5f, 33f, ink, 0.6f)
+            line(50.5f, 29f, 48f, 33f, ink, 0.6f)
+            tri(45.5f, g, 48f, 42f, 50.5f, g, Color(0xFFFFB74D))
+            for ((x, y) in listOf(72f to 44f, 80f to 45f)) {
+                rect(x, y, 4f, 2f, Color(0xFF5D4037))
+                for (lx in listOf(x + 0.4f, x + 3.4f)) line(lx, y + 2f, lx, y + 5f, Color(0xFF5D4037), 0.4f)
+                line(x + 4f, y, x + 5.2f, y - 2.4f, Color(0xFF5D4037), 0.5f)
+                line(x + 5f, y - 2.4f, x + 6f, y - 4f, Color(0xFF5D4037), 0.3f)
+            }
+        }
+        Landmark.VIKING_SHIP -> {
+            water(42f, Color(0xFF2E6E9E))
+            poly(ink, 20f to 38f, 26f to 42f, 74f to 42f, 80f to 38f, 76f to 47f, 24f to 47f)
+            line(21f, 39f, 16f, 28f, ink, 1.4f)
+            circle(16.5f, 27.5f, 1.6f, ink)
+            line(79f, 39f, 84f, 30f, ink, 1.4f)
+            circle(84.6f, 29.6f, 1.2f, ink)
+            line(50f, 42f, 50f, 12f, ink, 0.8f)
+            rect(38f, 15f, 24f, 18f, Color(0xFFF5F5F5))
+            for (i in 0..5) if (i % 2 == 0) rect(38f + i * 4f, 15f, 4f, 18f, Color(0xFFC62828))
+            line(37f, 15f, 63f, 15f, ink, 0.6f)
+            for (i in 0..7) {
+                val x = 28f + i * 6.2f
+                circle(x, 43.3f, 1.7f, if (i % 2 == 0) Color(0xFFFFC107) else Color(0xFFC62828))
+                circle(x, 43.3f, 0.5f, ink)
+            }
+            line(10f, 49f, 90f, 49f, Color.White.copy(alpha = 0.35f), 0.4f)
+        }
+        Landmark.MERMAID -> {
+            for (i in 0..9) rect(i * 11f - 5f, 33f + (i % 3), 8f, 7f - (i % 3), Color.Black.copy(alpha = 0.15f))
+            water(40f, Color(0xFF4A7C8C))
+            val rock = Color(0xFF6D6255)
+            dome(50f, 47f, 12f, rock)
+            rect(36f, 46f, 28f, 3f, rock)
+            poly(ink, 44f to 35.5f, 54f to 35.5f, 58f to 37f, 62f to 35.5f, 60.5f to 38.5f, 54f to 38f, 44f to 38f)
+            poly(ink, 44.6f to 36f, 48.4f to 36f, 48.6f to 27f, 46.4f to 25.5f, 44.6f to 28f)
+            circle(47.2f, 23.6f, 1.8f, ink)
+            poly(ink, 45.6f to 23f, 48.8f to 23f, 48.4f to 28.5f, 46.8f to 26.5f)
+            line(47.6f, 27.5f, 45.6f, 32.5f, ink, 0.9f)
+            line(30f, 50f, 70f, 50f, Color.White.copy(alpha = 0.35f), 0.4f)
+        }
+        Landmark.QUAY_HOUSES -> {
+            val colors = listOf(
+                Color(0xFFE57373), Color(0xFFFFD54F), Color(0xFF4FC3F7), Color(0xFFFF8A65),
+                Color(0xFF81C784), Color(0xFFBA68C8), Color(0xFFFFB74D), Color(0xFFE0E0E0),
+            )
+            for (i in -6..16) {
+                val x = i * 9f
+                val top = 18f + ((i + 6) % 3) * 4f
+                rect(x, top, 9f, 40f - top, colors[(i + 24) % colors.size])
+                tri(x, top, x + 4.5f, top - 5f, x + 9f, top, ink)
+                for (row in 0..2) {
+                    val y = top + 3f + row * 6f
+                    if (y < 35f) {
+                        rect(x + 1.5f, y, 2f, 3f, Shade)
+                        rect(x + 5.5f, y, 2f, 3f, Shade)
+                    }
+                }
+            }
+            rect(-50f, 40f, 200f, 2f, ink.copy(alpha = 0.6f))
+            water(42f, Color(0xFF3D6E8C))
+            for ((x, c) in listOf(20f to Color.White, 60f to Color(0xFFEF8354))) {
+                poly(c, x to 45f, x + 12f to 45f, x + 10f to 47.5f, x + 2f to 47.5f)
+                line(x + 6f, 45f, x + 6f, 36f, Color(0xFF37474F), 0.5f)
+            }
+        }
+        Landmark.CITY_WALLS -> {
+            water(44f, Color(0xFF1E88A8))
+            for (i in 0..9) {
+                val x = 14f + i * 7.5f
+                val top = 26f + (i % 3) * 2f
+                rect(x, top, 7f, 34f - top, Color(0xFFF5E6C8))
+                tri(x - 0.5f, top, x + 3.5f, top - 4f, x + 7.5f, top, Color(0xFFE65100))
+            }
+            rect(48f, 12f, 5f, 22f, Color(0xFFF5E6C8))
+            tri(47.5f, 12f, 50.5f, 6f, 53.5f, 12f, Color(0xFF8D6E63))
+            rect(6f, 34f, 88f, 12f, ink)
+            for (i in 0..20) rect(6f + i * 4.2f, 32f, 2.2f, 2f, ink)
+            for (x in listOf(6f, 48f, 86f)) {
+                rect(x - 2f, 28f, 10f, 18f, ink)
+                for (k in 0..2) rect(x - 2f + k * 3.9f, 26f, 2.2f, 2f, ink)
+                rect(x + 2.2f, 32f, 1.6f, 3f, Shade)
+            }
+            archOpening(30f, 40f, 4f, 46f, Shade)
+            line(0f, 49f, 100f, 49f, Color.White.copy(alpha = 0.35f), 0.4f)
+        }
+        Landmark.PARLIAMENT -> {
+            water(42f, Color(0xFF4A7C8C))
+            rect(6f, 28f, 88f, 14f, ink)
+            rect(6f, 26f, 88f, 2f, Color(0xFF8D2C2C))
+            rect(42f, 21f, 16f, 7f, ink)
+            dome(50f, 21f, 7f, Color(0xFF8D2C2C))
+            tri(48.6f, 15f, 50f, 3f, 51.4f, 15f, ink)
+            for (i in 0..14) {
+                val x = 8f + i * 6f
+                if (x in 41f..59f) continue
+                tri(x - 1f, 26f, x, 20f, x + 1f, 26f, ink)
+            }
+            for (x in listOf(28f, 72f)) {
+                rect(x - 2f, 17f, 4f, 11f, ink)
+                tri(x - 2.5f, 17f, x, 9f, x + 2.5f, 17f, ink)
+            }
+            for (row in listOf(31f, 36f)) for (i in 0..20) rect(7.5f + i * 4.2f, row, 1.6f, 3f, light.copy(alpha = 0.5f))
+            line(0f, 46f, 100f, 46f, Color.White.copy(alpha = 0.3f), 0.4f)
+        }
+        Landmark.BATHS -> {
+            rect(10f, 24f, 80f, 16f, ink)
+            rect(10f, 22f, 80f, 2f, ink.copy(alpha = 0.8f))
+            rect(42f, 18f, 16f, 6f, ink)
+            dome(50f, 18f, 7f, Color(0xFF4DB6AC))
+            for (i in 0..12) archOpening(14f + i * 6f, 30f, 2.6f, 38f, light.copy(alpha = 0.5f))
+            rect(6f, 40f, 88f, 2f, Color(0xFFE0E0E0))
+            rect(6f, 42f, 88f, 8f, Color(0xFF4FC3F7))
+            for (i in 0..4) for (k in 0..1) circle(16f + i * 17f + k * 3f, 39f - k * 3f, 2.4f, Color.White.copy(alpha = 0.3f))
+            for (x in listOf(22f, 28f, 64f, 72f)) circle(x, 44.5f, 1.2f, Color(0xFF8D6E63))
+            rect(43f, 43f, 6f, 3f, Color.White)
+            for (c in 0..3) for (r in 0..1) if ((c + r) % 2 == 0) rect(43f + c * 1.5f, 43f + r * 1.5f, 1.5f, 1.5f, Color(0xFF263238))
+        }
+        Landmark.WATERFALLS -> {
+            poly(ink, -50f to 40f, -50f to 6f, 30f to 10f, 60f to 4f, 150f to 10f, 150f to 40f)
+            val turq = Color(0xFF26C6DA)
+            val foam = Color.White.copy(alpha = 0.8f)
+            rect(30f, 14f, 40f, 4f, turq)
+            for (i in 0..8) line(32f + i * 4.5f, 18f, 32f + i * 4.5f, 26f, foam, 0.7f)
+            rect(14f, 26f, 72f, 5f, turq)
+            for (i in 0..12) line(17f + i * 5.5f, 31f, 17f + i * 5.5f, 40f, foam, 0.7f)
+            water(40f, turq)
+            val fir = Color(0xFF1B4332)
+            for ((x, h) in listOf(4f to 16f, 10f to 20f, 90f to 18f, 96f to 14f)) tri(x - 4f, 40f, x, 40f - h, x + 4f, 40f, fir)
+            rect(36f, 44f, 28f, 1f, Color(0xFF8D6E63))
+            line(0f, 49f, 100f, 49f, Color.White.copy(alpha = 0.35f), 0.4f)
+        }
+        Landmark.SALT_HALL -> {
+            rect(-50f, 0f, 200f, 60f, Color(0xFF4E4A44))
+            poly(Color(0xFF6D665C), 10f to g, 10f to 14f, 50f to 4f, 90f to 14f, 90f to g)
+            rect(-50f, g, 200f, 10f, Color(0xFF8D8478))
+            rect(42f, 34f, 16f, 16f, ink)
+            tri(42f, 34f, 50f, 26f, 58f, 34f, ink)
+            rect(49.2f, 36f, 1.6f, 9f, light.copy(alpha = 0.6f))
+            rect(46.5f, 38.5f, 7f, 1.6f, light.copy(alpha = 0.6f))
+            for (x in listOf(20f, 80f)) {
+                rect(x - 4f, 30f, 8f, 20f, ink.copy(alpha = 0.6f))
+                dome(x, 30f, 4f, ink.copy(alpha = 0.6f))
+            }
+            for ((x, y) in listOf(30f to 12f, 70f to 12f, 50f to 10f)) {
+                line(x, 0f, x, y, Color(0xFFFFF8E1).copy(alpha = 0.5f), 0.3f)
+                circle(x, y + 2f, 6f, Color(0xFFFFE082).copy(alpha = 0.15f))
+                poly(Color(0xFFFFF8E1).copy(alpha = 0.9f), x - 4f to y, x + 4f to y, x + 2f to y + 5f, x - 2f to y + 5f)
+                circle(x, y, 1.2f, Color(0xFFFFE082))
+            }
+        }
+        Landmark.BRICKS -> {
+            val colors = listOf(Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF1E88E5), Color(0xFF43A047), Color(0xFFFF7043), Color(0xFFE53935))
+            val blocks = listOf(Triple(18f, 38f, 20f), Triple(40f, 38f, 22f), Triple(64f, 38f, 18f), Triple(26f, 26f, 22f), Triple(50f, 26f, 20f), Triple(38f, 14f, 22f))
+            blocks.forEachIndexed { i, (x, y, w) ->
+                val c = colors[i % colors.size]
+                rect(x, y, w, 12f, c)
+                rect(x, y + 10.5f, w, 1.5f, Shade)
+                for (k in 0 until (w / 5f).toInt()) rect(x + 1.5f + k * 5f, y - 1.6f, 3f, 1.6f, c)
+            }
+            archOpening(49f, 43f, 4f, g, ink)
+        }
+        Landmark.WELL_SWEEP -> {
+            rect(4f, 39f, 50f, 6f, ink.copy(alpha = 0.6f))
+            for (i in 0..8) {
+                val cx = 7f + i * 5.5f
+                rect(cx - 2f, 42f, 4f, 3f, light.copy(alpha = 0.7f))
+                dome(cx, 42f, 2f, light.copy(alpha = 0.7f))
+            }
+            rect(54f, 44f, 8f, 6f, Color(0xFF8D6E63))
+            line(70f, g, 70f, 25f, ink, 1.2f)
+            line(70f, 25.5f, 68f, 22.5f, ink, 0.8f)
+            line(70f, 25.5f, 72f, 22.5f, ink, 0.8f)
+            line(56f, 18f, 92f, 34f, ink, 0.9f)
+            line(57f, 18.4f, 58f, 44f, ink, 0.4f)
+            rect(89f, 32f, 4f, 4f, ink)
+            for (x in listOf(20f, 34f, 82f)) for (k in -1..1) line(x, g, x + k * 1.2f, g - 2f, Color(0xFF6A7F3A), 0.4f)
+        }
+        Landmark.RORBU -> {
+            poly(ink, -50f to 40f, -10f to 12f, 10f to 24f, 30f to 4f, 52f to 26f, 70f to 8f, 96f to 30f, 150f to 14f, 150f to 40f)
+            tri(26f, 10f, 30f, 4f, 34f, 10f, Color.White.copy(alpha = 0.9f))
+            tri(66f, 14f, 70f, 8f, 74f, 14f, Color.White.copy(alpha = 0.9f))
+            water(40f, Color(0xFF1E5A7A))
+            for (i in 0..4) {
+                val x = 8f + i * 17f
+                rect(x, 30f, 12f, 8f, Color(0xFFB71C1C))
+                tri(x - 1f, 30f, x + 6f, 25f, x + 13f, 30f, Color(0xFF3E2723))
+                rect(x + 2f, 32f, 2.2f, 2.5f, Color.White)
+                rect(x + 7.5f, 32f, 2.2f, 2.5f, Color.White)
+                for (k in 0..2) line(x + 1f + k * 5f, 38f, x + 1f + k * 5f, 44f, Color(0xFF3E2723), 0.6f)
+            }
+            line(0f, 48f, 100f, 48f, Color.White.copy(alpha = 0.3f), 0.4f)
+        }
+        Landmark.TWISTED_TOWER -> {
+            line(66f, 40f, 150f, 37f, Color(0xFF607D8B), 0.6f)
+            for (x in listOf(84f, 112f)) line(x, 39.5f, x, 30f, Color(0xFF607D8B), 0.5f)
+            water(40f, Color(0xFF4A7C8C))
+            for (k in 0..8) {
+                val bottom = 46f - k * 4.6f
+                val top = bottom - 4.6f
+                val a = kotlin.math.sin(k * 0.4f) * 4f
+                val b = kotlin.math.sin((k + 1) * 0.4f) * 4f
+                poly(ink.copy(alpha = if (k % 2 == 0) 1f else 0.85f), 44f + a to bottom, 56f + a to bottom, 56f + b to top, 44f + b to top)
+                line(45f + a, bottom - 2.3f, 55f + a, bottom - 2.3f, Color(0xFF90A4AE), 0.4f)
+            }
+            line(59f, 46f, 60f, 4f, Color(0xFF90A4AE), 0.6f)
+            line(30f, 49f, 70f, 49f, Color.White.copy(alpha = 0.3f), 0.4f)
         }
         else -> Unit
     }
