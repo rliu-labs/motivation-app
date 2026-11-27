@@ -95,8 +95,8 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
   and brings back a typical souvenir for your collection: a Daruma from Japan, babouches from Morocco, a Persian rug…
 - Once the world tour is done, the Tour de France unlocks: 14 stops from Notre-Dame to the Arc de Triomphe,
   by Strasbourg, Chamonix, Avignon, Carcassonne, Biarritz, Chambord, Carnac and Mont-Saint-Michel (about 210 km).
-- After France, pick the next country yourself: Italy, Spain, Portugal, the United Kingdom or Germany
-  (8 to 9 stops each, 70 to 120 km). Steps walked after finishing a journey already count for the next one.
+- After France, pick the next country yourself: Italy, Spain, Portugal, the United Kingdom, Germany,
+  the Netherlands, Belgium, Switzerland, Austria or Greece (8 to 9 stops each, 70 to 120 km). Steps walked after finishing a journey already count for the next one.
 - "My journeys" lists every journey: finished ones can be opened again with their stops and souvenirs.
 - A dotted map drawn by the app shows the legs travelled and where you are, the whole world or a detailed map of the country:
   no map service, works offline.
@@ -175,8 +175,9 @@ To update, install the new APK the same way: it replaces the previous version an
 | 12. Design | Tablet and landscape layout, world tour illustrations, haptics, dark widget previews | ✅ v0.12 |
 | 13. Looking back | Weekly review with highlights and goal, year heatmap, daily habit notes | ✅ v0.13 |
 | 14. Journeys by country | Tour de France, then Italy, Spain, Portugal, United Kingdom and Germany, with country maps | ✅ v0.14 |
-| 15. More of Europe | The other European countries | Planned |
-| 16. Themed journeys | Tour of Europe, the Silk Road… | Planned |
+| 15. More of Europe | Netherlands, Belgium, Switzerland, Austria and Greece | ✅ v0.15 |
+| 16. Northern and Eastern Europe | Ireland, Scandinavia, Central and Eastern Europe… | Planned |
+| 17. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 
 Release notes are in the [changelog](CHANGELOG.md).
 

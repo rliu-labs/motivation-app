@@ -3,6 +3,7 @@ package app.sentier.data
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.sentier.domain.EuropeTours
+import app.sentier.domain.EuropeTours2
 import app.sentier.domain.TourDeFrance
 import app.sentier.domain.WorldTour
 import kotlinx.coroutines.flow.first
@@ -101,7 +102,7 @@ class JourneyRepositoryTest {
         journey.sync()
         state = journey.observe().first()
         assertTrue(state.progress.done)
-        assertEquals(EuropeTours.all.map { it.id }, state.next.map { it.id })
+        assertEquals((EuropeTours.all + EuropeTours2.all).map { it.id }, state.next.map { it.id })
         assertEquals((25 + TourDeFrance.stops.size - 1) * 15, game.observe().first().totalXp)
         assertTrue(journey.start("portugal"))
         state = journey.observe().first()

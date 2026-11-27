@@ -38,7 +38,10 @@ class JourneysTest {
         assertTrue(Journeys.available(emptySet()).isEmpty())
         assertEquals(listOf("france"), Journeys.available(setOf("monde")).map { it.id })
         val europe = Journeys.available(setOf("monde", "france")).map { it.id }
-        assertEquals(listOf("italie", "espagne", "portugal", "royaume-uni", "allemagne"), europe)
+        assertEquals(
+            listOf("italie", "espagne", "portugal", "royaume-uni", "allemagne", "pays-bas", "belgique", "suisse", "autriche", "grece"),
+            europe,
+        )
         assertFalse("italie" in Journeys.available(setOf("monde", "france", "italie")).map { it.id })
         assertEquals("Tour de France", Journeys.prerequisite(EuropeTours.italie)?.title)
     }
