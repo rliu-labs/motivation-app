@@ -3,7 +3,7 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [0.16.0] - 2026-11-27
+## [0.17.0] - 2026-11-27
 
 Sentier parle anglais : choix de la langue dans les réglages.
 
@@ -18,6 +18,21 @@ Sentier parle anglais : choix de la langue dans les réglages.
 
 ### Conservé
 - Le français reste la langue par défaut. Toutes les données sont gardées ; la base de données ne change pas.
+
+## [0.16.0] - 2026-11-27
+
+Cinq nouveaux pays d'Europe.
+
+### Ajouté
+- Pays-Bas : Amsterdam, les moulins de la Zaanse Schans et de Kinderdijk, les tulipes du Keukenhof, Delft, Rotterdam,
+  Utrecht, la Hoge Veluwe et Giethoorn.
+- Belgique : Bruxelles et l'Atomium, Anvers, Gand, Bruges, Ypres, Waterloo, Dinant, Liège et Spa.
+- Suisse : Genève, Lavaux, Montreux, Zermatt, la Jungfraujoch, Berne, Lucerne, Zurich et Appenzell.
+- Autriche : Vienne, Melk, Linz, Hallstatt, Salzbourg, Innsbruck, le Grossglockner, Graz et le lac de Neusiedl.
+- Grèce : Athènes, Corinthe, Mycènes, Olympie, Delphes, les Météores, le mont Olympe, Thessalonique et Santorin.
+- 17 nouvelles illustrations : moulins, champs de tulipes, maisons cubes, Atomium, jet d'eau, train de montagne,
+  Hallstatt, tremplin de saut, canal de Corinthe, porte des Lionnes, Acropole, Météores, Santorin…
+- Ces pays se choisissent, comme les cinq premiers, une fois le tour de France bouclé.
 
 ## [0.15.0] - 2026-11-27
 
