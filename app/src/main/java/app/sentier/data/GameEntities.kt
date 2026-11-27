@@ -30,7 +30,7 @@ data class GameEvent(
         const val HABIT = 2
         const val STEPS = 3
         const val PURCHASE = 4
-        /** Escale du tour du monde atteinte (ref_id = clé de l'escale). */
+        /** Escale d'un voyage atteinte (ref_id = clé de l'escale). */
         const val STOP = 5
         /** Défi de la semaine relevé (ref_id = clé du défi). */
         const val CHALLENGE = 6

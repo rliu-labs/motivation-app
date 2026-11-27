@@ -45,7 +45,7 @@ private val Credits = listOf(
         "GPL-3.0", "https://github.com/iSoron/uhabits",
     ),
     Credit(
-        "Natural Earth", "Contours des terres utilisés pour dessiner la carte du tour du monde.",
+        "Natural Earth", "Contours des terres utilisés pour dessiner les cartes des voyages.",
         "Domaine public", "https://www.naturalearthdata.com",
     ),
     Credit(

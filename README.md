@@ -87,13 +87,19 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
   a Portuguese compass, a raku tea bowl, a Murano glass, a Fabergé egg, a moai… Rare, epic or legendary,
   each comes with its story and a "did you know?" fact, kept in the travel journal next to your souvenirs.
 
-**World tour**
+**Journeys**
 - Your steps take you around the world, eastward from Paris: Marrakech, Rome, Istanbul, Petra, Lalibela, Isfahan,
   the Taj Mahal, Kathmandu, Beijing, Kyoto, Angkor, Bali, Sydney, Māori New Zealand, Cusco, Rio, Havana, Mexico City,
   New York, Reykjavik and back (25 stops, about 700 km of walking).
 - Every stop has its own illustration drawn by the app, and tells you about the country's architecture and culture, with a "did you know?" fact,
   and brings back a typical souvenir for your collection: a Daruma from Japan, babouches from Morocco, a Persian rug…
-- A dotted world map drawn by the app shows the legs travelled and where you are: no map service, works offline.
+- Once the world tour is done, the Tour de France unlocks: 14 stops from Notre-Dame to the Arc de Triomphe,
+  by Strasbourg, Chamonix, Avignon, Carcassonne, Biarritz, Chambord, Carnac and Mont-Saint-Michel (about 210 km).
+- After France, pick the next country yourself: Italy, Spain, Portugal, the United Kingdom or Germany
+  (8 to 9 stops each, 70 to 120 km). Steps walked after finishing a journey already count for the next one.
+- "My journeys" lists every journey: finished ones can be opened again with their stops and souvenirs.
+- A dotted map drawn by the app shows the legs travelled and where you are, the whole world or a detailed map of the country:
+  no map service, works offline.
 
 **Reminders**
 - A morning notification with the plan for the day.
@@ -168,6 +174,9 @@ To update, install the new APK the same way: it replaces the previous version an
 | 11. Safety nets | Weekly automatic backup, streak freezes | ✅ v0.11 |
 | 12. Design | Tablet and landscape layout, world tour illustrations, haptics, dark widget previews | ✅ v0.12 |
 | 13. Looking back | Weekly review with highlights and goal, year heatmap, daily habit notes | ✅ v0.13 |
+| 14. Journeys by country | Tour de France, then Italy, Spain, Portugal, United Kingdom and Germany, with country maps | ✅ v0.14 |
+| 15. More of Europe | The other European countries | Planned |
+| 16. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -183,7 +192,7 @@ Release notes are in the [changelog](CHANGELOG.md).
 | Widgets | Jetpack Glance, refreshed when data changes |
 | Backup | Plain JSON file through the system file picker (no storage permission), validated and restored in one transaction; weekly automatic copy to a chosen folder via the Storage Access Framework |
 | Adaptive layout | Bottom bar on phones, navigation rail from 600 dp (tablets, foldables, landscape), content width capped for readability |
-| Illustrations | World tour scenes, map and year heatmap drawn with Compose Canvas: no image assets, no map service |
+| Illustrations | Journey scenes, world and country maps and year heatmap drawn with Compose Canvas: no image assets, no map service |
 | Tests | JUnit, Robolectric, Compose UI tests, database migration test, screenshot generation |
 | Release build | R8 code and resource shrinking, signed APK |
 | CI | GitHub Actions: tests, signed APK, smoke test of the shrunk APK on an Android emulator, preview build per pull request, release on every merge |
@@ -191,7 +200,7 @@ Release notes are in the [changelog](CHANGELOG.md).
 ```
 app/src/main/java/app/sentier/
 ├── data/      Room entities, DAOs, repositories (tasks, habits and notes, game, challenges, journey, stats, weekly review, backup, automatic backup), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, freezes, badges), challenges, treasures, world tour, adaptive goal, weekly review
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, freezes, badges), challenges, treasures, journeys (world tour, Tour de France, European countries, land masks), adaptive goal, weekly review
 ├── notify/    Reminders: content, scheduling (daily, per habit and weekly), notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 ├── widget/    Home screen widgets (Glance)

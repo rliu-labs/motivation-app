@@ -19,12 +19,18 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import app.sentier.domain.Journey
 
 /** Silhouettes de monuments dessinées par l'appli (aucune image téléchargée). */
 enum class Landmark {
     TOWER, MINARET, DOME, TEMPLE, MOSQUE, ROCK, PYRAMIDS, ROCK_CHURCH, IWAN, TAJ, STUPA, HALL,
     PAGODA, LANTERNS, KHMER, SPLIT_GATE, OPERA, MEETING_HOUSE, PEAKS, STATUE, COLONIAL, STEP_PYRAMID,
     SKYLINE, CHURCH,
+    // Voyages par pays.
+    CATHEDRAL, SPIRES, CASTLE, CHATEAU, FAIRY_CASTLE, ABBEY_ISLAND, STONES, STONEHENGE, BRIDGE, BROKEN_BRIDGE,
+    LEANING_TOWER, CANAL, COLOSSEUM, CLIFF_VILLAGE, SASSI, LIGHTHOUSE, CLOCK_TOWER, MOORISH, MODERN, CURVES,
+    VINEYARD, VOLCANO, SNOW_PEAKS, HALF_TIMBERED, GATE, AQUEDUCT, BASALT, PALACE, ARCH, HILL_CHURCH, TRULLI,
+    HARBOUR, TRAM, LOCH, FOREST, WAREHOUSE,
 }
 
 /** Ambiance d'une illustration : ciel, soleil (ou lune), sol, monument. */
@@ -67,12 +73,19 @@ val StopScenes: List<Scene> = listOf(
     Scene(Landmark.CHURCH, 0xFF0F2027, 0xFF2C5364, 0xFF4E6E70, 0xFFE8EEF0, night = true, label = "une église sous une aurore boréale"),
 )
 
+/** Scène d'une escale du tour du monde. */
 fun sceneFor(index: Int): Scene = StopScenes.getOrElse(index) { StopScenes.first() }
+
+/** Scène d'une escale d'un voyage (le retour au départ d'une boucle reprend la première scène). */
+fun sceneFor(journey: Journey, index: Int): Scene {
+    val scenes = JourneyScenes.of(journey.id)
+    return scenes.getOrElse(index) { scenes.first() }
+}
 
 /** Illustration d'une escale, dessinée à la taille voulue. */
 @Composable
-fun StopIllustration(index: Int, modifier: Modifier = Modifier) {
-    val scene = sceneFor(index)
+fun StopIllustration(journey: Journey, index: Int, modifier: Modifier = Modifier) {
+    val scene = sceneFor(journey, index)
     Canvas(
         modifier
             .fillMaxWidth()
@@ -111,7 +124,7 @@ private fun DrawScope.drawScene(scene: Scene) {
     u.landmark(scene.landmark, Color(scene.ink), Color(scene.skyBottom))
 }
 
-private class Units(val d: DrawScope, val s: Float, val ox: Float) {
+internal class Units(val d: DrawScope, val s: Float, val ox: Float) {
     fun p(x: Float, y: Float) = Offset(ox + x * s, y * s)
 
     fun path(vararg pts: Pair<Float, Float>): Path = Path().apply {
@@ -348,6 +361,7 @@ private class Units(val d: DrawScope, val s: Float, val ox: Float) {
                 poly(ink, 30f to g, 30f to 40f, 38f to 36f, 38f to 30f, 44f to 26f, 44f to 18f, 48f to 14f, 50f to 4f, 52f to 14f, 56f to 18f, 56f to 26f, 62f to 30f, 62f to 36f, 70f to 40f, 70f to g)
                 rect(48f, 38f, 4f, 12f, Color.Black.copy(alpha = 0.3f))
             }
+            else -> europeLandmark(kind, ink, light)
         }
     }
 }

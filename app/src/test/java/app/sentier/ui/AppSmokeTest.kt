@@ -177,7 +177,10 @@ class AppSmokeTest {
         rule.onNodeWithTag("habitNote").performTextInput("Dix minutes au calme")
         rule.onNodeWithText("Enregistrer").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Dix minutes au calme")).fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithContentDescription("Modifier la note : Méditer").assertExists()
+        // Le texte saisi est aussi dans le champ de l'écran de note : on attend le retour sur Aujourd'hui.
+        rule.waitUntil(5_000) {
+            rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Modifier la note : Méditer")).fetchSemanticsNodes().isNotEmpty()
+        }
 
         rule.onNodeWithText("Habitudes").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }

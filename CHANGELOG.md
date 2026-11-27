@@ -3,6 +3,25 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.14.0] - 2026-11-27
+
+Voyages par pays : le tour de France, puis cinq premiers pays d'Europe.
+
+### Ajouté
+- Tour de France, débloqué une fois le tour du monde bouclé : 14 escales de Notre-Dame à l'arc de triomphe,
+  par Reims, Strasbourg, Chamonix, Lyon, Avignon, Marseille, Carcassonne, Biarritz, Bordeaux, Chambord, Carnac,
+  le Mont-Saint-Michel et Lille (environ 210 km de marche).
+- Après la France, on choisit le pays suivant : Italie, Espagne, Portugal, Royaume-Uni ou Allemagne,
+  de 8 à 9 escales chacun, avec architecture, culture, anecdote et souvenir à chaque étape.
+- Les pas faits après la fin d'un voyage comptent déjà pour le suivant.
+- Une carte détaillée du pays pour les voyages en Europe, toujours dessinée par l'appli à partir de Natural Earth.
+- 36 nouvelles illustrations de monuments (cathédrales, châteaux, phare, trulli, Colisée, tour penchée, aqueduc…).
+- « Mes voyages » : la liste de tous les voyages ; ceux qui sont finis se rouvrent avec leurs escales et leurs souvenirs.
+- Le voyage en cours et les voyages finis sont compris dans les sauvegardes (les anciennes restent lisibles).
+
+### Conservé
+- La progression du tour du monde, ses escales déjà récompensées et ses souvenirs ne changent pas à la mise à jour.
+
 ## [0.13.0] - 2026-11-27
 
 Bilan de la semaine, calendrier de l'année et journal des habitudes.
