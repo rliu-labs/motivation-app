@@ -85,9 +85,11 @@ object DemoData {
 
         // Défis de la semaine déjà récompensés, trésors déjà annoncés.
         app.challenges.sync()
+        // Défi saisonnier en cours déjà récompensé (selon la date, son badge rare est déjà fêté).
+        app.seasons.sync()
         val state = app.game.observe().first()
         app.settings.addTreasuresSeen(state.treasures.filter { it.owned }.map { it.id })
-        app.settings.setCelebrated(state.level.level, state.badges.filter { it.unlocked }.map { it.id }.toSet())
+        app.settings.setCelebrated(state.level.level, (state.badges + state.rareBadges).filter { it.unlocked }.map { it.id }.toSet())
 
         app.settings.setOnboarded()
 

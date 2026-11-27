@@ -57,6 +57,7 @@ import app.sentier.ui.habits.HabitNoteScreen
 import java.time.LocalDate
 import app.sentier.ui.habits.HabitsScreen
 import app.sentier.ui.journey.JourneyScreen
+import app.sentier.ui.journey.PassportScreen
 import app.sentier.ui.journey.TreasureDialog
 import app.sentier.ui.celebrate.CelebrationOverlay
 import app.sentier.ui.celebrate.Confetti
@@ -177,7 +178,7 @@ fun SentierRoot(
                                 HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
                             }
                             composable(Tab.JOURNEY.route) {
-                                JourneyScreen(modifier = tabModifier)
+                                JourneyScreen(modifier = tabModifier, onOpenPassport = { nav.navigate("passport") })
                             }
                             composable(Tab.PROGRESS.route) {
                                 Box(tabModifier) {
@@ -220,6 +221,9 @@ fun SentierRoot(
                             }
                             composable("backup") {
                                 BackupScreen(onBack = { nav.popBackStack() })
+                            }
+                            composable("passport") {
+                                PassportScreen(onBack = { nav.popBackStack() })
                             }
                             composable("credits") {
                                 CreditsScreen(onBack = { nav.popBackStack() })

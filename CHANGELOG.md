@@ -3,7 +3,7 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [0.15.0] - 2026-11-27
+## [0.16.0] - 2026-11-27
 
 Cinq nouveaux pays d'Europe.
 
@@ -17,6 +17,30 @@ Cinq nouveaux pays d'Europe.
 - 17 nouvelles illustrations : moulins, champs de tulipes, maisons cubes, Atomium, jet d'eau, train de montagne,
   Hallstatt, tremplin de saut, canal de Corinthe, porte des Lionnes, Acropole, Météores, Santorin…
 - Ces pays se choisissent, comme les cinq premiers, une fois le tour de France bouclé.
+
+## [0.15.0] - 2026-11-27
+
+Passeport de voyage, défis saisonniers, sommeil et sport automatiques.
+
+### Ajouté
+- Passeport de voyage (onglet Voyage, « Mon passeport ») : un tampon pour chaque escale atteinte, tous voyages confondus,
+  daté du jour où l'escale a été atteinte et à l'encre du pays. Une page par voyage, les escales à venir en pointillé,
+  et sur la couverture le nombre de tampons, de pays et de voyages bouclés. Les escales déjà atteintes ont leur tampon dès la mise à jour.
+- Défis saisonniers (onglet Progrès) : dix défis qui reviennent chaque année, du Nouvel An à la trêve des confiseurs,
+  en passant par la Saint-Valentin, le printemps, l'été, la rentrée, Halloween, novembre et le calendrier de l'Avent.
+  Chacun rapporte un bonus d'XP et d'or et un badge rare ; quand aucun n'est en cours, le prochain est annoncé.
+- Badges rares : un par défi saisonnier, avec le nombre de fois où il a été gagné. Ils s'ajoutent aux 14 badges
+  sans changer les trésors déjà gagnés.
+- Sommeil et sport automatiques (onglet Habitudes, avec Health Connect) : les nuits remplissent l'habitude de sommeil
+  (heures dormies) et les séances de sport cochent l'habitude de sport, sur les 7 derniers jours. Réglage facultatif ;
+  une valeur saisie à la main n'est jamais baissée.
+
+### Modifié
+- L'appli reste entièrement en français même sur un téléphone réglé dans une autre langue : le calendrier du choix de date,
+  l'horloge du choix d'heure et les nombres suivent maintenant le français.
+
+### Conservé
+- Toutes les données (tâches, habitudes, XP, voyages) sont gardées à la mise à jour ; la base de données ne change pas.
 
 ## [0.14.0] - 2026-11-27
 

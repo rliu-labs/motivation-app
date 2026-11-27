@@ -15,6 +15,8 @@ import app.sentier.data.HabitRepository
 import app.sentier.data.HabitWithStats
 import app.sentier.data.StepSource
 import app.sentier.domain.HabitTemplate
+import app.sentier.steps.HealthState
+import app.sentier.steps.HealthSync
 import app.sentier.steps.StepSampleWorker
 import app.sentier.steps.StepsRepository
 import app.sentier.steps.StepsState
@@ -39,7 +41,14 @@ data class HabitsState(
 class HabitsViewModel(
     private val habits: HabitRepository,
     private val steps: StepsRepository,
+    private val health: HealthSync? = null,
 ) : ViewModel() {
+
+    /** Sommeil et sport lus dans Health Connect. */
+    val healthState: StateFlow<HealthState> = (health?.observe() ?: kotlinx.coroutines.flow.flowOf(HealthState()))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HealthState())
+
+    fun setHealthAuto(on: Boolean) = viewModelScope.launch { health?.setOn(on) }
 
     private val today = habits.today()
 
@@ -76,6 +85,6 @@ class HabitsViewModel(
     }
 
     companion object {
-        val Factory = viewModelFactory { initializer { HabitsViewModel(app().habits, app().steps) } }
+        val Factory = viewModelFactory { initializer { HabitsViewModel(app().habits, app().steps, app().health) } }
     }
 }

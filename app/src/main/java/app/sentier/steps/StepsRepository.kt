@@ -57,6 +57,7 @@ class StepsRepository(
     private val sensor: SensorStepSource,
     private val game: GameRepository? = null,
     private val journey: JourneyRepository? = null,
+    private val health: HealthSync? = null,
     private val clock: () -> LocalDate = { LocalDate.now() },
 ) {
     private val availability = MutableStateFlow(StepAvailability())
@@ -104,6 +105,7 @@ class StepsRepository(
             StepSource.NONE -> Unit
         }
         journey?.sync()
+        runCatching { health?.sync() }
     }
 
     /** Lecture du capteur (appelée aussi en arrière-plan toutes les 15 minutes). */
