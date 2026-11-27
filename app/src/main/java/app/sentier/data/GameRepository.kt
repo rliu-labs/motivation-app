@@ -17,6 +17,7 @@ import app.sentier.domain.Treasures
 import app.sentier.domain.Streaks
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 /** Gain affiché après une action (« +20 XP · +4 or »). */
@@ -46,9 +47,10 @@ class GameRepository(
             dao.observeActiveDays(),
             dao.observeCounts(),
             dao.observeRewards(),
-        ) { totals, days, counts, rewards ->
+            dao.observeFreezeDays(),
+        ) { totals, days, counts, rewards, freezes ->
             val level = GameRules.levelOf(totals.xp)
-            val streak = Streaks.compute(days.toSet(), today)
+            val streak = Streaks.compute(days.toSet(), today, freezes, gifts = true)
             val byKind = counts.associate { it.kind to it.count }
             val stats = GameStats(
                 tasksDone = byKind[GameEvent.TASK] ?: 0,
@@ -120,6 +122,14 @@ class GameRepository(
     suspend fun buy(reward: Reward): Boolean {
         if (dao.gold() < reward.cost) return false
         dao.insertEvent(GameEvent(kind = GameEvent.PURCHASE, refId = reward.id, day = today().toEpochDay(), xp = 0, gold = -reward.cost))
+        return true
+    }
+
+    /** Achète un gel de série si l'or suffit et que la réserve n'est pas pleine. */
+    suspend fun buyFreeze(): Boolean {
+        val state = observe().first()
+        if (state.streak.freezes >= Streaks.MAX_FREEZES || dao.gold() < Streaks.FREEZE_COST) return false
+        dao.insertEvent(GameEvent(kind = GameEvent.FREEZE, refId = 0, day = today().toEpochDay(), xp = 0, gold = -Streaks.FREEZE_COST))
         return true
     }
 

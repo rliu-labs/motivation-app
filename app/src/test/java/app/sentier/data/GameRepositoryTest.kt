@@ -116,6 +116,23 @@ class GameRepositoryTest {
     }
 
     @Test
+    fun buyAFreezeWithGold() = runBlocking {
+        // Le gel de bienvenue est déjà là.
+        assertEquals(1, game.observe().first().streak.freezes)
+        assertFalse(game.buyFreeze()) // pas encore d'or
+        repeat(20) { tasks.complete(tasks.addTask("T$it")) } // 20 x 2 or
+        assertTrue(game.buyFreeze())
+        val state = game.observe().first()
+        assertEquals(2, state.streak.freezes)
+        assertEquals(0, state.gold)
+        // Réserve pleine : plus d'achat possible.
+        repeat(20) { tasks.complete(tasks.addTask("U$it")) }
+        assertFalse(game.buyFreeze())
+        // Un achat de gel ne débloque pas le badge de la boutique.
+        assertFalse(state.badges.first { it.id == "reward_1" }.unlocked)
+    }
+
+    @Test
     fun rewardsCanBeEdited() = runBlocking {
         val id = game.addReward("  Un café  ", 15)
         val reward = game.observe().first().rewards.first { it.id == id }

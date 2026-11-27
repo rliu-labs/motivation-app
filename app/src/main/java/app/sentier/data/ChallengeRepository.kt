@@ -43,7 +43,7 @@ class ChallengeRepository(
                 tasks = week.count { it.kind == GameEvent.TASK },
                 hardTasks = week.count { it.kind == GameEvent.TASK && it.xp >= GameRules.xpFor(3) },
                 habits = week.count { it.kind == GameEvent.HABIT },
-                activeDays = week.filter { it.kind != GameEvent.PURCHASE && it.kind != GameEvent.CHALLENGE }.map { it.day }.distinct().size,
+                activeDays = week.filter { GameEvent.isActivity(it.kind) }.map { it.day }.distinct().size,
                 sportRun = Challenges.runEndingAt(
                     events.filter { it.kind == GameEvent.HABIT && it.refId in sportIds }.map { it.day }.toSet(),
                     todayDay,

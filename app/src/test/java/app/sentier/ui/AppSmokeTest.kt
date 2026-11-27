@@ -123,6 +123,7 @@ class AppSmokeTest {
         rule.onNodeWithText("Sauvegarde").performScrollTo().performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Exporter mes données")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Importer une sauvegarde").assertIsDisplayed()
+        rule.onNodeWithText("Sauvegarde automatique").performScrollTo().assertIsDisplayed()
         rule.onNodeWithContentDescription("Retour").performClick()
     }
 

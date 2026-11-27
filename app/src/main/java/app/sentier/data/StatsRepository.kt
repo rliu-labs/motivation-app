@@ -122,8 +122,8 @@ class StatsRepository(
                 goalDays = inRange.count { it.kind == GameEvent.STEPS },
                 habitsDone = inRange.count { it.kind == GameEvent.HABIT },
                 tasksDone = inRange.count { it.kind == GameEvent.TASK },
-                xp = inRange.filter { it.kind != GameEvent.PURCHASE }.sumOf { it.xp },
-                activeDays = inRange.filter { it.kind != GameEvent.PURCHASE && it.kind != GameEvent.CHALLENGE }.map { it.day }.distinct().size,
+                xp = inRange.sumOf { it.xp },
+                activeDays = inRange.filter { GameEvent.isActivity(it.kind) }.map { it.day }.distinct().size,
                 habitRates = rates,
                 loading = false,
             )

@@ -5,6 +5,8 @@
  */
 package app.sentier.domain
 
+import java.time.LocalDate
+
 /**
  * Règles du jeu, inspirées de Habitica : chaque action rapporte de l'expérience (XP)
  * et de l'or, l'XP fait monter de niveau, l'or s'échange contre ses propres récompenses.
@@ -50,25 +52,41 @@ data class StreakInfo(
     val restDays: Int = 0,
     /** Vrai si aujourd'hui compte déjà dans la série. */
     val activeToday: Boolean = false,
+    /** Gels de série en réserve. */
+    val freezes: Int = 0,
+    /** Gels déjà utilisés pour sauver la série. */
+    val freezesUsed: Int = 0,
 )
 
-/**
- * Série de jours avec des jours de repos, pour qu'un jour raté n'efface pas des semaines d'efforts.
- * On commence avec 1 jour de repos, on en gagne 1 tous les 7 jours actifs (2 au plus).
- * Un jour sans action consomme un jour de repos ; sans réserve, la série repart de zéro.
- * Aujourd'hui ne compte pas comme raté tant que la journée n'est pas finie.
- */
 object Streaks {
     const val MAX_REST_DAYS = 2
     const val DAYS_PER_REST_DAY = 7
 
-    fun compute(activeDays: Set<Long>, today: Long): StreakInfo {
-        val first = activeDays.filter { it <= today }.minOrNull() ?: return StreakInfo(restDays = 1)
+    /** Gels gardés en réserve au plus. */
+    const val MAX_FREEZES = 2
+
+    /** Prix d'un gel dans la boutique. */
+    const val FREEZE_COST = 40
+
+    /**
+     * Calcule la série. Un jour sans action ne la casse pas s'il reste un jour de repos,
+     * sinon un gel de série est utilisé s'il y en a un. Les gels viennent des achats ([boughtFreezes],
+     * jour de chaque achat) et, si [gifts] est vrai, d'un gel offert au départ puis au début de chaque
+     * trimestre (1er janvier, avril, juillet et octobre). Un gel ne protège que les jours qui suivent son arrivée.
+     */
+    fun compute(activeDays: Set<Long>, today: Long, boughtFreezes: List<Long> = emptyList(), gifts: Boolean = false): StreakInfo {
+        val first = activeDays.filter { it <= today }.minOrNull()
+            ?: return StreakInfo(restDays = 1, freezes = if (gifts) 1 else 0)
+        val bought = boughtFreezes.groupingBy { it }.eachCount()
         var current = 0
         var best = 0
         var rest = 1
         var sinceEarned = 0
+        var freezes = 0
+        var used = 0
         for (day in first..today) {
+            if (gifts && (day == first || isQuarterStart(day))) freezes = (freezes + 1).coerceAtMost(MAX_FREEZES)
+            bought[day]?.let { freezes = (freezes + it).coerceAtMost(MAX_FREEZES) }
             if (day in activeDays) {
                 current++
                 sinceEarned++
@@ -77,20 +95,29 @@ object Streaks {
                     sinceEarned = 0
                 }
             } else if (day != today) {
-                if (current > 0 && rest > 0) {
-                    rest--
-                } else {
-                    current = 0
-                    sinceEarned = 0
+                when {
+                    current > 0 && rest > 0 -> rest--
+                    current > 0 && freezes > 0 -> {
+                        freezes--
+                        used++
+                    }
+                    else -> {
+                        current = 0
+                        sinceEarned = 0
+                    }
                 }
             }
             best = maxOf(best, current)
         }
-        return StreakInfo(current, best, rest, activeToday = today in activeDays)
+        return StreakInfo(current, best, rest, activeToday = today in activeDays, freezes = freezes, freezesUsed = used)
+    }
+
+    private fun isQuarterStart(day: Long): Boolean {
+        val d = LocalDate.ofEpochDay(day)
+        return d.dayOfMonth == 1 && d.monthValue % 3 == 1
     }
 }
 
-/** Compteurs utilisés pour les badges. */
 data class GameStats(
     val tasksDone: Int = 0,
     val habitsDone: Int = 0,

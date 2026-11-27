@@ -34,6 +34,11 @@ data class GameEvent(
         const val STOP = 5
         /** Défi de la semaine relevé (ref_id = clé du défi). */
         const val CHALLENGE = 6
+        /** Gel de série acheté dans la boutique (or négatif). */
+        const val FREEZE = 7
+
+        /** Vrai pour les actions qui font avancer la série (pas les achats ni les bonus). */
+        fun isActivity(kind: Int): Boolean = kind != PURCHASE && kind != CHALLENGE && kind != FREEZE
     }
 }
 

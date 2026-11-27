@@ -34,6 +34,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,9 +42,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.sentier.data.AutoBackup
 import app.sentier.data.BackupRepository
 import java.time.Instant
 import java.time.LocalDate
@@ -60,6 +64,10 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
     }
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let(vm::open)
+    }
+    val auto by vm.auto.collectAsStateWithLifecycle()
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let(vm::chooseFolder)
     }
 
     Scaffold(
@@ -116,6 +124,42 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
                 }
             }
 
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val a = auto.settings
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Sauvegarde automatique", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = a.on && a.folder != null,
+                            onCheckedChange = { on -> if (on) folderPicker.launch(null) else vm.turnOffAuto() },
+                            enabled = !state.busy,
+                            modifier = Modifier.semantics { contentDescription = "Sauvegarde automatique" },
+                        )
+                    }
+                    Text(
+                        "Chaque semaine, Sentier enregistre une sauvegarde dans le dossier de ton choix " +
+                            "et garde les ${AutoBackup.KEEP} dernières. Choisis un dossier synchronisé pour l'avoir aussi ailleurs.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (a.on && a.folder != null) {
+                        Text(
+                            "Dossier : " + (auto.folderName ?: "inaccessible"),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            a.lastAt?.let { "Dernière sauvegarde : " + formatDate(it) } ?: "Pas encore de sauvegarde.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        a.error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = vm::backUpNow, enabled = !state.busy) { Text("Sauvegarder maintenant") }
+                            TextButton(onClick = { folderPicker.launch(null) }, enabled = !state.busy) { Text("Changer de dossier") }
+                        }
+                    }
+                }
+            }
+
             if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             state.message?.let {
                 Text(
@@ -143,9 +187,7 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
     }
 
     state.pending?.let { file ->
-        val date = file.createdAt?.let {
-            DateTimeFormatter.ofPattern("d MMMM yyyy 'à' HH:mm", Locale.FRANCE).format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
-        }
+        val date = file.createdAt?.let(::formatDate)
         AlertDialog(
             onDismissRequest = vm::cancelRestore,
             title = { Text("Remplacer tes données ?") },
@@ -161,3 +203,6 @@ fun BackupScreen(onBack: () -> Unit, vm: BackupViewModel = viewModel(factory = B
         )
     }
 }
+
+private fun formatDate(millis: Long): String =
+    DateTimeFormatter.ofPattern("d MMMM yyyy 'à' HH:mm", Locale.FRANCE).format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()))

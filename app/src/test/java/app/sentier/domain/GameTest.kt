@@ -70,6 +70,34 @@ class GameTest {
     }
 
     @Test
+    fun aFreezeSavesTheStreakWhenRestDaysAreGone() {
+        // Même trou de deux jours que ci-dessus, avec un gel acheté avant : la série tient.
+        val s = Streaks.compute((90L..94L).toSet() + (97L..100L).toSet(), 100, boughtFreezes = listOf(92L))
+        assertEquals(9, s.current)
+        assertEquals(0, s.freezes)
+        assertEquals(1, s.freezesUsed)
+    }
+
+    @Test
+    fun aFreezeBoughtAfterTheBreakDoesNotRepairIt() {
+        val s = Streaks.compute((90L..94L).toSet() + (97L..100L).toSet(), 100, boughtFreezes = listOf(98L))
+        assertEquals(4, s.current)
+        assertEquals(1, s.freezes)
+    }
+
+    @Test
+    fun oneFreeFreezeAtStartAndEachQuarterUpToTwo() {
+        val jan1 = java.time.LocalDate.of(2027, 1, 1).toEpochDay()
+        // Aucune action : le gel de bienvenue attend déjà.
+        assertEquals(1, Streaks.compute(emptySet(), jan1, gifts = true).freezes)
+        // Actif depuis début décembre : gel de départ, puis celui du 1er janvier.
+        val dec1 = java.time.LocalDate.of(2026, 12, 1).toEpochDay()
+        assertEquals(2, Streaks.compute((dec1..jan1).toSet(), jan1, gifts = true).freezes)
+        // La réserve plafonne à deux, même avec un achat en plus.
+        assertEquals(2, Streaks.compute((dec1..jan1).toSet(), jan1, boughtFreezes = listOf(jan1), gifts = true).freezes)
+    }
+
+    @Test
     fun badges() {
         val none = Badges.of(GameStats())
         assertTrue(none.none { it.unlocked })

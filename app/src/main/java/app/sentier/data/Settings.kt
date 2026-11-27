@@ -39,6 +39,17 @@ data class StepSettings(
 /** Thème de l'appli : celui du téléphone, ou toujours clair, ou toujours sombre. */
 enum class ThemeMode(val label: String) { SYSTEM("Comme le téléphone"), LIGHT("Clair"), DARK("Sombre") }
 
+/** Sauvegarde automatique chaque semaine dans un dossier choisi. */
+data class AutoBackupSettings(
+    val on: Boolean = false,
+    /** Dossier choisi (adresse du sélecteur de dossiers d'Android). */
+    val folder: String? = null,
+    /** Date de la dernière sauvegarde réussie (millisecondes). */
+    val lastAt: Long? = null,
+    /** Dernière erreur, à montrer telle quelle. */
+    val error: String? = null,
+)
+
 /** Présentation de l'onglet Tâches. */
 enum class TaskView(val label: String) { BY_DATE("Par date"), MANUAL("Mon ordre"), CALENDAR("Calendrier") }
 
@@ -79,6 +90,33 @@ class Settings(private val context: Context) {
         val celebratedBadges = stringSetPreferencesKey("celebrated_badges")
         val onboarded = booleanPreferencesKey("onboarded")
         val taskView = stringPreferencesKey("task_view")
+        val autoBackupOn = booleanPreferencesKey("auto_backup_on")
+        val autoBackupFolder = stringPreferencesKey("auto_backup_folder")
+        val autoBackupLast = longPreferencesKey("auto_backup_last")
+        val autoBackupError = stringPreferencesKey("auto_backup_error")
+    }
+
+    /** Sauvegarde automatique : propre à ce téléphone (le dossier choisi n'a pas de sens ailleurs), donc jamais exportée. */
+    val autoBackup: Flow<AutoBackupSettings> = context.dataStore.data.map { p ->
+        AutoBackupSettings(
+            on = p[Keys.autoBackupOn] ?: false,
+            folder = p[Keys.autoBackupFolder],
+            lastAt = p[Keys.autoBackupLast],
+            error = p[Keys.autoBackupError],
+        )
+    }
+
+    suspend fun currentAutoBackup(): AutoBackupSettings = autoBackup.first()
+
+    suspend fun setAutoBackup(on: Boolean, folder: String?) = context.dataStore.edit {
+        it[Keys.autoBackupOn] = on
+        if (folder != null) it[Keys.autoBackupFolder] = folder
+        it.remove(Keys.autoBackupError)
+    }
+
+    suspend fun setAutoBackupResult(at: Long?, error: String?) = context.dataStore.edit {
+        if (at != null) it[Keys.autoBackupLast] = at
+        if (error != null) it[Keys.autoBackupError] = error else it.remove(Keys.autoBackupError)
     }
 
     val taskView: Flow<TaskView> = context.dataStore.data.map { p ->

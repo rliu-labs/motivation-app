@@ -41,6 +41,8 @@ class ProgressViewModel(
 
     fun buy(reward: Reward) = viewModelScope.launch { game.buy(reward) }
 
+    fun buyFreeze() = viewModelScope.launch { game.buyFreeze() }
+
     fun save(reward: Reward?, name: String, cost: Int) = viewModelScope.launch {
         if (name.isBlank()) return@launch
         if (reward == null) game.addReward(name, cost) else game.updateReward(reward.copy(name = name, cost = cost))

@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.sentier.SentierApplication
+import app.sentier.data.AutoBackup
+import app.sentier.data.AutoBackupSettings
 import app.sentier.data.BackupException
 import app.sentier.data.BackupFile
 import app.sentier.notify.HabitReminders
@@ -20,9 +22,14 @@ import app.sentier.ui.common.app
 import app.sentier.widget.Widgets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+data class AutoBackupUi(val settings: AutoBackupSettings = AutoBackupSettings(), val folderName: String? = null)
 
 data class BackupUiState(
     val busy: Boolean = false,
@@ -92,6 +99,38 @@ class BackupViewModel(private val sentier: SentierApplication) : AndroidViewMode
 
     fun cancelRestore() {
         _state.value = BackupUiState()
+    }
+
+    /** Sauvegarde automatique, avec le nom du dossier choisi. */
+    val auto: StateFlow<AutoBackupUi> = sentier.settings.autoBackup
+        .map { s -> AutoBackupUi(s, s.folder?.let { withContext(Dispatchers.IO) { AutoBackup.folderName(sentier, Uri.parse(it)) } }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AutoBackupUi())
+
+    /** Un dossier vient d'être choisi : la sauvegarde automatique démarre, avec une première sauvegarde tout de suite. */
+    fun chooseFolder(folder: Uri) = viewModelScope.launch {
+        val ok = runCatching { AutoBackup.keepAccess(sentier, folder) }.isSuccess
+        if (!ok) {
+            _state.value = BackupUiState(message = "Sentier ne peut pas écrire dans ce dossier. Choisis-en un autre.", error = true)
+            return@launch
+        }
+        sentier.settings.setAutoBackup(true, folder.toString())
+        runCatching { AutoBackup.schedule(sentier, true) }
+        backUpNow()
+    }
+
+    fun turnOffAuto() = viewModelScope.launch {
+        sentier.settings.setAutoBackup(false, null)
+        runCatching { AutoBackup.schedule(sentier, false) }
+    }
+
+    fun backUpNow() = viewModelScope.launch {
+        _state.value = BackupUiState(busy = true)
+        val error = AutoBackup.run(sentier)
+        _state.value = if (error == null) {
+            BackupUiState(message = "Sauvegarde automatique faite. La prochaine aura lieu dans une semaine.")
+        } else {
+            BackupUiState(message = error, error = true)
+        }
     }
 
     companion object {

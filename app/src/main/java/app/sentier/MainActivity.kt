@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import app.sentier.data.AutoBackup
 import app.sentier.data.ThemeMode
 import app.sentier.notify.HabitReminders
 import app.sentier.notify.Reminders
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             runCatching { Reminders.ensureScheduled(application as SentierApplication) }
             runCatching { HabitReminders.ensureScheduled(application as SentierApplication) }
+            runCatching { AutoBackup.ensureScheduled(application as SentierApplication) }
         }
         setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialTheme)

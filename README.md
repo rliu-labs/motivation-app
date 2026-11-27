@@ -65,7 +65,8 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 **Game**
 - Every task and habit earns experience and gold, according to its difficulty.
 - Levels, and a reward shop you fill yourself ("A dessert", "A video game night"…).
-- Day streaks with **rest days**: one missed day does not break the streak.
+- Day streaks with **rest days**: one missed day does not break the streak. When rest days run out, a **streak freeze**
+  saves it: one free freeze every three months, more in the shop.
 - 14 badges to unlock. Nothing is ever taken away: no penalties, no lost points.
 - **Weekly challenges**, from Monday to Sunday, each with an XP and gold bonus: walk 70,000 steps (the Silk Road),
   work out 7 days in a row (Olympic spirit), finish 3 hard tasks (the labours of Hercules)…
@@ -97,6 +98,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - A small "Steps and streak" widget.
 - Export all your data to a JSON file you keep wherever you like, and restore it on the same or a new phone.
   The restore asks for confirmation and is all-or-nothing: a damaged file changes nothing.
+- Optional weekly automatic backup to a folder of your choice, keeping the last four.
 
 **Steps**
 - Step count from Health Connect, with the phone's step sensor as a fallback.
@@ -145,6 +147,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 8. Statistics and polish | Statistics, adaptive step goal, theme choice, celebrations | ✅ v0.8 |
 | 9. Welcome and habit reminders | First-launch welcome, a reminder per habit at the chosen time | ✅ v0.9 |
 | 10. Task views | Search, drag-and-drop order, month calendar | ✅ v0.10 |
+| 11. Safety nets | Weekly automatic backup, streak freezes | ✅ v0.11 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 

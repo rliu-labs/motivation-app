@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Backup
@@ -39,6 +40,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -104,7 +106,7 @@ fun ProgressScreen(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp),
         )
         LevelCard(state)
-        StreakCard(state)
+        StreakCard(state, onBuyFreeze = vm::buyFreeze)
         ListItem(
             headlineContent = { Text("Statistiques") },
             supportingContent = { Text("Pas, habitudes et XP sur la semaine, le mois et l'année") },
@@ -254,40 +256,63 @@ private fun LevelCard(state: GameState) {
 }
 
 @Composable
-private fun StreakCard(state: GameState) {
+private fun StreakCard(state: GameState, onBuyFreeze: () -> Unit) {
     val s = state.streak
     Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                Icons.Filled.LocalFireDepartment,
-                contentDescription = null,
-                tint = if (s.current > 0) Color(0xFFF4511E) else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(40.dp),
-            )
-            Spacer(Modifier.width(16.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    when (s.current) {
-                        0 -> "Pas encore de série"
-                        1 -> "1 jour de suite"
-                        else -> "${s.current} jours de suite"
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+        Column {
+            Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Filled.LocalFireDepartment,
+                    contentDescription = null,
+                    tint = if (s.current > 0) Color(0xFFF4511E) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(40.dp),
                 )
-                Text(
-                    if (s.activeToday || s.current == 0) "Record : ${s.best} jours" else "Fais une action aujourd'hui pour la continuer",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    when (s.restDays) {
-                        0 -> "Aucun jour de repos en réserve : 1 de plus tous les ${Streaks.DAYS_PER_REST_DAY} jours actifs."
-                        1 -> "1 jour de repos en réserve : un jour raté ne cassera pas la série."
-                        else -> "${s.restDays} jours de repos en réserve : un jour raté ne cassera pas la série."
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Spacer(Modifier.width(16.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        when (s.current) {
+                            0 -> "Pas encore de série"
+                            1 -> "1 jour de suite"
+                            else -> "${s.current} jours de suite"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        if (s.activeToday || s.current == 0) "Record : ${s.best} jours" else "Fais une action aujourd'hui pour la continuer",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        when (s.restDays) {
+                            0 -> "Aucun jour de repos en réserve : 1 de plus tous les ${Streaks.DAYS_PER_REST_DAY} jours actifs."
+                            1 -> "1 jour de repos en réserve : un jour raté ne cassera pas la série."
+                            else -> "${s.restDays} jours de repos en réserve : un jour raté ne cassera pas la série."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            HorizontalDivider(Modifier.padding(horizontal = 20.dp))
+            Row(Modifier.padding(start = 20.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.AcUnit, contentDescription = null, tint = Color(0xFF039BE5), modifier = Modifier.size(28.dp))
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "Gels de série : ${s.freezes} sur ${Streaks.MAX_FREEZES}",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        "Quand il ne reste plus de jour de repos, un gel protège la série pour un jour manqué. " +
+                            "Un gel est offert chaque trimestre.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                val canBuy = s.freezes < Streaks.MAX_FREEZES && state.gold >= Streaks.FREEZE_COST
+                FilledTonalButton(onClick = onBuyFreeze, enabled = canBuy, modifier = Modifier.padding(start = 8.dp)) {
+                    Text("${Streaks.FREEZE_COST} or")
+                }
             }
         }
     }

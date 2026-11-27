@@ -3,6 +3,17 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.11.0] - 2026-11-27
+
+Sauvegarde automatique et gel de série.
+
+### Ajouté
+- Sauvegarde automatique chaque semaine dans un dossier choisi (sur le téléphone, une carte SD ou un dossier synchronisé),
+  avec une première sauvegarde tout de suite ; les quatre dernières sont gardées.
+- Gels de série : quand il ne reste plus de jour de repos, un gel protège la série pour un jour manqué.
+  Un gel est offert au départ puis chaque trimestre, et la boutique en vend pour 40 pièces d'or (deux en réserve au plus).
+  Un gel ne protège que les jours qui suivent son arrivée.
+
 ## [0.10.0] - 2026-11-27
 
 Recherche, ordre à la main et calendrier des tâches.
