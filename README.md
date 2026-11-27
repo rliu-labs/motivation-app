@@ -111,6 +111,21 @@ Sentier is not on the Play Store; the APK is downloaded from GitHub. On your And
 
 To update, install the new APK the same way: it replaces the previous version and **keeps all your data**.
 
+## Compatibility
+
+| | |
+|---|---|
+| Android version | **Android 9 (API 28) or later**, up to Android 15 (API 35, the target version) |
+| Devices | Any Android phone; no Google account or Play Store needed. Tablets and foldables work with the phone layout |
+| Steps | **Health Connect** (built into Android 14+, a free app on Android 9 to 13) reads steps from Google Fit, Samsung Health, Fitbit and other apps. Without it, the phone's own **step sensor** is used, if the phone has one |
+| Without steps | Everything else works: tasks, habits, game, challenges, statistics. Only the world tour and step goals wait for a step source |
+| Widgets | Any home screen (launcher) that supports Android widgets; resizable |
+| Notifications | Reminders work on every supported version; Android 13+ asks for permission when you turn them on |
+| Look | Material 3 colors that follow your wallpaper on Android 12+, Sentier's green theme before that; light, dark or system theme everywhere |
+| Accessibility | Screen reader labels on charts, maps and buttons; animations follow the phone's "remove animations" setting |
+| Language | Interface in French |
+| Offline | Works fully offline; data stays on the phone |
+
 ## Roadmap
 
 | Stage | Scope | Status |
