@@ -113,6 +113,7 @@ class AppSmokeTest {
     @Test
     fun openChallengesAndTreasures() {
         rule.onNodeWithText("Progrès").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Défis de la semaine (0 sur 6)")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Défis de la semaine (0 sur 6)").performScrollTo().assertIsDisplayed()
         rule.onNodeWithText("La route de la soie").performScrollTo().assertIsDisplayed()
         rule.onNodeWithText("Ajoute l'habitude « Faire du sport » pour relever ce défi.").assertExists()
