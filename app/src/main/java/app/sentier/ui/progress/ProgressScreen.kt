@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -42,6 +46,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -53,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
@@ -64,6 +70,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.GameState
 import app.sentier.data.Reward
+import app.sentier.data.ThemeMode
 import app.sentier.domain.Badge
 import app.sentier.domain.Challenge
 import app.sentier.domain.Streaks
@@ -78,10 +85,13 @@ val GoldColor = Color(0xFFE0A100)
 fun ProgressScreen(
     onOpenCredits: () -> Unit,
     onOpenBackup: () -> Unit = {},
+    onOpenStats: () -> Unit = {},
     vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val challenges by vm.challenges.collectAsStateWithLifecycle()
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    var choosingTheme by remember { mutableStateOf(false) }
     var buying by remember { mutableStateOf<Reward?>(null) }
     var editing by remember { mutableStateOf<Reward?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -95,6 +105,13 @@ fun ProgressScreen(
         )
         LevelCard(state)
         StreakCard(state)
+        ListItem(
+            headlineContent = { Text("Statistiques") },
+            supportingContent = { Text("Pas, habitudes et XP sur la semaine, le mois et l'année") },
+            leadingContent = { Icon(Icons.Filled.BarChart, contentDescription = null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            modifier = Modifier.clickable(onClick = onOpenStats).padding(horizontal = 4.dp),
+        )
 
         challenges?.let { week ->
             SectionHeader("Défis de la semaine (${week.doneCount} sur ${week.list.size})")
@@ -137,6 +154,13 @@ fun ProgressScreen(
         for (badge in state.badges) BadgeRow(badge)
 
         ListItem(
+            headlineContent = { Text("Thème") },
+            supportingContent = { Text(theme.label) },
+            leadingContent = { Icon(Icons.Filled.DarkMode, contentDescription = null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            modifier = Modifier.clickable { choosingTheme = true }.padding(horizontal = 4.dp),
+        )
+        ListItem(
             headlineContent = { Text("Sauvegarde") },
             supportingContent = { Text("Exporter ou importer toutes tes données") },
             leadingContent = { Icon(Icons.Filled.Backup, contentDescription = null) },
@@ -151,6 +175,33 @@ fun ProgressScreen(
             modifier = Modifier.clickable(onClick = onOpenCredits).padding(horizontal = 4.dp),
         )
         Spacer(Modifier.height(16.dp))
+    }
+
+    if (choosingTheme) {
+        AlertDialog(
+            onDismissRequest = { choosingTheme = false },
+            title = { Text("Thème") },
+            text = {
+                Column(Modifier.selectableGroup()) {
+                    for (mode in ThemeMode.entries) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = mode == theme, role = Role.RadioButton, onClick = {
+                                    vm.setTheme(mode)
+                                    choosingTheme = false
+                                })
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = mode == theme, onClick = null)
+                            Text(mode.label, modifier = Modifier.padding(start = 12.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { choosingTheme = false }) { Text("Fermer") } },
+        )
     }
 
     buying?.let { reward ->

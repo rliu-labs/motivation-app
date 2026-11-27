@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,7 +73,7 @@ fun StepsCard(
     state: StepsState,
     onUseHealthConnect: () -> Unit,
     onUseSensor: () -> Unit,
-    onSetGoal: (Int, Int) -> Unit,
+    onSetGoal: (Int, Int, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var editGoal by remember { mutableStateOf(false) }
@@ -99,7 +100,10 @@ fun StepsCard(
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                         TextButton(onClick = { editGoal = true }, modifier = Modifier.padding(start = 0.dp)) {
-                            Text("Objectif : ${formatSteps(state.settings.goal.toLong())} pas")
+                            Text(
+                                (if (state.settings.adaptive) "Objectif adaptatif : " else "Objectif : ") +
+                                    "${formatSteps(state.settings.goal.toLong())} pas"
+                            )
                         }
                     }
                 }
@@ -127,8 +131,9 @@ fun StepsCard(
         GoalDialog(
             goal = state.settings.goal,
             stepLengthCm = state.settings.stepLengthCm,
+            adaptive = state.settings.adaptive,
             onDismiss = { editGoal = false },
-            onSave = { g, l -> onSetGoal(g, l); editGoal = false },
+            onSave = { g, l, a -> onSetGoal(g, l, a); editGoal = false },
         )
     }
 }
@@ -245,15 +250,29 @@ private fun openHealthConnectStore(context: Context) {
 }
 
 @Composable
-private fun GoalDialog(goal: Int, stepLengthCm: Int, onDismiss: () -> Unit, onSave: (Int, Int) -> Unit) {
+private fun GoalDialog(goal: Int, stepLengthCm: Int, adaptive: Boolean, onDismiss: () -> Unit, onSave: (Int, Int, Boolean) -> Unit) {
     var g by remember { mutableIntStateOf(goal) }
     var l by remember { mutableIntStateOf(stepLengthCm) }
+    var a by remember { mutableStateOf(adaptive) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Objectif de pas") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Stepper("Pas par jour", formatSteps(g.toLong()), onMinus = { g = (g - 500).coerceAtLeast(500) }, onPlus = { g = (g + 500).coerceAtMost(50_000) })
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Objectif adaptatif")
+                        Text(
+                            "Chaque jour, l'objectif suit tes pas des 2 dernières semaines, plus 10 %, pour rester atteignable.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(checked = a, onCheckedChange = { a = it })
+                }
+                if (!a) {
+                    Stepper("Pas par jour", formatSteps(g.toLong()), onMinus = { g = (g - 500).coerceAtLeast(500) }, onPlus = { g = (g + 500).coerceAtMost(50_000) })
+                }
                 Stepper("Longueur d'un pas", "$l cm", onMinus = { l = (l - 5).coerceAtLeast(30) }, onPlus = { l = (l + 5).coerceAtMost(150) })
                 Text(
                     "La longueur du pas sert à calculer les kilomètres parcourus.",
@@ -262,7 +281,7 @@ private fun GoalDialog(goal: Int, stepLengthCm: Int, onDismiss: () -> Unit, onSa
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(g, l) }) { Text("Enregistrer") } },
+        confirmButton = { TextButton(onClick = { onSave(g, l, a) }) { Text("Enregistrer") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } },
     )
 }

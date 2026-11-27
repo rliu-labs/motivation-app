@@ -84,6 +84,10 @@ class ScreenshotTest {
             rule.onNodeWithText("Défis de la semaine", substring = true).performScrollTo()
             waitFor("Défis de la semaine")
             save(scenario, "defis")
+
+            rule.onNodeWithText("Statistiques").performScrollTo().performClick()
+            waitFor("Habitudes réussies")
+            save(scenario, "statistiques")
         }
     }
 

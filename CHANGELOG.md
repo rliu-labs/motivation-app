@@ -3,6 +3,19 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.8.0] - 2026-11-27
+
+Statistiques, objectif adaptatif, thème et animations.
+
+### Ajouté
+- Écran « Statistiques » (onglet Progrès) sur 7 jours, 30 jours ou 12 mois : graphiques des pas (avec la ligne d'objectif),
+  des habitudes réussies et de l'XP gagnée, jours actifs, record, moyenne, et taux de réussite de chaque habitude.
+- Objectif de pas adaptatif, au choix : chaque jour, il suit tes pas des deux dernières semaines (la médiane, plus 10 %),
+  sans bouger de plus de 1 000 pas d'un jour à l'autre, entre 3 000 et 20 000 pas.
+- Choix du thème : comme le téléphone, toujours clair ou toujours sombre (onglet Progrès > Thème).
+- Fêtes à l'écran avec des confettis : nouveau niveau, badge obtenu, défi relevé et nouveau trésor.
+  Les animations sont coupées si elles le sont dans les réglages d'accessibilité du téléphone.
+
 ## [0.7.0] - 2026-11-27
 
 Widgets et sauvegarde.

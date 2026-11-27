@@ -65,9 +65,10 @@ class HabitsViewModel(
         StepSampleWorker.schedule(context.applicationContext)
     }
 
-    fun setGoal(goal: Int, stepLengthCm: Int) = viewModelScope.launch {
-        steps.setGoal(goal)
+    fun setGoal(goal: Int, stepLengthCm: Int, adaptive: Boolean) = viewModelScope.launch {
+        if (!adaptive) steps.setGoal(goal)
         steps.setStepLength(stepLengthCm)
+        steps.setAdaptive(adaptive)
     }
 
     companion object {

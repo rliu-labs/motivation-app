@@ -6,6 +6,7 @@
 package app.sentier.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,6 +47,9 @@ import app.sentier.ui.habits.HabitEditScreen
 import app.sentier.ui.habits.HabitsScreen
 import app.sentier.ui.journey.JourneyScreen
 import app.sentier.ui.journey.TreasureDialog
+import app.sentier.ui.celebrate.CelebrationOverlay
+import app.sentier.ui.celebrate.Confetti
+import app.sentier.ui.stats.StatsScreen
 import app.sentier.ui.progress.CreditsScreen
 import app.sentier.ui.progress.ProgressScreen
 import app.sentier.ui.reminders.RemindersScreen
@@ -64,8 +70,11 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
     val snackbar = remember { SnackbarHostState() }
     val rewards: RewardsViewModel = viewModel(factory = RewardsViewModel.Factory)
     val newTreasures by rewards.newTreasures.collectAsStateWithLifecycle()
+    val celebration by rewards.celebration.collectAsStateWithLifecycle()
+    var confetti by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(rewards) {
         rewards.challengeDone.collect { c ->
+            confetti = "defi-${c.index}-${System.currentTimeMillis()}"
             snackbar.showSnackbar("Défi relevé : ${c.title} ! +${c.xp} XP, +${c.gold} or")
         }
     }
@@ -73,97 +82,112 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
     val route = backStack?.destination?.route
     val tabRoute = Tab.entries.firstOrNull { it.route == route }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbar) },
-        bottomBar = {
-            if (tabRoute != null) {
-                NavigationBar {
-                    for (tab in Tab.entries) {
-                        NavigationBarItem(
-                            selected = tab == tabRoute,
-                            onClick = {
-                                nav.navigate(tab.route) {
-                                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(tab.icon, contentDescription = null) },
-                            label = { Text(tab.label) },
+    Box(Modifier.fillMaxSize()) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbar) },
+            bottomBar = {
+                if (tabRoute != null) {
+                    NavigationBar {
+                        for (tab in Tab.entries) {
+                            NavigationBarItem(
+                                selected = tab == tabRoute,
+                                onClick = {
+                                    nav.navigate(tab.route) {
+                                        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = null) },
+                                label = { Text(tab.label) },
+                            )
+                        }
+                    }
+                }
+            },
+        ) { padding ->
+            val openTask = { id: Long -> nav.navigate("task/$id") }
+            val openHabit = { id: Long -> nav.navigate("habit/$id") }
+            val openHabitsTab = {
+                nav.navigate(Tab.HABITS.route) {
+                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            val openProgressTab = {
+                nav.navigate(Tab.PROGRESS.route) {
+                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            val tabModifier = Modifier.padding(padding).consumeWindowInsets(padding)
+            NavHost(nav, startDestination = Tab.TODAY.route) {
+                composable(Tab.TODAY.route) {
+                    TodayScreen(
+                        snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
+                        onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
+                    )
+                }
+                composable(Tab.TASKS.route) {
+                    TasksScreen(snackbar, onOpenTask = openTask, modifier = tabModifier)
+                }
+                composable(Tab.HABITS.route) {
+                    HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
+                }
+                composable(Tab.JOURNEY.route) {
+                    JourneyScreen(modifier = tabModifier)
+                }
+                composable(Tab.PROGRESS.route) {
+                    Box(tabModifier) {
+                        ProgressScreen(
+                            onOpenCredits = { nav.navigate("credits") },
+                            onOpenBackup = { nav.navigate("backup") },
+                            onOpenStats = { nav.navigate("stats") },
                         )
                     }
                 }
-            }
-        },
-    ) { padding ->
-        val openTask = { id: Long -> nav.navigate("task/$id") }
-        val openHabit = { id: Long -> nav.navigate("habit/$id") }
-        val openHabitsTab = {
-            nav.navigate(Tab.HABITS.route) {
-                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-        val openProgressTab = {
-            nav.navigate(Tab.PROGRESS.route) {
-                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-        val tabModifier = Modifier.padding(padding).consumeWindowInsets(padding)
-        NavHost(nav, startDestination = Tab.TODAY.route) {
-            composable(Tab.TODAY.route) {
-                TodayScreen(
-                    snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
-                    onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
-                )
-            }
-            composable(Tab.TASKS.route) {
-                TasksScreen(snackbar, onOpenTask = openTask, modifier = tabModifier)
-            }
-            composable(Tab.HABITS.route) {
-                HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
-            }
-            composable(Tab.JOURNEY.route) {
-                JourneyScreen(modifier = tabModifier)
-            }
-            composable(Tab.PROGRESS.route) {
-                Box(tabModifier) {
-                    ProgressScreen(onOpenCredits = { nav.navigate("credits") }, onOpenBackup = { nav.navigate("backup") })
+                composable("task/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                    TaskEditScreen(taskId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+                }
+                composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                    HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+                }
+                composable("reminders") {
+                    RemindersScreen(onBack = { nav.popBackStack() })
+                }
+                composable("stats") {
+                    StatsScreen(onBack = { nav.popBackStack() })
+                }
+                composable("backup") {
+                    BackupScreen(onBack = { nav.popBackStack() })
+                }
+                composable("credits") {
+                    CreditsScreen(onBack = { nav.popBackStack() })
                 }
             }
-            composable("task/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                TaskEditScreen(taskId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
-            }
-            composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
-            }
-            composable("reminders") {
-                RemindersScreen(onBack = { nav.popBackStack() })
-            }
-            composable("backup") {
-                BackupScreen(onBack = { nav.popBackStack() })
-            }
-            composable("credits") {
-                CreditsScreen(onBack = { nav.popBackStack() })
-            }
         }
-    }
 
-    if (newTreasures.isNotEmpty()) {
-        val best = newTreasures.maxBy { it.rarity.ordinal }
-        val others = newTreasures.size - 1
-        TreasureDialog(
-            best,
-            title = "Nouveau trésor : ${best.name}",
-            footer = when (others) {
-                0 -> "Il rejoint ton carnet de voyage, dans l'onglet Voyage."
-                1 -> "Avec 1 autre trésor, il rejoint ton carnet de voyage, dans l'onglet Voyage."
-                else -> "Avec $others autres trésors, il rejoint ton carnet de voyage, dans l'onglet Voyage."
-            },
-            onDismiss = { rewards.markSeen(newTreasures) },
-        )
+        confetti?.let { Confetti(it) }
+
+        val current = celebration
+        if (current != null) {
+            CelebrationOverlay(current, onDismiss = rewards::dismissCelebration)
+        } else if (newTreasures.isNotEmpty()) {
+            val best = newTreasures.maxBy { it.rarity.ordinal }
+            val others = newTreasures.size - 1
+            TreasureDialog(
+                best,
+                title = "Nouveau trésor : ${best.name}",
+                footer = when (others) {
+                    0 -> "Il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                    1 -> "Avec 1 autre trésor, il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                    else -> "Avec $others autres trésors, il rejoint ton carnet de voyage, dans l'onglet Voyage."
+                },
+                onDismiss = { rewards.markSeen(newTreasures) },
+            )
+            Confetti(newTreasures.joinToString { it.id })
+        }
     }
 }

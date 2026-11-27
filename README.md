@@ -32,6 +32,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/carnet.png" width="200" alt="Travel journal: souvenirs and rare treasures" /><br /><sub>Travel journal</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
     <td align="center"><img src="docs/screenshots/defis.png" width="200" alt="Weekly challenges" /><br /><sub>Weekly challenges</sub></td>
+    <td align="center"><img src="docs/screenshots/statistiques.png" width="200" alt="Statistics: steps, habits and XP charts" /><br /><sub>Statistics</sub></td>
     <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
   </tr>
@@ -82,6 +83,10 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Tick a task or a habit straight from the notification with the **Done** button, XP included.
 - Times of your choice; both are off until you turn them on.
 
+**Statistics**
+- Charts of steps (with the goal line), habits done and XP earned over 7 days, 30 days or 12 months.
+- Active days, best day, daily average and the success rate of each habit.
+
 **Widgets and backup**
 - A "Today" home screen widget: streak, steps and what is left for today, ticked off with one tap without opening the app.
 - A small "Steps and streak" widget.
@@ -91,8 +96,10 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 **Steps**
 - Step count from Health Connect, with the phone's step sensor as a fallback.
 - Adjustable daily goal, distance, last 7 days and total distance walked.
+- Optional **adaptive goal**: it follows your real pace (median of the last two weeks, plus 10%) and moves gently, so it stays within reach.
 
-**Everywhere**: Material 3, dynamic color on Android 12+, dark theme, small download (about 4 MB).
+**Everywhere**: Material 3, dynamic color on Android 12+, light, dark or system theme, confetti for level-ups, badges,
+challenges and treasures (off when the phone's animations are off), small download (about 4 MB).
 
 ## Install
 
@@ -115,6 +122,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 5. World tour | 25 stops around the world powered by your steps, culture, architecture and souvenirs | ✅ v0.5 |
 | 6. Challenges and treasures | Weekly challenges with bonuses, rare cultural treasures in the travel journal | ✅ v0.6 |
 | 7. Widgets and backup | Home screen widgets with one-tap completion, export and import of all data | ✅ v0.7 |
+| 8. Statistics and polish | Statistics, adaptive step goal, theme choice, celebrations | ✅ v0.8 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -136,7 +144,7 @@ Release notes are in the [changelog](CHANGELOG.md).
 ```
 app/src/main/java/app/sentier/
 ├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey, backup), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), challenges, treasures, world tour
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, badges), challenges, treasures, world tour, adaptive goal
 ├── notify/    Reminders: content, scheduling, notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 ├── widget/    Home screen widgets (Glance)

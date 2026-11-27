@@ -75,7 +75,9 @@ object DemoData {
 
         // Défis de la semaine déjà récompensés, trésors déjà annoncés.
         app.challenges.sync()
-        app.settings.addTreasuresSeen(app.game.observe().first().treasures.filter { it.owned }.map { it.id })
+        val state = app.game.observe().first()
+        app.settings.addTreasuresSeen(state.treasures.filter { it.owned }.map { it.id })
+        app.settings.setCelebrated(state.level.level, state.badges.filter { it.unlocked }.map { it.id }.toSet())
 
         // Rappels : le matin à 8 h et le soir à 20 h 30.
         app.settings.setReminders(ReminderSettings(morningOn = true, eveningOn = true))

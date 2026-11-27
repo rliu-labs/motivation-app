@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import app.sentier.domain.AdaptiveGoal
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
@@ -81,6 +83,7 @@ class StepsRepository(
 
     /** Met à jour la disponibilité et relit les pas. À appeler à l'ouverture de l'écran. */
     suspend fun refresh() = mutex.withLock {
+        adaptGoal(clock())
         val hcStatus = healthConnect.status()
         val granted = hcStatus == HealthConnectSource.Status.AVAILABLE && healthConnect.hasPermission()
         availability.value = StepAvailability(hcStatus, granted, sensor.isAvailable, checked = true)
@@ -104,7 +107,27 @@ class StepsRepository(
     }
 
     /** Lecture du capteur (appelée aussi en arrière-plan toutes les 15 minutes). */
-    suspend fun sampleSensor() = mutex.withLock { sampleSensorLocked(clock()) }
+    suspend fun sampleSensor() = mutex.withLock {
+        adaptGoal(clock())
+        sampleSensorLocked(clock())
+    }
+
+    /** Ajuste l'objectif adaptatif, une fois par jour, d'après les pas des deux dernières semaines. */
+    suspend fun adaptGoal(today: LocalDate) {
+        val s = settings.currentSteps()
+        if (!s.adaptive) return
+        val day = today.toEpochDay()
+        if (settings.adaptiveDay() == day) return
+        val from = day - AdaptiveGoal.WINDOW_DAYS
+        val past = dao.observeStepsSince(from).first().filter { it.day < day }.map { it.steps }
+        settings.setAdaptedGoal(AdaptiveGoal.compute(past, s.goal), day)
+    }
+
+    /** Active ou coupe l'objectif adaptatif ; activé, il s'ajuste tout de suite. */
+    suspend fun setAdaptive(on: Boolean) {
+        settings.setAdaptive(on)
+        if (on) adaptGoal(clock())
+    }
 
     private suspend fun sampleSensorLocked(today: LocalDate) {
         val counter = sensor.readCounter() ?: return

@@ -85,6 +85,23 @@ class AppSmokeTest {
     }
 
     @Test
+    fun openStatsAndTheme() {
+        rule.onNodeWithText("Progrès").performClick()
+        rule.onNodeWithText("Statistiques").performScrollTo().performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Habitudes réussies")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("30 jours").performClick()
+        rule.onNodeWithText("12 mois").performClick()
+        rule.onNodeWithText("Aucun pas enregistré sur la période.").assertExists()
+        rule.onNodeWithContentDescription("Retour").performClick()
+
+        rule.onNodeWithText("Thème").performScrollTo().performClick()
+        rule.onNodeWithText("Sombre").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Sombre")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Thème").performScrollTo().performClick()
+        rule.onNodeWithText("Comme le téléphone").performClick()
+    }
+
+    @Test
     fun openBackup() {
         rule.onNodeWithText("Progrès").performClick()
         rule.onNodeWithText("Sauvegarde").performScrollTo().performClick()

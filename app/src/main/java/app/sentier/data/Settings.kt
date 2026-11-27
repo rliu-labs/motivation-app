@@ -32,7 +32,12 @@ data class StepSettings(
     /** Longueur d'un pas en centimètres. */
     val stepLengthCm: Int = 75,
     val source: StepSource = StepSource.NONE,
+    /** L'objectif s'ajuste chaque jour aux pas des deux dernières semaines. */
+    val adaptive: Boolean = false,
 )
+
+/** Thème de l'appli : celui du téléphone, ou toujours clair, ou toujours sombre. */
+enum class ThemeMode(val label: String) { SYSTEM("Comme le téléphone"), LIGHT("Clair"), DARK("Sombre") }
 
 /** Rappels du matin et du soir. Les heures sont en minutes depuis minuit. */
 data class ReminderSettings(
@@ -64,6 +69,40 @@ class Settings(private val context: Context) {
         val eveningMinute = intPreferencesKey("reminder_evening_minute")
         val journeySeen = intPreferencesKey("journey_seen_stops")
         val treasuresSeen = stringSetPreferencesKey("treasures_seen")
+        val adaptive = booleanPreferencesKey("step_goal_adaptive")
+        val adaptiveDay = longPreferencesKey("step_goal_adaptive_day")
+        val theme = stringPreferencesKey("theme_mode")
+        val celebratedLevel = intPreferencesKey("celebrated_level")
+        val celebratedBadges = stringSetPreferencesKey("celebrated_badges")
+    }
+
+    val themeMode: Flow<ThemeMode> = context.dataStore.data.map { p ->
+        p[Keys.theme]?.let { v -> ThemeMode.entries.firstOrNull { it.name == v } } ?: ThemeMode.SYSTEM
+    }
+
+    suspend fun setThemeMode(mode: ThemeMode) = context.dataStore.edit { it[Keys.theme] = mode.name }
+
+    /** Niveau et badges déjà fêtés à l'écran (null au premier lancement). */
+    val celebrated: Flow<Pair<Int, Set<String>>?> = context.dataStore.data.map { p ->
+        p[Keys.celebratedLevel]?.let { it to (p[Keys.celebratedBadges] ?: emptySet()) }
+    }
+
+    suspend fun setCelebrated(level: Int, badges: Set<String>) = context.dataStore.edit {
+        it[Keys.celebratedLevel] = level
+        it[Keys.celebratedBadges] = badges
+    }
+
+    suspend fun setAdaptive(on: Boolean) = context.dataStore.edit {
+        it[Keys.adaptive] = on
+        it.remove(Keys.adaptiveDay)
+    }
+
+    /** Jour du dernier ajustement de l'objectif adaptatif. */
+    suspend fun adaptiveDay(): Long? = context.dataStore.data.first()[Keys.adaptiveDay]
+
+    suspend fun setAdaptedGoal(goal: Int, day: Long) = context.dataStore.edit {
+        it[Keys.goal] = goal.coerceIn(500, 50_000)
+        it[Keys.adaptiveDay] = day
     }
 
     /** Réglages copiés dans une sauvegarde (sans l'état du capteur, propre au téléphone). */
@@ -79,6 +118,10 @@ class Settings(private val context: Context) {
             p[Keys.eveningMinute]?.let { put("reminder_evening_minute", it) }
             p[Keys.journeySeen]?.let { put("journey_seen_stops", it) }
             p[Keys.treasuresSeen]?.let { put("treasures_seen", JSONArray(it.toList())) }
+            p[Keys.adaptive]?.let { put("step_goal_adaptive", it) }
+            p[Keys.theme]?.let { put("theme_mode", it) }
+            p[Keys.celebratedLevel]?.let { put("celebrated_level", it) }
+            p[Keys.celebratedBadges]?.let { put("celebrated_badges", JSONArray(it.toList())) }
         }
     }
 
@@ -97,6 +140,13 @@ class Settings(private val context: Context) {
         o.optJSONArray("treasures_seen")?.let { a ->
             p[Keys.treasuresSeen] = (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { it.length <= 40 }.toSet()
         }
+        bool("step_goal_adaptive")?.let { p[Keys.adaptive] = it }
+        o.optString("theme_mode").takeIf { v -> ThemeMode.entries.any { it.name == v } }?.let { p[Keys.theme] = it }
+        int("celebrated_level", 1..10_000)?.let { p[Keys.celebratedLevel] = it }
+        o.optJSONArray("celebrated_badges")?.let { a ->
+            p[Keys.celebratedBadges] = (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { it.length <= 40 }.toSet()
+        }
+        p.remove(Keys.adaptiveDay)
         // Le capteur repart de zéro : son compteur est propre à chaque téléphone.
         p.remove(Keys.sensorLastCounter)
         p.remove(Keys.sensorDay)
@@ -138,6 +188,7 @@ class Settings(private val context: Context) {
             goal = p[Keys.goal] ?: 8000,
             stepLengthCm = p[Keys.stepLength] ?: 75,
             source = p[Keys.source]?.let { runCatching { StepSource.valueOf(it) }.getOrNull() } ?: StepSource.NONE,
+            adaptive = p[Keys.adaptive] ?: false,
         )
     }
 
