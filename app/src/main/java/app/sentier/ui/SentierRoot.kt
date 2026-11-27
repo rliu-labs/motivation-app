@@ -59,6 +59,8 @@ import app.sentier.ui.journey.TreasureDialog
 import app.sentier.ui.celebrate.CelebrationOverlay
 import app.sentier.ui.celebrate.Confetti
 import app.sentier.ui.stats.StatsScreen
+import app.sentier.ui.review.WeeklyReviewScreen
+import app.sentier.notify.Notifier
 import app.sentier.ui.progress.CreditsScreen
 import app.sentier.ui.progress.ProgressScreen
 import app.sentier.ui.reminders.RemindersScreen
@@ -81,7 +83,12 @@ private val MAX_CONTENT_WIDTH = 840.dp
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SentierRoot(nav: NavHostController = rememberNavController()) {
+fun SentierRoot(
+    nav: NavHostController = rememberNavController(),
+    /** Écran demandé par une notification (le bilan du dimanche), ouvert une fois puis oublié. */
+    openRequest: String? = null,
+    onOpenHandled: () -> Unit = {},
+) {
     val snackbar = remember { SnackbarHostState() }
     val rewards: RewardsViewModel = viewModel(factory = RewardsViewModel.Factory)
     val newTreasures by rewards.newTreasures.collectAsStateWithLifecycle()
@@ -91,6 +98,12 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
         rewards.challengeDone.collect { c ->
             confetti = "defi-${c.index}-${System.currentTimeMillis()}"
             snackbar.showSnackbar("Défi relevé : ${c.title} ! +${c.xp} XP, +${c.gold} or")
+        }
+    }
+    LaunchedEffect(openRequest) {
+        if (openRequest == Notifier.OPEN_REVIEW) {
+            nav.navigate("review") { launchSingleTop = true }
+            onOpenHandled()
         }
     }
     val backStack by nav.currentBackStackEntryAsState()
@@ -169,6 +182,7 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
                                         onOpenCredits = { nav.navigate("credits") },
                                         onOpenBackup = { nav.navigate("backup") },
                                         onOpenStats = { nav.navigate("stats") },
+                                        onOpenReview = { nav.navigate("review") },
                                     )
                                 }
                             }
@@ -183,6 +197,9 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
                             }
                             composable("stats") {
                                 StatsScreen(onBack = { nav.popBackStack() })
+                            }
+                            composable("review") {
+                                WeeklyReviewScreen(onBack = { nav.popBackStack() })
                             }
                             composable("backup") {
                                 BackupScreen(onBack = { nav.popBackStack() })

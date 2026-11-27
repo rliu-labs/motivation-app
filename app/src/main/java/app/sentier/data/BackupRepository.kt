@@ -71,7 +71,7 @@ class BackupRepository(
         if (schema > SCHEMA) throw BackupException("Cette sauvegarde vient d'une version plus récente de Sentier. Mets l'appli à jour, puis réessaie.")
         if (schema < MIN_SCHEMA) throw BackupException("Cette sauvegarde vient d'une version trop ancienne de Sentier.")
         val tables = json.optJSONObject("tables") ?: throw BackupException("Cette sauvegarde est incomplète.")
-        if (TABLES.any { tables.optJSONArray(it) == null }) throw BackupException("Cette sauvegarde est incomplète.")
+        if (REQUIRED_TABLES.any { tables.optJSONArray(it) == null }) throw BackupException("Cette sauvegarde est incomplète.")
         return BackupFile(
             json = json,
             createdAt = json.optLong("created_at", 0L).takeIf { it > 0 },
@@ -92,7 +92,8 @@ class BackupRepository(
                 for (table in TABLES.reversed()) sql.execSQL("DELETE FROM `$table`")
                 for (table in TABLES) {
                     val columns = columnsOf(table)
-                    val rows = tables.getJSONArray(table)
+                    // Une table ajoutée après la sauvegarde (les notes, par exemple) reste vide.
+                    val rows = tables.optJSONArray(table) ?: JSONArray()
                     for (i in 0 until rows.length()) {
                         val row = rows.optJSONObject(i) ?: throw BackupException("Cette sauvegarde est abîmée.")
                         sql.insert(table, SQLiteDatabase.CONFLICT_ABORT, valuesOf(row, columns))
@@ -120,7 +121,7 @@ class BackupRepository(
         const val FORMAT = "sentier-sauvegarde"
 
         /** Version du schéma de la base (voir AppDatabase). */
-        const val SCHEMA = 4
+        const val SCHEMA = 5
 
         /** Plus ancienne version encore lisible : les colonnes ajoutées depuis gardent leur valeur par défaut. */
         const val MIN_SCHEMA = 3
@@ -129,7 +130,10 @@ class BackupRepository(
         const val MAX_CHARS = 30_000_000
 
         /** Tables sauvegardées, les tables liées après celles dont elles dépendent. */
-        val TABLES = listOf("task_list", "task", "habit", "habit_log", "daily_steps", "game_event", "reward")
+        val TABLES = listOf("task_list", "task", "habit", "habit_log", "habit_note", "daily_steps", "game_event", "reward")
+
+        /** Tables présentes dans toute sauvegarde lisible (les notes n'existent que depuis le schéma 5). */
+        private val REQUIRED_TABLES = TABLES - "habit_note"
 
         /** Nom proposé pour le fichier de sauvegarde. */
         fun fileName(day: java.time.LocalDate): String = "sentier-sauvegarde-$day.json"

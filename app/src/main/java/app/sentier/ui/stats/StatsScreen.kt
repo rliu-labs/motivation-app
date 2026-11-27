@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.Stats
 import app.sentier.data.StatsPeriod
+import app.sentier.data.YearActivity
 import app.sentier.ui.common.SectionHeader
 import app.sentier.ui.progress.GoldColor
 import java.text.NumberFormat
@@ -90,19 +91,29 @@ fun StatsScreen(onBack: () -> Unit, vm: StatsViewModel = viewModel(factory = Sta
                     ) { Text(p.label) }
                 }
             }
-            StatsContent(stats, goal = vm.goal.collectAsStateWithLifecycle().value)
+            StatsContent(stats, goal = vm.goal.collectAsStateWithLifecycle().value, year = vm.year.collectAsStateWithLifecycle().value)
         }
     }
 }
 
 @Composable
-private fun StatsContent(s: Stats, goal: Int) {
+private fun StatsContent(s: Stats, goal: Int, year: YearActivity?) {
     val per = if (s.period == StatsPeriod.YEAR) "par mois" else "par jour"
     Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Tile("Jours actifs", "${s.activeDays} / ${s.days}", Modifier.weight(1f))
         Tile("Tâches", fmt(s.tasksDone.toLong()), Modifier.weight(1f))
         Tile("Habitudes", fmt(s.habitsDone.toLong()), Modifier.weight(1f))
         Tile("XP", fmt(s.xp.toLong()), Modifier.weight(1f))
+    }
+
+    if (year != null) {
+        SectionHeader("Ton année")
+        Card(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        ) {
+            YearHeatmap(year, Modifier.padding(16.dp))
+        }
     }
 
     SectionHeader("Pas")

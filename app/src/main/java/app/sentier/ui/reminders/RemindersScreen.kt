@@ -67,6 +67,7 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
     val preview by vm.preview.collectAsStateWithLifecycle()
     var canPost by remember { mutableStateOf(Notifier.canPost(context)) }
     var picking by remember { mutableStateOf<ReminderKind?>(null) }
+    var pickingWeekly by remember { mutableStateOf(false) }
 
     LifecycleResumeEffect(Unit) {
         canPost = Notifier.canPost(context)
@@ -128,6 +129,16 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
                 onPickTime = { picking = ReminderKind.EVENING },
             )
 
+            ReminderCard(
+                title = "Le bilan du dimanche",
+                description = "Le résumé de ta semaine : tes moments forts et un objectif pour la suivante.",
+                on = settings.weeklyOn,
+                minute = settings.weeklyMinute,
+                onToggle = { on -> vm.update(settings.copy(weeklyOn = on)); if (on) askIfNeeded() },
+                onPickTime = { pickingWeekly = true },
+                timeLabel = "Le dimanche à",
+            )
+
             if (settings.anyOn && !canPost) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
                     Column(Modifier.padding(16.dp)) {
@@ -158,6 +169,18 @@ fun RemindersScreen(onBack: () -> Unit, vm: RemindersViewModel = viewModel(facto
         }
     }
 
+    if (pickingWeekly) {
+        TimeDialog(
+            initial = settings.weeklyMinute,
+            onDismiss = { pickingWeekly = false },
+            onConfirm = { m ->
+                vm.update(settings.copy(weeklyMinute = m, weeklyOn = true))
+                askIfNeeded()
+                pickingWeekly = false
+            },
+        )
+    }
+
     picking?.let { kind ->
         val minute = if (kind == ReminderKind.MORNING) settings.morningMinute else settings.eveningMinute
         TimeDialog(
@@ -183,6 +206,7 @@ private fun ReminderCard(
     minute: Int,
     onToggle: (Boolean) -> Unit,
     onPickTime: () -> Unit,
+    timeLabel: String = "À",
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(16.dp)) {
@@ -206,7 +230,7 @@ private fun ReminderCard(
             ) {
                 Icon(Icons.Filled.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Text(
-                    "À ${ReminderContent.formatMinute(minute)}",
+                    "$timeLabel ${ReminderContent.formatMinute(minute)}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 8.dp),

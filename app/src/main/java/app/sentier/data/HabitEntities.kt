@@ -60,6 +60,27 @@ data class HabitLog(
     val value: Double,
 )
 
+/** Note du jour attachée à une habitude, comme un petit journal. */
+@Entity(
+    tableName = "habit_note",
+    primaryKeys = ["habit_id", "day"],
+    foreignKeys = [
+        ForeignKey(entity = Habit::class, parentColumns = ["id"], childColumns = ["habit_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("day")],
+)
+data class HabitNote(
+    @ColumnInfo(name = "habit_id") val habitId: Long,
+    val day: Long,
+    val text: String,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis(),
+) {
+    companion object {
+        /** Une note reste courte : quelques phrases. */
+        const val MAX_LENGTH = 1000
+    }
+}
+
 /** Nombre de pas d'une journée, mémorisé pour l'historique. */
 @Entity(tableName = "daily_steps")
 data class DailySteps(

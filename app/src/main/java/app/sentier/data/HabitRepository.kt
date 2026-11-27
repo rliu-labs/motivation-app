@@ -9,6 +9,7 @@ import app.sentier.domain.HabitScore
 import app.sentier.domain.HabitTemplate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 /** Une habitude avec ses valeurs récentes et son score de force. */
@@ -91,6 +92,20 @@ class HabitRepository(
         val epoch = day.toEpochDay()
         if (value <= 0) dao.deleteLog(habit.id, epoch) else dao.putLog(HabitLog(habit.id, epoch, value))
         game?.onHabit(habit, epoch, HabitScore.completionOf(value, habit.isNumeric, habit.target) >= 1.0)
+    }
+
+    /** Notes d'une habitude, la plus récente en premier. */
+    fun observeNotes(habitId: Long): Flow<List<HabitNote>> = dao.observeNotes(habitId)
+
+    /** Notes du jour, par habitude. */
+    fun observeNotesOn(day: LocalDate = today()): Flow<Map<Long, String>> =
+        dao.observeNotesOn(day.toEpochDay()).map { notes -> notes.associate { it.habitId to it.text } }
+
+    /** Écrit la note du jour d'une habitude ; un texte vide l'efface. */
+    suspend fun setNote(habitId: Long, day: LocalDate, text: String) {
+        val clean = text.trim().take(HabitNote.MAX_LENGTH)
+        val epoch = day.toEpochDay()
+        if (clean.isEmpty()) dao.deleteNote(habitId, epoch) else dao.putNote(HabitNote(habitId, epoch, clean))
     }
 
     companion object {

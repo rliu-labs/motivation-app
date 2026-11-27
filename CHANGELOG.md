@@ -3,6 +3,21 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.13.0] - 2026-11-27
+
+Bilan de la semaine, calendrier de l'année et journal des habitudes.
+
+### Ajouté
+- Bilan de la semaine : chaque dimanche à 18 h (heure réglable, ou désactivable dans Rappels), une notification
+  résume la semaine. Elle ouvre un écran avec les jours actifs, les habitudes et les tâches comparés à la semaine d'avant,
+  les moments forts (meilleure journée, habitude phare, record sur 3 mois, record de pas) et un objectif un peu plus haut
+  pour la semaine suivante, suivi au fil des jours. Le bilan est aussi dans l'onglet Progrès.
+- Calendrier de chaleur dans les statistiques : toute l'année d'un coup d'œil, une case par jour, plus foncée
+  quand la journée a été remplie. Toucher une case affiche son détail.
+- Note du jour pour chaque habitude, comme un petit journal : un bouton sur l'écran Aujourd'hui pour l'écrire,
+  la note s'affiche sous l'habitude, et toutes les notes se retrouvent dans la fiche de l'habitude.
+  Les notes sont comprises dans les sauvegardes (les anciennes sauvegardes restent lisibles).
+
 ## [0.12.0] - 2026-11-27
 
 Tablettes, illustrations et finitions.

@@ -39,6 +39,7 @@ object Reminders {
             val (on, minute) = settings.of(kind)
             if (on) schedule(context, kind, minute, ExistingWorkPolicy.REPLACE) else wm.cancelUniqueWork(kind.workName)
         }
+        WeeklyReviewReminder.apply(context, settings)
     }
 
     /** À l'ouverture de l'appli : s'assure que les rappels actifs sont bien programmés. */
@@ -49,6 +50,7 @@ object Reminders {
             val (on, minute) = settings.of(kind)
             if (on) schedule(app, kind, minute, ExistingWorkPolicy.KEEP)
         }
+        WeeklyReviewReminder.ensureScheduled(app)
     }
 
     internal fun schedule(context: Context, kind: ReminderKind, minute: Int, policy: ExistingWorkPolicy) {

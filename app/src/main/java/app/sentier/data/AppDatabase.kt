@@ -15,9 +15,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         Task::class, TaskList::class, Habit::class, HabitLog::class, DailySteps::class,
-        GameEvent::class, Reward::class,
+        GameEvent::class, Reward::class, HabitNote::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
             } else {
                 Room.databaseBuilder(context, AppDatabase::class.java, name)
             }
-            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+            return builder.addCallback(SeedCallback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
         }
 
         /** Étape 2 : habitudes et pas. Les tâches existantes sont conservées. */
@@ -81,6 +81,18 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `habit` ADD COLUMN `reminder_minute` INTEGER")
+            }
+        }
+
+        /** Note du jour attachée aux habitudes. Rien n'est perdu. */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `habit_note` (`habit_id` INTEGER NOT NULL, `day` INTEGER NOT NULL, " +
+                        "`text` TEXT NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`habit_id`, `day`), " +
+                        "FOREIGN KEY(`habit_id`) REFERENCES `habit`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_habit_note_day` ON `habit_note` (`day`)")
             }
         }
 

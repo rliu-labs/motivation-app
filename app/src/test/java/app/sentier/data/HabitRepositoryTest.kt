@@ -84,4 +84,28 @@ class HabitRepositoryTest {
         repo.delete(habit)
         assertTrue(db.habitDao().observeLogsSince(0).first().isEmpty())
     }
+
+    @Test
+    fun dailyNoteIsSavedTrimmedAndErased() = runBlocking {
+        val id = repo.addFromTemplate(HabitTemplates.first { it.name == "Méditer" })
+        repo.setNote(id, today, "  10 minutes, calme retrouvé.  ")
+        repo.setNote(id, today.minusDays(1), "Difficile de se concentrer")
+        assertEquals(mapOf(id to "10 minutes, calme retrouvé."), repo.observeNotesOn(today).first())
+        assertEquals(
+            listOf("10 minutes, calme retrouvé.", "Difficile de se concentrer"),
+            repo.observeNotes(id).first().map { it.text },
+        )
+
+        // Réécrire remplace, un texte vide efface, un texte trop long est coupé.
+        repo.setNote(id, today, "Encore mieux")
+        assertEquals("Encore mieux", repo.observeNotesOn(today).first()[id])
+        repo.setNote(id, today, "   ")
+        assertTrue(repo.observeNotesOn(today).first().isEmpty())
+        repo.setNote(id, today, "x".repeat(HabitNote.MAX_LENGTH + 50))
+        assertEquals(HabitNote.MAX_LENGTH, repo.observeNotesOn(today).first()[id]!!.length)
+
+        // Supprimer l'habitude supprime son journal.
+        repo.delete(repo.getHabit(id)!!)
+        assertTrue(repo.observeNotes(id).first().isEmpty())
+    }
 }

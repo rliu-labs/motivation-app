@@ -60,6 +60,20 @@ interface HabitDao {
     @Query("DELETE FROM habit_log WHERE habit_id = :habitId AND day = :day")
     suspend fun deleteLog(habitId: Long, day: Long)
 
+    // --- Notes du jour ---
+
+    @Query("SELECT * FROM habit_note WHERE habit_id = :habitId ORDER BY day DESC")
+    fun observeNotes(habitId: Long): Flow<List<HabitNote>>
+
+    @Query("SELECT * FROM habit_note WHERE day = :day")
+    fun observeNotesOn(day: Long): Flow<List<HabitNote>>
+
+    @Upsert
+    suspend fun putNote(note: HabitNote)
+
+    @Query("DELETE FROM habit_note WHERE habit_id = :habitId AND day = :day")
+    suspend fun deleteNote(habitId: Long, day: Long)
+
     // --- Pas ---
 
     @Upsert

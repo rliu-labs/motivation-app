@@ -12,6 +12,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +28,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.sentier.data.Habit
 import app.sentier.data.HabitWithStats
 import app.sentier.ui.habits.HabitIcons
+import app.sentier.ui.habits.HabitNoteDialog
+import androidx.compose.ui.text.style.TextOverflow
 import app.sentier.ui.habits.HabitsViewModel
 import app.sentier.ui.habits.NumericValueDialog
 import app.sentier.ui.habits.StepsMiniCard
@@ -86,6 +90,8 @@ fun TodayScreen(
     val state by vm.state.collectAsStateWithLifecycle()
     val habits by habitsVm.state.collectAsStateWithLifecycle()
     var editingHabit by remember { mutableStateOf<Habit?>(null) }
+    var notingHabit by remember { mutableStateOf<Habit?>(null) }
+    val notes by habitsVm.notes.collectAsStateWithLifecycle()
 
     LifecycleResumeEffect(habitsVm) {
         habitsVm.refreshSteps()
@@ -127,7 +133,9 @@ fun TodayScreen(
                     TodayHabitRow(
                         h = h,
                         today = habits.today.toEpochDay(),
+                        note = notes[h.habit.id],
                         onClick = { if (h.habit.isNumeric) editingHabit = h.habit else habitsVm.toggle(h.habit) },
+                        onNote = { notingHabit = h.habit },
                     )
                 }
             }
@@ -165,11 +173,19 @@ fun TodayScreen(
             onSave = { v -> habitsVm.setValue(habit, habits.today, v); editingHabit = null },
         )
     }
+
+    notingHabit?.let { habit ->
+        HabitNoteDialog(
+            habitName = habit.name, day = habits.today, today = habits.today, initial = notes[habit.id].orEmpty(),
+            onDismiss = { notingHabit = null },
+            onSave = { t -> habitsVm.setNote(habit, t); notingHabit = null },
+        )
+    }
 }
 
 /** Une habitude sur l'écran Aujourd'hui : un geste pour la cocher. */
 @Composable
-private fun TodayHabitRow(h: HabitWithStats, today: Long, onClick: () -> Unit) {
+private fun TodayHabitRow(h: HabitWithStats, today: Long, note: String?, onClick: () -> Unit, onNote: () -> Unit) {
     val color = Color(h.habit.color)
     val done = h.isDoneOn(today)
     val tick = rememberTick()
@@ -179,7 +195,25 @@ private fun TodayHabitRow(h: HabitWithStats, today: Long, onClick: () -> Unit) {
     ) {
         StrengthRing(h.strength, color, HabitIcons.of(h.habit.icon), size = 36)
         Spacer(Modifier.width(12.dp))
-        Text(h.habit.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Column(Modifier.weight(1f)) {
+            Text(h.habit.name, style = MaterialTheme.typography.bodyLarge)
+            if (note != null) {
+                Text(
+                    note,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        IconButton(onClick = onNote) {
+            Icon(
+                if (note != null) Icons.Filled.EditNote else Icons.Outlined.EditNote,
+                contentDescription = if (note != null) "Modifier la note : ${h.habit.name}" else "Note du jour : ${h.habit.name}",
+                tint = if (note != null) color else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (h.habit.isNumeric) {
             Text(
                 "${formatValue(h.valueOn(today))} / ${formatValue(h.habit.target)} ${h.habit.unit}",

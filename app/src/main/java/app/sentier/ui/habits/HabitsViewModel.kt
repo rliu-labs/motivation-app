@@ -47,6 +47,12 @@ class HabitsViewModel(
         HabitsState(today, h, s, loading = false)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HabitsState(today, steps = StepsState(today)))
 
+    /** Notes du jour, par habitude. */
+    val notes: StateFlow<Map<Long, String>> = habits.observeNotesOn(today)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    fun setNote(habit: Habit, text: String, day: LocalDate = today) = viewModelScope.launch { habits.setNote(habit.id, day, text) }
+
     fun toggle(habit: Habit, day: LocalDate = today) = viewModelScope.launch { habits.toggle(habit, day) }
 
     fun setValue(habit: Habit, day: LocalDate, value: Double) = viewModelScope.launch { habits.setValue(habit, day, value) }

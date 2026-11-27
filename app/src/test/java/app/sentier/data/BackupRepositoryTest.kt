@@ -49,6 +49,7 @@ class BackupRepositoryTest {
         val water = habits.getHabit(habits.addFromTemplate(HabitTemplates.first { it.name == "Boire de l'eau" }))!!
         habits.setValue(water, today, 8.0)
         habits.setValue(water, today.minusDays(1), 5.5)
+        habits.setNote(water.id, today, "Une bouteille au bureau, ça aide.")
         source.habitDao().putSteps(DailySteps(today.toEpochDay(), 9_120))
         game.addReward("Un café en terrasse", 25)
     }
@@ -75,6 +76,8 @@ class BackupRepositoryTest {
         )
         assertEquals(listOf(5.5, 8.0), target.habitDao().observeLogsSince(0).first().map { it.value }.sorted())
         assertEquals(9_120L, target.habitDao().observeTotalSteps().first())
+        val waterId = target.habitDao().observeHabits().first().single().id
+        assertEquals(listOf("Une bouteille au bureau, ça aide."), target.habitDao().observeNotes(waterId).first().map { it.text })
         val game = GameRepository(target.gameDao()) { today }.observe().first()
         assertEquals(GameRepository(source.gameDao()) { today }.observe().first().totalXp, game.totalXp)
         assertTrue(game.rewards.any { it.name == "Un café en terrasse" })
@@ -156,9 +159,12 @@ class BackupRepositoryTest {
         val old = JSONObject(text).put("schema", 3)
         val habitsRows = old.getJSONObject("tables").getJSONArray("habit")
         for (i in 0 until habitsRows.length()) habitsRows.getJSONObject(i).remove("reminder_minute")
+        // … ni les notes du jour (schéma 5).
+        old.getJSONObject("tables").remove("habit_note")
         repo.restore(repo.read(old.toString()))
         val restored = target.habitDao().observeHabits().first().single()
         assertEquals("Boire de l'eau", restored.name)
         assertEquals(null, restored.reminderMinute)
+        assertTrue(target.habitDao().observeNotes(restored.id).first().isEmpty())
     }
 }

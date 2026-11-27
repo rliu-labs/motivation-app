@@ -87,6 +87,7 @@ class AppSmokeTest {
         rule.onNodeWithText("Le matin").assertIsDisplayed()
         rule.onNodeWithText("À 08:00").assertIsDisplayed()
         rule.onNodeWithText("À 20:30").assertIsDisplayed()
+        rule.onNodeWithText("Le dimanche à 18:00").performScrollTo().assertIsDisplayed()
         rule.onNodeWithContentDescription("Retour").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Aujourd'hui")).fetchSemanticsNodes().isNotEmpty() }
     }
@@ -108,6 +109,14 @@ class AppSmokeTest {
         rule.onNodeWithText("30 jours").performClick()
         rule.onNodeWithText("12 mois").performClick()
         rule.onNodeWithText("Aucun pas enregistré sur la période.").assertExists()
+        rule.onNodeWithTag("yearHeatmap").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("0 jours actifs sur l'année", substring = true).assertExists()
+        rule.onNodeWithContentDescription("Retour").performClick()
+
+        rule.onNodeWithText("Bilan de la semaine").performScrollTo().performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Moments forts")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Une semaine pour repartir").assertIsDisplayed()
+        rule.onNodeWithText("Être actif 3 jours").performScrollTo().assertIsDisplayed()
         rule.onNodeWithContentDescription("Retour").performClick()
 
         rule.onNodeWithText("Thème").performScrollTo().performClick()
@@ -160,6 +169,19 @@ class AppSmokeTest {
         rule.waitUntil(5_000) {
             rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Méditer : fait")).fetchSemanticsNodes().isNotEmpty()
         }
+
+        // Note du jour : écrite depuis Aujourd'hui, visible sous l'habitude et dans son journal.
+        rule.onNodeWithContentDescription("Note du jour : Méditer").performClick()
+        rule.onNodeWithTag("habitNote").performTextInput("Dix minutes au calme")
+        rule.onNodeWithText("Enregistrer").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Dix minutes au calme")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithContentDescription("Modifier la note : Méditer").assertExists()
+
+        rule.onNodeWithText("Habitudes").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onAllNodes(hasTextExactly("Méditer"))[0].performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Journal")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Dix minutes au calme").assertExists()
     }
 
     @Test

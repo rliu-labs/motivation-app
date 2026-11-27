@@ -23,9 +23,15 @@ import app.sentier.R
 object Notifier {
     const val CHANNEL = "rappels"
     const val CHANNEL_HABITS = "rappels-habitudes"
+    const val CHANNEL_WEEKLY = "bilan-semaine"
     private const val GROUP_EVENING = "app.sentier.SOIR"
     const val ID_MORNING = 1
     const val ID_EVENING = 2
+    const val ID_WEEKLY = 3
+
+    /** Écran à ouvrir quand on touche une notification. */
+    const val EXTRA_OPEN = "app.sentier.OUVRIR"
+    const val OPEN_REVIEW = "bilan"
 
     /** Identifiant de la notification d'une chose à faire (stable d'un soir à l'autre). */
     fun itemId(type: ReminderItem.Type, id: Long): Int = when (type) {
@@ -56,6 +62,23 @@ object Notifier {
                 .setDescription("Le rappel de chaque habitude, à l'heure choisie")
                 .build()
         )
+    }
+
+    /** Le bilan du dimanche : un résumé, et l'écran du bilan quand on le touche. */
+    fun showWeeklyReview(context: Context, title: String, text: String) {
+        if (!canPost(context)) return
+        NotificationManagerCompat.from(context).createNotificationChannel(
+            NotificationChannelCompat.Builder(CHANNEL_WEEKLY, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                .setName("Bilan de la semaine")
+                .setDescription("Le résumé de ta semaine, chaque dimanche")
+                .build()
+        )
+        val notification = base(context, title, text, CHANNEL_WEEKLY)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(openApp(context, OPEN_REVIEW))
+            .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+            .build()
+        post(context, ID_WEEKLY, notification)
     }
 
     /** Le rappel d'une habitude à son heure, avec un bouton « Fait » si elle se coche d'un geste. */
@@ -139,9 +162,11 @@ object Notifier {
         return style
     }
 
-    private fun openApp(context: Context): PendingIntent = PendingIntent.getActivity(
-        context, 0,
-        Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+    private fun openApp(context: Context, open: String? = null): PendingIntent = PendingIntent.getActivity(
+        context, if (open == null) 0 else 1,
+        Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .apply { if (open != null) putExtra(EXTRA_OPEN, open) },
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 

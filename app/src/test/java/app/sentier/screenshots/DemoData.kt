@@ -55,8 +55,18 @@ object DemoData {
             if (back % 7 in setOf(1L, 3L, 5L)) habits.toggle(sport, d)
             if (back % 3 != 0L) habits.setValue(lecture, d, 12.0)
         }
+        // Une année plus clairsemée avant, pour remplir le calendrier de chaleur.
+        for (back in 31L..360L) {
+            val d = today.minusDays(back)
+            if ((back * 7) % 10 < 6) habits.toggle(meditation, d)
+            if (back % 3 == 0L) habits.toggle(sport, d)
+            if (back % 5 == 0L) habits.setValue(lecture, d, 12.0)
+        }
         habits.setValue(eau, today, 5.0)
         habits.toggle(meditation, today)
+        habits.setNote(meditation.id, today, "Dix minutes au réveil, l'esprit plus clair.")
+        habits.setNote(meditation.id, today.minusDays(1), "Difficile de rester concentré, mais je l'ai fait.")
+        habits.setNote(sport.id, today.minusDays(2), "Course de 5 km, nouveau record !")
 
         val steps = listOf(6_480L, 9_215L, 8_102L, 4_350L, 10_420L, 7_630L, 5_240L)
         steps.forEachIndexed { i, n ->

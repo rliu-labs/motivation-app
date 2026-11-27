@@ -59,12 +59,16 @@ data class ReminderSettings(
     val morningMinute: Int = DEFAULT_MORNING,
     val eveningOn: Boolean = false,
     val eveningMinute: Int = DEFAULT_EVENING,
+    /** Bilan de la semaine, le dimanche à [weeklyMinute]. Actif par défaut. */
+    val weeklyOn: Boolean = true,
+    val weeklyMinute: Int = DEFAULT_WEEKLY,
 ) {
-    val anyOn: Boolean get() = morningOn || eveningOn
+    val anyOn: Boolean get() = morningOn || eveningOn || weeklyOn
 
     companion object {
         const val DEFAULT_MORNING = 8 * 60
         const val DEFAULT_EVENING = 20 * 60 + 30
+        const val DEFAULT_WEEKLY = 18 * 60
     }
 }
 
@@ -81,6 +85,8 @@ class Settings(private val context: Context) {
         val morningMinute = intPreferencesKey("reminder_morning_minute")
         val eveningOn = booleanPreferencesKey("reminder_evening_on")
         val eveningMinute = intPreferencesKey("reminder_evening_minute")
+        val weeklyOn = booleanPreferencesKey("reminder_weekly_on")
+        val weeklyMinute = intPreferencesKey("reminder_weekly_minute")
         val journeySeen = intPreferencesKey("journey_seen_stops")
         val treasuresSeen = stringSetPreferencesKey("treasures_seen")
         val adaptive = booleanPreferencesKey("step_goal_adaptive")
@@ -170,6 +176,8 @@ class Settings(private val context: Context) {
             p[Keys.morningMinute]?.let { put("reminder_morning_minute", it) }
             p[Keys.eveningOn]?.let { put("reminder_evening_on", it) }
             p[Keys.eveningMinute]?.let { put("reminder_evening_minute", it) }
+            p[Keys.weeklyOn]?.let { put("reminder_weekly_on", it) }
+            p[Keys.weeklyMinute]?.let { put("reminder_weekly_minute", it) }
             p[Keys.journeySeen]?.let { put("journey_seen_stops", it) }
             p[Keys.treasuresSeen]?.let { put("treasures_seen", JSONArray(it.toList())) }
             p[Keys.adaptive]?.let { put("step_goal_adaptive", it) }
@@ -191,6 +199,8 @@ class Settings(private val context: Context) {
         int("reminder_morning_minute", 0 until 24 * 60)?.let { p[Keys.morningMinute] = it }
         bool("reminder_evening_on")?.let { p[Keys.eveningOn] = it }
         int("reminder_evening_minute", 0 until 24 * 60)?.let { p[Keys.eveningMinute] = it }
+        bool("reminder_weekly_on")?.let { p[Keys.weeklyOn] = it }
+        int("reminder_weekly_minute", 0 until 24 * 60)?.let { p[Keys.weeklyMinute] = it }
         int("journey_seen_stops", 0..1000)?.let { p[Keys.journeySeen] = it }
         o.optJSONArray("treasures_seen")?.let { a ->
             p[Keys.treasuresSeen] = (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { it.length <= 40 }.toSet()
@@ -227,6 +237,8 @@ class Settings(private val context: Context) {
             morningMinute = p[Keys.morningMinute] ?: ReminderSettings.DEFAULT_MORNING,
             eveningOn = p[Keys.eveningOn] ?: false,
             eveningMinute = p[Keys.eveningMinute] ?: ReminderSettings.DEFAULT_EVENING,
+            weeklyOn = p[Keys.weeklyOn] ?: true,
+            weeklyMinute = p[Keys.weeklyMinute] ?: ReminderSettings.DEFAULT_WEEKLY,
         )
     }
 
@@ -237,6 +249,8 @@ class Settings(private val context: Context) {
         it[Keys.morningMinute] = r.morningMinute.coerceIn(0, 24 * 60 - 1)
         it[Keys.eveningOn] = r.eveningOn
         it[Keys.eveningMinute] = r.eveningMinute.coerceIn(0, 24 * 60 - 1)
+        it[Keys.weeklyOn] = r.weeklyOn
+        it[Keys.weeklyMinute] = r.weeklyMinute.coerceIn(0, 24 * 60 - 1)
     }
 
     val steps: Flow<StepSettings> = context.dataStore.data.map { p ->

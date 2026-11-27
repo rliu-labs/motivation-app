@@ -5,6 +5,7 @@
  */
 package app.sentier
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import app.sentier.data.AutoBackup
 import app.sentier.data.ThemeMode
 import app.sentier.notify.HabitReminders
+import app.sentier.notify.Notifier
 import app.sentier.notify.Reminders
 import app.sentier.ui.SentierRoot
 import app.sentier.ui.onboarding.OnboardingScreen
@@ -32,9 +34,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
+    /** Écran demandé par la notification touchée (le bilan du dimanche). */
+    private var openRequest by mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openRequest = intent.getStringExtra(Notifier.EXTRA_OPEN)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) openRequest = intent?.getStringExtra(Notifier.EXTRA_OPEN)
         val settings = (application as SentierApplication).settings
         // Lu tout de suite pour que l'appli s'ouvre directement dans le bon thème.
         val initialTheme = runCatching { runBlocking { settings.themeMode.first() } }.getOrDefault(ThemeMode.SYSTEM)
@@ -67,7 +78,7 @@ class MainActivity : ComponentActivity() {
                 if (showOnboarding) {
                     OnboardingScreen(onDone = { showOnboarding = false })
                 } else {
-                    SentierRoot()
+                    SentierRoot(openRequest = openRequest, onOpenHandled = { openRequest = null })
                 }
             }
         }

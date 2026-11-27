@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Check
@@ -88,6 +89,7 @@ fun ProgressScreen(
     onOpenCredits: () -> Unit,
     onOpenBackup: () -> Unit = {},
     onOpenStats: () -> Unit = {},
+    onOpenReview: () -> Unit = {},
     vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -113,6 +115,13 @@ fun ProgressScreen(
             leadingContent = { Icon(Icons.Filled.BarChart, contentDescription = null) },
             trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenStats).padding(horizontal = 4.dp),
+        )
+        ListItem(
+            headlineContent = { Text("Bilan de la semaine") },
+            supportingContent = { Text("Tes moments forts et ton objectif pour la semaine") },
+            leadingContent = { Icon(Icons.Filled.AutoAwesome, contentDescription = null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+            modifier = Modifier.clickable(onClick = onOpenReview).padding(horizontal = 4.dp),
         )
 
         challenges?.let { week ->

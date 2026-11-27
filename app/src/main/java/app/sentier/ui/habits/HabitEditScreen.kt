@@ -76,6 +76,7 @@ import app.sentier.notify.Notifier
 import app.sentier.notify.ReminderContent
 import app.sentier.ui.reminders.TimeDialog
 import app.sentier.ui.theme.ListPalette
+import java.time.LocalDate
 import kotlin.math.roundToInt
 
 /** Heure proposée pour un nouveau rappel d'habitude : 9 h. */
@@ -92,6 +93,8 @@ fun HabitEditScreen(
 ) {
     val draft by vm.draft.collectAsStateWithLifecycle()
     val stats by vm.stats.collectAsStateWithLifecycle()
+    val notes by vm.notes.collectAsStateWithLifecycle()
+    var writing by remember { mutableStateOf<Pair<LocalDate, String>?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     var pickingTime by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -141,6 +144,10 @@ fun HabitEditScreen(
                         }
                     }
                 }
+            }
+
+            if (stats != null) {
+                HabitJournal(notes, vm.today, onWrite = { day, text -> writing = day to text })
             }
 
             if (vm.isNew) {
@@ -329,6 +336,14 @@ fun HabitEditScreen(
                     askNotifications()
                     pickingTime = false
                 },
+            )
+        }
+
+        writing?.let { (day, text) ->
+            HabitNoteDialog(
+                habitName = h.name, day = day, today = vm.today, initial = text,
+                onDismiss = { writing = null },
+                onSave = { t -> vm.setNote(day, t); writing = null },
             )
         }
 

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.sentier.data.Habit
+import app.sentier.data.HabitNote
 import app.sentier.data.HabitRepository
 import app.sentier.data.HabitWithStats
 import app.sentier.domain.HabitTemplate
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /** Création (id = 0) ou modification d'une habitude. */
 class HabitEditViewModel(
@@ -42,6 +44,17 @@ class HabitEditViewModel(
     val stats: StateFlow<HabitWithStats?> =
         (if (habitId == 0L) flowOf(null) else repo.observeHabitWithStats(habitId))
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Journal de l'habitude, la note la plus récente en premier. */
+    val notes: StateFlow<List<HabitNote>> =
+        (if (habitId == 0L) flowOf(emptyList()) else repo.observeNotes(habitId))
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val today: LocalDate get() = repo.today()
+
+    fun setNote(day: LocalDate, text: String) = viewModelScope.launch {
+        if (!isNew) repo.setNote(habitId, day, text)
+    }
 
     init {
         if (habitId != 0L) viewModelScope.launch { _draft.value = repo.getHabit(habitId) }

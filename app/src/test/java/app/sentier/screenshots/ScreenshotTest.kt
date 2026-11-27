@@ -88,6 +88,12 @@ class ScreenshotTest {
             rule.onNodeWithText("Statistiques").performScrollTo().performClick()
             waitFor("Habitudes réussies")
             save(scenario, "statistiques")
+            rule.onAllNodes(hasContentDescription("Retour")).onFirst().performClick()
+            waitFor("Boutique de récompenses")
+
+            rule.onNodeWithText("Bilan de la semaine").performScrollTo().performClick()
+            waitFor("Moments forts")
+            save(scenario, "bilan")
         }
     }
 

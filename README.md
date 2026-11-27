@@ -35,7 +35,8 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/carnet.png" width="200" alt="Travel journal: souvenirs and rare treasures" /><br /><sub>Travel journal</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
     <td align="center"><img src="docs/screenshots/defis.png" width="200" alt="Weekly challenges" /><br /><sub>Weekly challenges</sub></td>
-    <td align="center"><img src="docs/screenshots/statistiques.png" width="200" alt="Statistics: steps, habits and XP charts" /><br /><sub>Statistics</sub></td>
+    <td align="center"><img src="docs/screenshots/statistiques.png" width="200" alt="Statistics: year heatmap, steps, habits and XP charts" /><br /><sub>Statistics</sub></td>
+    <td align="center"><img src="docs/screenshots/bilan.png" width="200" alt="Weekly review: highlights and next week's goal" /><br /><sub>Weekly review</sub></td>
     <td align="center"><img src="docs/screenshots/rappels.png" width="200" alt="Morning and evening reminders settings" /><br /><sub>Reminders</sub></td>
     <td align="center"><img src="docs/screenshots/aujourdhui-nuit.png" width="200" alt="Dark theme" /><br /><sub>Dark theme</sub></td>
   </tr>
@@ -68,6 +69,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - Yes/no or measurable habits (8 glasses of water, 10 pages…) with flexible frequency (3 times a week…).
 - Last 5 days at a glance, a color and an icon per habit, 6 ready-made templates.
 - An optional reminder per habit, at the time you choose, only when it is still to do.
+- A **note of the day** for each habit, like a small journal: write it from the Today screen, read it back in the habit's journal.
 - **Habit strength** score: it grows when the habit is done and decays gently when it is missed.
 
 **Game**
@@ -95,9 +97,13 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - An evening reminder of what is left, only when something is left, with a warning when the streak is at risk.
 - Tick a task or a habit straight from the notification with the **Done** button, XP included.
 - A reminder per habit at the time you choose, only if it is not done yet.
-- Times of your choice; all reminders are off until you turn them on.
+- A **weekly review** every Sunday evening: your highlights, the week compared with the one before, and a goal for the next week.
+- Times of your choice; the morning and evening reminders are off until you turn them on.
 
-**Statistics**
+**Statistics and weekly review**
+- A **year heatmap**: the whole year at a glance, one square per day, darker when the day was fuller; tap a square for its details.
+- A weekly review screen, also in the Progress tab: active days, habits and tasks compared with last week, highlights
+  (best day, standout habit, three-month record, step record) and a goal a little higher than last week, tracked day by day.
 - Charts of steps (with the goal line), habits done and XP earned over 7 days, 30 days or 12 months.
 - Active days, best day, daily average and the success rate of each habit.
 
@@ -158,6 +164,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 10. Task views | Search, drag-and-drop order, month calendar | ✅ v0.10 |
 | 11. Safety nets | Weekly automatic backup, streak freezes | ✅ v0.11 |
 | 12. Design | Tablet and landscape layout, world tour illustrations, haptics, dark widget previews | ✅ v0.12 |
+| 13. Looking back | Weekly review with highlights and goal, year heatmap, daily habit notes | ✅ v0.13 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -169,23 +176,23 @@ Release notes are in the [changelog](CHANGELOG.md).
 | Architecture | MVVM: Compose screens → ViewModels → repositories → Room |
 | Data | Room (SQLite) with tested migrations, DataStore for settings; XP and gold kept as an event ledger, so any action can be undone |
 | Steps | Health Connect, `TYPE_STEP_COUNTER` sensor sampled by WorkManager |
-| Reminders | WorkManager jobs rescheduled daily (morning, evening and one per habit), notification actions handled by a private broadcast receiver |
+| Reminders | WorkManager jobs rescheduled daily (morning, evening, one per habit, and the Sunday review), notification actions handled by a private broadcast receiver |
 | Widgets | Jetpack Glance, refreshed when data changes |
 | Backup | Plain JSON file through the system file picker (no storage permission), validated and restored in one transaction; weekly automatic copy to a chosen folder via the Storage Access Framework |
 | Adaptive layout | Bottom bar on phones, navigation rail from 600 dp (tablets, foldables, landscape), content width capped for readability |
-| Illustrations | World tour scenes and map drawn with Compose Canvas: no image assets, no map service |
+| Illustrations | World tour scenes, map and year heatmap drawn with Compose Canvas: no image assets, no map service |
 | Tests | JUnit, Robolectric, Compose UI tests, database migration test, screenshot generation |
 | Release build | R8 code and resource shrinking, signed APK |
 | CI | GitHub Actions: tests, signed APK, smoke test of the shrunk APK on an Android emulator, preview build per pull request, release on every merge |
 
 ```
 app/src/main/java/app/sentier/
-├── data/      Room entities, DAOs, repositories (tasks, habits, game, challenges, journey, stats, backup, automatic backup), settings
-├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, freezes, badges), challenges, treasures, world tour, adaptive goal
-├── notify/    Reminders: content, scheduling (daily and per habit), notifications and the Done button
+├── data/      Room entities, DAOs, repositories (tasks, habits and notes, game, challenges, journey, stats, weekly review, backup, automatic backup), settings
+├── domain/    Pure business rules: recurrence (RRULE), habit strength, game (levels, streaks, freezes, badges), challenges, treasures, world tour, adaptive goal, weekly review
+├── notify/    Reminders: content, scheduling (daily, per habit and weekly), notifications and the Done button
 ├── steps/     Step sources: Health Connect, sensor, background sampling
 ├── widget/    Home screen widgets (Glance)
-└── ui/        Compose screens and ViewModels (onboarding, today, tasks and calendar, edit, habits, journey and illustrations, progress, stats, backup, reminders, theme)
+└── ui/        Compose screens and ViewModels (onboarding, today, tasks and calendar, edit, habits, journey and illustrations, progress, stats and heatmap, weekly review, backup, reminders, theme)
 ```
 
 ### Building
@@ -202,11 +209,11 @@ Without a signing key, the APK is signed with the local debug key. In CI, the ke
 
 ## Privacy
 
-Sentier works fully offline and requires no account. Tasks, habits and steps are stored on the phone,
+Sentier works fully offline and requires no account. Tasks, habits, notes and steps are stored on the phone,
 and the app itself never sends them anywhere. If Android backup is turned on, the phone's own backup may include
 Sentier's data in your Google account, like other apps' data, so it survives a phone change; you can turn this off
 in Android settings. Step access (Health Connect or sensor) and notifications can be revoked at any time in Android settings.
-Reminders are computed on the phone; no push service is involved. The automatic backup only writes to the folder you choose; if that folder is synced
+Reminders and the weekly review are computed on the phone; no push service is involved. The automatic backup only writes to the folder you choose; if that folder is synced
 (Google Drive, Nextcloud…), the sync app, not Sentier, sends the file.
 
 ## License and acknowledgements

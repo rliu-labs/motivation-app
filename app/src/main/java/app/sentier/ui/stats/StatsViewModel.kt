@@ -13,6 +13,7 @@ import app.sentier.data.Settings
 import app.sentier.data.Stats
 import app.sentier.data.StatsPeriod
 import app.sentier.data.StatsRepository
+import app.sentier.data.YearActivity
 import app.sentier.ui.common.app
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,10 @@ class StatsViewModel(repo: StatsRepository, settings: Settings) : ViewModel() {
 
     val stats: StateFlow<Stats> = _period.flatMapLatest { repo.observe(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Stats())
+
+    /** L'année jour par jour, indépendante de la période choisie. */
+    val year: StateFlow<YearActivity?> = repo.observeYear()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val goal: StateFlow<Int> = settings.steps.map { it.goal }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 8000)

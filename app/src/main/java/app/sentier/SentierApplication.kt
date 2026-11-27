@@ -14,6 +14,7 @@ import app.sentier.data.HabitRepository
 import app.sentier.data.JourneyRepository
 import app.sentier.data.Settings
 import app.sentier.data.TaskRepository
+import app.sentier.data.WeeklyReviewRepository
 import app.sentier.steps.HealthConnectSource
 import app.sentier.steps.SensorStepSource
 import app.sentier.steps.StepsRepository
@@ -39,6 +40,7 @@ class SentierApplication : Application() {
         StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this), game = game, journey = journey)
     }
     val backup: BackupRepository by lazy { BackupRepository(database, settings) }
+    val weekly: WeeklyReviewRepository by lazy { WeeklyReviewRepository(database.gameDao(), database.habitDao(), habits) }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var widgetSync: Job? = null
