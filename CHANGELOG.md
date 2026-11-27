@@ -3,6 +3,18 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.10.0] - 2026-11-27
+
+Recherche, ordre à la main et calendrier des tâches.
+
+### Ajouté
+- Recherche dans les tâches (titres et notes), sans tenir compte des majuscules ni des accents.
+- Trois présentations de l'onglet Tâches, mémorisées : par date, « Mon ordre » et calendrier.
+- « Mon ordre » : on range les tâches en faisant glisser leur poignée ; avec un lecteur d'écran,
+  les actions « Monter » et « Descendre » font de même.
+- Calendrier du mois : un point par tâche prévue chaque jour, la liste du jour choisi en dessous,
+  et la saisie rapide ajoute la tâche à ce jour-là.
+
 ## [0.9.0] - 2026-11-27
 
 Accueil et rappels par habitude.

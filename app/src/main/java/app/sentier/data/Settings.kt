@@ -39,6 +39,9 @@ data class StepSettings(
 /** Thème de l'appli : celui du téléphone, ou toujours clair, ou toujours sombre. */
 enum class ThemeMode(val label: String) { SYSTEM("Comme le téléphone"), LIGHT("Clair"), DARK("Sombre") }
 
+/** Présentation de l'onglet Tâches. */
+enum class TaskView(val label: String) { BY_DATE("Par date"), MANUAL("Mon ordre"), CALENDAR("Calendrier") }
+
 /** Rappels du matin et du soir. Les heures sont en minutes depuis minuit. */
 data class ReminderSettings(
     val morningOn: Boolean = false,
@@ -75,7 +78,14 @@ class Settings(private val context: Context) {
         val celebratedLevel = intPreferencesKey("celebrated_level")
         val celebratedBadges = stringSetPreferencesKey("celebrated_badges")
         val onboarded = booleanPreferencesKey("onboarded")
+        val taskView = stringPreferencesKey("task_view")
     }
+
+    val taskView: Flow<TaskView> = context.dataStore.data.map { p ->
+        p[Keys.taskView]?.let { v -> TaskView.entries.firstOrNull { it.name == v } } ?: TaskView.BY_DATE
+    }
+
+    suspend fun setTaskView(view: TaskView) = context.dataStore.edit { it[Keys.taskView] = view.name }
 
     /** Vrai une fois l'accueil du premier lancement terminé ou passé (null s'il n'a jamais été montré). */
     suspend fun onboarded(): Boolean? = context.dataStore.data.first()[Keys.onboarded]
@@ -126,6 +136,7 @@ class Settings(private val context: Context) {
             p[Keys.treasuresSeen]?.let { put("treasures_seen", JSONArray(it.toList())) }
             p[Keys.adaptive]?.let { put("step_goal_adaptive", it) }
             p[Keys.theme]?.let { put("theme_mode", it) }
+            p[Keys.taskView]?.let { put("task_view", it) }
             p[Keys.celebratedLevel]?.let { put("celebrated_level", it) }
             p[Keys.celebratedBadges]?.let { put("celebrated_badges", JSONArray(it.toList())) }
         }
@@ -148,6 +159,7 @@ class Settings(private val context: Context) {
         }
         bool("step_goal_adaptive")?.let { p[Keys.adaptive] = it }
         o.optString("theme_mode").takeIf { v -> ThemeMode.entries.any { it.name == v } }?.let { p[Keys.theme] = it }
+        o.optString("task_view").takeIf { v -> TaskView.entries.any { it.name == v } }?.let { p[Keys.taskView] = it }
         int("celebrated_level", 1..10_000)?.let { p[Keys.celebratedLevel] = it }
         o.optJSONArray("celebrated_badges")?.let { a ->
             p[Keys.celebratedBadges] = (0 until a.length()).mapNotNull { a.opt(it) as? String }.filter { it.length <= 40 }.toSet()

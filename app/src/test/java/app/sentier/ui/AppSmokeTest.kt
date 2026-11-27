@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.sentier.MainActivity
@@ -192,6 +193,42 @@ class AppSmokeTest {
         rule.onNodeWithText("Méditer").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Modifier l'habitude")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("À 09:00").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun searchTasksAndUseCalendarAndManualOrder() {
+        rule.onNodeWithTag("quickAdd").performTextInput("Réviser l'anglais")
+        rule.onNodeWithTag("quickAdd").performImeAction()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Réviser l'anglais")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Tâches").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Toutes")).fetchSemanticsNodes().isNotEmpty() }
+
+        // Recherche sans accents.
+        rule.onNodeWithContentDescription("Chercher une tâche").performClick()
+        rule.onNodeWithTag("taskSearch").performTextInput("reviser")
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Réviser l'anglais")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("taskSearch").performTextClearance()
+        rule.onNodeWithTag("taskSearch").performTextInput("piano")
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Aucune tâche ne correspond à « piano ».")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithContentDescription("Fermer la recherche").performClick()
+
+        // Mon ordre : chaque tâche a sa poignée.
+        rule.onNodeWithText("Mon ordre").performClick()
+        rule.waitUntil(5_000) {
+            rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Déplacer Réviser l'anglais")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Calendrier : une tâche ajoutée arrive le jour choisi (aujourd'hui par défaut).
+        rule.onNodeWithText("Calendrier").performClick()
+        rule.waitUntil(5_000) {
+            rule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Mois suivant")).fetchSemanticsNodes().isNotEmpty()
+        }
+        rule.onNodeWithTag("quickAdd").performTextInput("Arroser les plantes")
+        rule.onNodeWithTag("quickAdd").performImeAction()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Arroser les plantes")).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Par date").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("En retard")).fetchSemanticsNodes().isEmpty() }
+        rule.onNodeWithText("Arroser les plantes").assertExists()
     }
 
     private fun hasTextExactly(text: String) = androidx.compose.ui.test.hasText(text, substring = false)

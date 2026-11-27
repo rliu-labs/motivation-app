@@ -24,7 +24,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import app.sentier.data.Settings
+import app.sentier.data.TaskView
+import java.text.Normalizer
 import java.time.DayOfWeek
+import java.time.YearMonth
+import java.util.Locale
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
@@ -39,24 +44,46 @@ data class TasksState(
     val completed: List<TaskWithCounts> = emptyList(),
     val showCompleted: Boolean = false,
     val loading: Boolean = true,
+    val view: TaskView = TaskView.BY_DATE,
+    /** Tâches à faire dans « Mon ordre ». */
+    val ordered: List<TaskWithCounts> = emptyList(),
+    /** Recherche en cours (vide = pas de recherche). */
+    val query: String = "",
+    val results: List<TaskWithCounts> = emptyList(),
+    /** Calendrier : mois affiché, jour choisi et tâches à faire par jour (epoch day). */
+    val month: YearMonth = YearMonth.from(today),
+    val selectedDay: LocalDate = today,
+    val dueByDay: Map<Long, List<TaskWithCounts>> = emptyMap(),
 ) {
     val listsById: Map<Long, TaskList> get() = lists.associateBy { it.id }
     val isEmpty: Boolean get() = groups.isEmpty() && completed.isEmpty()
+    val searching: Boolean get() = query.isNotBlank()
+    val selectedDayTasks: List<TaskWithCounts> get() = dueByDay[selectedDay.toEpochDay()].orEmpty()
 }
 
+/** Réglages d'affichage de l'onglet, réunis pour le calcul de l'état. */
+private data class ViewPrefs(val view: TaskView, val query: String, val month: YearMonth, val day: LocalDate)
+
 @OptIn(ExperimentalCoroutinesApi::class)
-class TasksViewModel(private val repo: TaskRepository) : ViewModel() {
+class TasksViewModel(private val repo: TaskRepository, private val settings: Settings? = null) : ViewModel() {
 
     private val today = repo.today()
     private val selectedList = MutableStateFlow<Long?>(null)
     private val showCompleted = MutableStateFlow(false)
+    private val localView = MutableStateFlow(TaskView.BY_DATE)
+    private val query = MutableStateFlow("")
+    private val month = MutableStateFlow(YearMonth.from(today))
+    private val selectedDay = MutableStateFlow(today)
+
+    private val prefs = combine(settings?.taskView ?: localView, query, month, selectedDay) { v, q, m, d -> ViewPrefs(v, q, m, d) }
 
     val state: StateFlow<TasksState> = combine(
         repo.observeLists(),
         selectedList,
         selectedList.flatMapLatest { repo.observeTasks(it) },
         showCompleted,
-    ) { lists, selected, tasks, show ->
+        prefs,
+    ) { lists, selected, tasks, show, p ->
         val (completed, open) = tasks.partition { it.completedAt != null }
         TasksState(
             today = today,
@@ -66,8 +93,32 @@ class TasksViewModel(private val repo: TaskRepository) : ViewModel() {
             completed = completed.sortedByDescending { it.completedAt },
             showCompleted = show,
             loading = false,
+            view = p.view,
+            ordered = manualOrder(open),
+            query = p.query,
+            results = search(tasks, p.query),
+            month = p.month,
+            selectedDay = p.day,
+            dueByDay = dueByDay(open),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TasksState(today))
+
+    fun setView(view: TaskView) {
+        localView.value = view
+        settings?.let { viewModelScope.launch { it.setTaskView(view) } }
+    }
+
+    fun setQuery(text: String) { query.value = text }
+
+    fun showMonth(m: YearMonth) { month.value = m }
+
+    fun selectDay(day: LocalDate) {
+        selectedDay.value = day
+        month.value = YearMonth.from(day)
+    }
+
+    /** Nouvel ordre choisi en faisant glisser les tâches. */
+    fun reorder(ids: List<Long>) = viewModelScope.launch { repo.reorder(ids) }
 
     private val _completions = MutableSharedFlow<CompletionResult>(extraBufferCapacity = 1)
     val completions: SharedFlow<CompletionResult> = _completions
@@ -82,7 +133,12 @@ class TasksViewModel(private val repo: TaskRepository) : ViewModel() {
 
     fun undo(result: CompletionResult) = viewModelScope.launch { repo.undo(result) }
 
-    fun add(title: String) = viewModelScope.launch { repo.addTask(title, listId = state.value.selectedListId) }
+    /** Ajoute une tâche ; dans le calendrier, elle est prévue le jour choisi. */
+    fun add(title: String) = viewModelScope.launch {
+        val s = state.value
+        val due = if (s.view == TaskView.CALENDAR && !s.searching) s.selectedDay else null
+        repo.addTask(title, listId = s.selectedListId, dueDay = due)
+    }
 
     fun addList(name: String, color: Long) = viewModelScope.launch {
         if (name.isNotBlank()) selectedList.value = repo.addList(name, color)
@@ -96,7 +152,28 @@ class TasksViewModel(private val repo: TaskRepository) : ViewModel() {
     }
 
     companion object {
-        val Factory = viewModelFactory { initializer { TasksViewModel(app().tasks) } }
+        val Factory = viewModelFactory { initializer { TasksViewModel(app().tasks, app().settings) } }
+
+        /** Tâches à faire dans l'ordre choisi à la main (les nouvelles arrivent en bas). */
+        fun manualOrder(open: List<TaskWithCounts>): List<TaskWithCounts> = open.sortedWith(compareBy({ it.position }, { it.id }))
+
+        /** Tâches à faire, rangées par jour d'échéance. */
+        fun dueByDay(open: List<TaskWithCounts>): Map<Long, List<TaskWithCounts>> =
+            open.filter { it.dueDay != null }.groupBy { it.dueDay!! }
+                .mapValues { (_, l) -> l.sortedWith(compareByDescending<TaskWithCounts> { it.priority }.thenBy { it.position }) }
+
+        /** Recherche dans les titres et les notes, sans tenir compte des majuscules ni des accents. */
+        fun search(tasks: List<TaskWithCounts>, query: String): List<TaskWithCounts> {
+            val words = normalize(query).split(' ').filter { it.isNotBlank() }
+            if (words.isEmpty()) return emptyList()
+            return tasks.filter { t ->
+                val text = normalize(t.title + " " + t.notes)
+                words.all { it in text }
+            }.sortedWith(compareBy({ it.completedAt != null }, { it.dueDay == null }, { it.dueDay }))
+        }
+
+        private fun normalize(s: String): String =
+            Normalizer.normalize(s.lowercase(Locale.FRANCE), Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "")
 
         fun groupByDate(tasks: List<TaskWithCounts>, today: LocalDate): List<TaskGroup> {
             val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))

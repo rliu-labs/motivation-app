@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 
 private const val WITH_COUNTS = """
     SELECT t.id, t.title, t.notes, t.list_id, t.priority, t.due_day, t.recurrence,
-           t.completed_at, t.last_completed_day,
+           t.completed_at, t.last_completed_day, t.position,
            (SELECT COUNT(*) FROM task s WHERE s.parent_id = t.id) AS subtask_count,
            (SELECT COUNT(*) FROM task s WHERE s.parent_id = t.id AND s.completed_at IS NOT NULL) AS subtask_done
     FROM task t
@@ -65,6 +65,9 @@ interface TaskDao {
 
     @Query("UPDATE task SET completed_at = NULL WHERE parent_id = :parentId")
     suspend fun resetSubtasks(parentId: Long)
+
+    @Query("UPDATE task SET position = :position WHERE id = :id")
+    suspend fun setPosition(id: Long, position: Int)
 
     @Query("SELECT COALESCE(MAX(position), 0) FROM task WHERE parent_id IS :parentId")
     suspend fun maxPosition(parentId: Long?): Int

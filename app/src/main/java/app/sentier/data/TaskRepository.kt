@@ -108,6 +108,11 @@ class TaskRepository(
         )
     }
 
+    /** Range les tâches dans l'ordre donné (« Mon ordre »). */
+    suspend fun reorder(ids: List<Long>) {
+        ids.forEachIndexed { i, id -> dao.setPosition(id, i + 1) }
+    }
+
     suspend fun addList(name: String, color: Long): Long =
         dao.insertList(TaskList(name = name.trim(), color = color, position = Int.MAX_VALUE / 2))
 

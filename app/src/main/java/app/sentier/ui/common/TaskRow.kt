@@ -86,6 +86,8 @@ fun TaskRow(
     onToggle: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Élément affiché au bout de la ligne (poignée pour déplacer la tâche). */
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -143,6 +145,7 @@ fun TaskRow(
                 }
             }
         }
+        trailing?.invoke()
     }
 }
 

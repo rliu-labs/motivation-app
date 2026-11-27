@@ -109,4 +109,14 @@ class TaskRepositoryTest {
         val task = db.taskDao().getTask(id)!!
         assertNull(task.listId)
     }
+
+    @Test
+    fun reorderKeepsTheChosenOrder() = runBlocking {
+        val a = repo.addTask("A")
+        val b = repo.addTask("B")
+        val c = repo.addTask("C")
+        repo.reorder(listOf(c, a, b))
+        val byPosition = repo.observeTasks(null).first().sortedBy { it.position }.map { it.title }
+        assertEquals(listOf("C", "A", "B"), byPosition)
+    }
 }

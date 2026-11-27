@@ -83,6 +83,8 @@ data class TaskWithCounts(
     @ColumnInfo(name = "last_completed_day") val lastCompletedDay: Long?,
     @ColumnInfo(name = "subtask_count") val subtaskCount: Int,
     @ColumnInfo(name = "subtask_done") val subtaskDone: Int,
+    /** Place dans « Mon ordre ». */
+    val position: Int = 0,
 )
 
 /** Vrai si la tâche est faite pour la journée [day] (finie, ou répétée et validée ce jour-là). */

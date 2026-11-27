@@ -53,6 +53,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 **Tasks**
 - Color-coded lists (Personal, Home, Work, and your own).
 - Color-coded priority, due date, notes and subtasks.
+- Search titles and notes, sort by date or in your own order (drag and drop), or plan on a month calendar.
 - Flexible recurrence: daily, every N days, on chosen weekdays, monthly,
   counted from the due date or from the day the task was completed.
 
@@ -143,6 +144,7 @@ To update, install the new APK the same way: it replaces the previous version an
 | 7. Widgets and backup | Home screen widgets with one-tap completion, export and import of all data | ✅ v0.7 |
 | 8. Statistics and polish | Statistics, adaptive step goal, theme choice, celebrations | ✅ v0.8 |
 | 9. Welcome and habit reminders | First-launch welcome, a reminder per habit at the chosen time | ✅ v0.9 |
+| 10. Task views | Search, drag-and-drop order, month calendar | ✅ v0.10 |
 
 Release notes are in the [changelog](CHANGELOG.md).
 

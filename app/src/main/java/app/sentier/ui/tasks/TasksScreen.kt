@@ -24,14 +24,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
@@ -49,7 +57,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -57,10 +68,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.sentier.data.TaskList
+import app.sentier.data.TaskView
+import app.sentier.data.TaskWithCounts
 import app.sentier.ui.common.QuickAddBar
 import app.sentier.ui.common.SectionHeader
 import app.sentier.ui.common.TaskRow
 import app.sentier.ui.common.friendlyDate
+import app.sentier.ui.common.longDate
 import app.sentier.ui.theme.ListPalette
 
 @Composable
@@ -86,13 +100,46 @@ fun TasksScreen(
         }
     }
 
+    val listState = rememberLazyListState()
+    val reorder = rememberReorderState(listState, vm::reorder)
+    LaunchedEffect(state.ordered) { reorder.sync(state.ordered) }
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier.fillMaxSize().imePadding()) {
-        Text(
-            "Tâches",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp),
-        )
+        Row(
+            Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 16.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Tâches",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) vm.setQuery("") }) {
+                Icon(
+                    if (searchOpen) Icons.Filled.Close else Icons.Filled.Search,
+                    contentDescription = if (searchOpen) "Fermer la recherche" else "Chercher une tâche",
+                )
+            }
+        }
+        if (searchOpen) {
+            val focus = remember { FocusRequester() }
+            OutlinedTextField(
+                value = state.query,
+                onValueChange = vm::setQuery,
+                placeholder = { Text("Chercher dans les titres et les notes") },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                singleLine = true,
+                shape = RoundedCornerShape(28.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .focusRequester(focus)
+                    .testTag("taskSearch"),
+            )
+            LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+        }
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -124,52 +171,107 @@ fun TasksScreen(
                 }
             }
         }
+        if (!state.searching) {
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+                TaskView.entries.forEachIndexed { i, v ->
+                    SegmentedButton(
+                        selected = state.view == v,
+                        onClick = { vm.setView(v) },
+                        shape = SegmentedButtonDefaults.itemShape(i, TaskView.entries.size),
+                        icon = {},
+                    ) { Text(v.label, maxLines = 1) }
+                }
+            }
+        }
 
-        LazyColumn(Modifier.weight(1f)) {
-            if (!state.loading && state.isEmpty) {
-                item {
-                    Text(
-                        "Aucune tâche ici. Ajoute la première juste en dessous !",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(24.dp),
-                    )
-                }
-            }
-            for (group in state.groups) {
-                item(key = "h-${group.title}") {
-                    SectionHeader(
-                        group.title,
-                        color = if (group.late) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    )
-                }
-                items(group.tasks, key = { it.id }) { task ->
-                    TaskRow(
-                        task = task, checked = false,
-                        list = if (state.selectedListId == null) task.listId?.let(state.listsById::get) else null,
-                        today = state.today,
-                        onToggle = { vm.toggle(task) }, onClick = { onOpenTask(task.id) },
-                        modifier = Modifier.animateItem(),
-                    )
-                }
-            }
-            if (state.completed.isNotEmpty()) {
-                item(key = "h-done") {
-                    Row(
-                        Modifier.fillMaxWidth().clickable { vm.toggleShowCompleted() }.padding(end = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        SectionHeader("Terminées (${state.completed.size})", Modifier.weight(1f))
-                        Icon(if (state.showCompleted) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null)
+        val row: @Composable (TaskWithCounts, Boolean, Modifier, (@Composable () -> Unit)?) -> Unit = { task, checked, m, trailing ->
+            TaskRow(
+                task = task, checked = checked,
+                list = if (state.selectedListId == null) task.listId?.let(state.listsById::get) else null,
+                today = state.today,
+                onToggle = { vm.toggle(task) }, onClick = { onOpenTask(task.id) },
+                modifier = m,
+                trailing = trailing,
+            )
+        }
+
+        LazyColumn(Modifier.weight(1f), state = listState) {
+            when {
+                state.searching -> {
+                    if (state.results.isEmpty()) {
+                        item {
+                            EmptyText("Aucune tâche ne correspond à « ${state.query.trim()} ».")
+                        }
+                    }
+                    items(state.results, key = { it.id }) { task ->
+                        row(task, task.completedAt != null, Modifier.animateItem(), null)
                     }
                 }
-                if (state.showCompleted) {
-                    items(state.completed, key = { it.id }) { task ->
-                        TaskRow(
-                            task = task, checked = true, list = null, today = state.today,
-                            onToggle = { vm.toggle(task) }, onClick = { onOpenTask(task.id) },
-                            modifier = Modifier.animateItem(),
-                        )
+                state.view == TaskView.CALENDAR -> {
+                    item(key = "calendrier") {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                            TaskCalendar(
+                                month = state.month,
+                                today = state.today,
+                                selected = state.selectedDay,
+                                dueByDay = state.dueByDay,
+                                listsById = state.listsById,
+                                onMonth = vm::showMonth,
+                                onSelect = vm::selectDay,
+                            )
+                        }
+                    }
+                    item(key = "h-jour") { SectionHeader(longDate(state.selectedDay)) }
+                    if (state.selectedDayTasks.isEmpty()) {
+                        item(key = "vide-jour") { EmptyText("Rien de prévu ce jour-là. Ajoute une tâche juste en dessous.") }
+                    }
+                    items(state.selectedDayTasks, key = { it.id }) { task ->
+                        row(task, false, Modifier.animateItem(), null)
+                    }
+                }
+                else -> {
+                    if (!state.loading && state.isEmpty) {
+                        item { EmptyText("Aucune tâche ici. Ajoute la première juste en dessous !") }
+                    }
+                    if (state.view == TaskView.MANUAL) {
+                        if (reorder.items.isNotEmpty()) {
+                            item(key = "h-ordre") {
+                                SectionHeader("Fais glisser la poignée pour ranger tes tâches")
+                            }
+                        }
+                        reorderableTasks(reorder) { task, m, handle -> row(task, false, m, handle) }
+                    } else {
+                        for (group in state.groups) {
+                            item(key = "h-${group.title}") {
+                                SectionHeader(
+                                    group.title,
+                                    color = if (group.late) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            items(group.tasks, key = { it.id }) { task ->
+                                row(task, false, Modifier.animateItem(), null)
+                            }
+                        }
+                    }
+                    if (state.completed.isNotEmpty()) {
+                        item(key = "h-done") {
+                            Row(
+                                Modifier.fillMaxWidth().clickable { vm.toggleShowCompleted() }.padding(end = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                SectionHeader("Terminées (${state.completed.size})", Modifier.weight(1f))
+                                Icon(if (state.showCompleted) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null)
+                            }
+                        }
+                        if (state.showCompleted) {
+                            items(state.completed, key = { it.id }) { task ->
+                                TaskRow(
+                                    task = task, checked = true, list = null, today = state.today,
+                                    onToggle = { vm.toggle(task) }, onClick = { onOpenTask(task.id) },
+                                    modifier = Modifier.animateItem(),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -177,7 +279,12 @@ fun TasksScreen(
         }
         val listName = state.selectedListId?.let { state.listsById[it]?.name }
         QuickAddBar(
-            placeholder = if (listName != null) "Ajouter à « $listName »" else "Ajouter une tâche",
+            placeholder = when {
+                state.view == TaskView.CALENDAR && !state.searching ->
+                    "Ajouter : ${friendlyDate(state.selectedDay, state.today).lowercase()}"
+                listName != null -> "Ajouter à « $listName »"
+                else -> "Ajouter une tâche"
+            },
             onAdd = vm::add,
         )
     }
@@ -198,6 +305,16 @@ fun TasksScreen(
             onDelete = { vm.deleteList(list); editingList = null },
         )
     }
+}
+
+@Composable
+private fun EmptyText(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(24.dp),
+    )
 }
 
 /** Création ou modification d'une liste : nom et couleur. */
