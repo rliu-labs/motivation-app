@@ -189,7 +189,9 @@ class AppSmokeTest {
         rule.onNodeWithText("Enregistrer").performScrollTo().performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Mes habitudes")).fetchSemanticsNodes().isNotEmpty() }
 
-        // La fiche rouverte garde l'heure du rappel.
+        // La fiche rouverte garde l'heure du rappel (une fois la transition de retour terminée).
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(1_000)
         rule.onNodeWithText("Méditer").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Modifier l'habitude")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("À 09:00").performScrollTo().assertIsDisplayed()
