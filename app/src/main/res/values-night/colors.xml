@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#FF101510</color>
+    <!-- Aperçus des widgets dans le sélecteur (thème sombre). -->
+    <color name="widget_preview_background">#FF1A211A</color>
+    <color name="widget_preview_text">#FFDFE4DC</color>
+    <color name="widget_preview_text_secondary">#FFC0C9BD</color>
+    <color name="widget_preview_accent">#FF8DD5AE</color>
+    <color name="widget_preview_track">#FF3A4239</color>
 </resources>

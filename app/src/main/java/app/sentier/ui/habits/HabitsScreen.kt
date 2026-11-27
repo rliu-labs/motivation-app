@@ -8,6 +8,7 @@ package app.sentier.ui.habits
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import app.sentier.ui.common.rememberTick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -187,6 +188,7 @@ private fun HabitRow(
     modifier: Modifier = Modifier,
 ) {
     val color = Color(h.habit.color)
+    val tick = rememberTick()
     Row(
         modifier.fillMaxWidth().clickable(onClick = onOpen).padding(start = 16.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -204,7 +206,7 @@ private fun HabitRow(
             )
         }
         for (d in days) {
-            HabitCell(h, d, color, onClick = { onCell(d) })
+            HabitCell(h, d, color, onClick = { if (!h.habit.isNumeric && !h.isDoneOn(d.toEpochDay())) tick(); onCell(d) })
         }
     }
 }

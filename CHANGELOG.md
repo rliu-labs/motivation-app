@@ -3,6 +3,18 @@
 Toutes les évolutions notables de Sentier. Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et les versions suivent le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.12.0] - 2026-11-27
+
+Tablettes, illustrations et finitions.
+
+### Ajouté
+- Mise en page pour tablette, pliable ouvert et mode paysage : la navigation passe dans un rail sur le côté
+  et le contenu reste centré au lieu de s'étirer.
+- Une illustration pour chaque escale du tour du monde (tour Eiffel, Parthénon, Taj Mahal, pagode de Kyoto,
+  opéra de Sydney, aurore boréale de Reykjavik…), dessinée par l'appli, sans image téléchargée.
+- Petite vibration de confirmation quand on coche une tâche ou une habitude (elle suit le réglage du téléphone).
+- Aperçus des widgets dans le sélecteur, en thème clair ou sombre (Android 12 et plus).
+
 ## [0.11.0] - 2026-11-27
 
 Sauvegarde automatique et gel de série.

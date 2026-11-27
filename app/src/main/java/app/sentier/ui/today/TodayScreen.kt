@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.sentier.ui.common.rememberTick
 import app.sentier.ui.common.QuickAddBar
 import app.sentier.ui.progress.GameSummary
 import app.sentier.ui.progress.ProgressViewModel
@@ -171,8 +172,9 @@ fun TodayScreen(
 private fun TodayHabitRow(h: HabitWithStats, today: Long, onClick: () -> Unit) {
     val color = Color(h.habit.color)
     val done = h.isDoneOn(today)
+    val tick = rememberTick()
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 6.dp),
+        Modifier.fillMaxWidth().clickable { if (!done && !h.habit.isNumeric) tick(); onClick() }.padding(horizontal = 16.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         StrengthRing(h.strength, color, HabitIcons.of(h.habit.icon), size = 36)

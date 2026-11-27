@@ -53,12 +53,16 @@ fun PriorityCheckbox(
     label: String = "",
 ) {
     val color = PriorityColors.of(priority)
+    val tick = rememberTick()
     val fill by animateColorAsState(if (checked) color else Color.Transparent, label = "fill")
     Box(
         modifier = modifier
             .size(48.dp)
             .clip(CircleShape)
-            .clickable(onClick = onClick)
+            .clickable {
+                if (!checked) tick()
+                onClick()
+            }
             .semantics { contentDescription = if (checked) "Décocher $label" else "Valider $label" },
         contentAlignment = Alignment.Center,
     ) {

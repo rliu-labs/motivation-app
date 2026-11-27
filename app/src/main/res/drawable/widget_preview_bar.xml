@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Barre de progression des pas dans l'aperçu du petit widget. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/widget_preview_track" />
+            <corners android:radius="3dp" />
+            <size android:height="6dp" />
+        </shape>
+    </item>
+    <item android:right="30dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/widget_preview_accent" />
+            <corners android:radius="3dp" />
+            <size android:height="6dp" />
+        </shape>
+    </item>
+</layer-list>

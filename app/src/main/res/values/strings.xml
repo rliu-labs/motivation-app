@@ -4,5 +4,15 @@
     <string name="widget_today_name">Sentier : aujourd\'hui</string>
     <string name="widget_today_description">Ta série, tes pas et les choses à faire aujourd\'hui, à cocher sans ouvrir l\'appli.</string>
     <string name="widget_steps_name">Sentier : pas et série</string>
+    <!-- Textes d'exemple des aperçus de widgets. -->
+    <string name="widget_preview_today_title">Aujourd\'hui</string>
+    <string name="widget_preview_today_summary">Encore 3 choses à faire</string>
+    <string name="widget_preview_streak">🔥 12</string>
+    <string name="widget_preview_item_1">Appeler le dentiste</string>
+    <string name="widget_preview_item_2">Méditer</string>
+    <string name="widget_preview_item_3">Faire les courses</string>
+    <string name="widget_preview_steps">👣 6 480</string>
+    <string name="widget_preview_goal">sur 8 000 pas</string>
+    <string name="widget_preview_streak_days">🔥 12 jours</string>
     <string name="widget_steps_description">Tes pas du jour et ta série en cours.</string>
 </resources>

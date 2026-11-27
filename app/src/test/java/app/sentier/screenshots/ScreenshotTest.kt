@@ -100,6 +100,18 @@ class ScreenshotTest {
         }
     }
 
+    @Test
+    @Config(qualifiers = "w960dp-h600dp-land-hdpi")
+    fun tabletLandscape() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            waitFor("Habitudes du jour")
+            save(scenario, "tablette")
+            rule.onNodeWithText("Voyage").performClick()
+            waitFor("Dernière escale")
+            save(scenario, "tablette-voyage")
+        }
+    }
+
     private fun waitFor(text: String) {
         rule.waitUntil(10_000) { rule.onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isNotEmpty() }
         rule.waitForIdle()

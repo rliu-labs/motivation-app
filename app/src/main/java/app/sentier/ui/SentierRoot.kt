@@ -30,6 +30,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -64,6 +73,12 @@ private enum class Tab(val route: String, val label: String, val icon: ImageVect
     PROGRESS("progress", "Progrès", Icons.Filled.EmojiEvents),
 }
 
+/** Largeur à partir de laquelle la navigation passe sur le côté. */
+private const val WIDE_SCREEN_DP = 600
+
+/** Largeur maximale du contenu des écrans. */
+private val MAX_CONTENT_WIDTH = 840.dp
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SentierRoot(nav: NavHostController = rememberNavController()) {
@@ -81,23 +96,26 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
     val tabRoute = Tab.entries.firstOrNull { it.route == route }
+    // Rail de navigation sur le côté dès que l'écran est assez large (tablette, paysage, pliable ouvert).
+    val wide = LocalConfiguration.current.screenWidthDp >= WIDE_SCREEN_DP
+    val goTo = { tab: Tab ->
+        nav.navigate(tab.route) {
+            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbar) },
             bottomBar = {
-                if (tabRoute != null) {
+                if (tabRoute != null && !wide) {
                     NavigationBar {
                         for (tab in Tab.entries) {
                             NavigationBarItem(
                                 selected = tab == tabRoute,
-                                onClick = {
-                                    nav.navigate(tab.route) {
-                                        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
+                                onClick = { goTo(tab) },
                                 icon = { Icon(tab.icon, contentDescription = null) },
                                 label = { Text(tab.label) },
                             )
@@ -106,65 +124,74 @@ fun SentierRoot(nav: NavHostController = rememberNavController()) {
                 }
             },
         ) { padding ->
-            val openTask = { id: Long -> nav.navigate("task/$id") }
-            val openHabit = { id: Long -> nav.navigate("habit/$id") }
-            val openHabitsTab = {
-                nav.navigate(Tab.HABITS.route) {
-                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-            val openProgressTab = {
-                nav.navigate(Tab.PROGRESS.route) {
-                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-            val tabModifier = Modifier.padding(padding).consumeWindowInsets(padding)
-            NavHost(nav, startDestination = Tab.TODAY.route) {
-                composable(Tab.TODAY.route) {
-                    TodayScreen(
-                        snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
-                        onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
-                    )
-                }
-                composable(Tab.TASKS.route) {
-                    TasksScreen(snackbar, onOpenTask = openTask, modifier = tabModifier)
-                }
-                composable(Tab.HABITS.route) {
-                    HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
-                }
-                composable(Tab.JOURNEY.route) {
-                    JourneyScreen(modifier = tabModifier)
-                }
-                composable(Tab.PROGRESS.route) {
-                    Box(tabModifier) {
-                        ProgressScreen(
-                            onOpenCredits = { nav.navigate("credits") },
-                            onOpenBackup = { nav.navigate("backup") },
-                            onOpenStats = { nav.navigate("stats") },
-                        )
+            Row(Modifier.fillMaxSize()) {
+                if (tabRoute != null && wide) {
+                    NavigationRail(Modifier.fillMaxHeight()) {
+                        Spacer(Modifier.weight(1f))
+                        for (tab in Tab.entries) {
+                            NavigationRailItem(
+                                selected = tab == tabRoute,
+                                onClick = { goTo(tab) },
+                                icon = { Icon(tab.icon, contentDescription = null) },
+                                label = { Text(tab.label) },
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
                     }
                 }
-                composable("task/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                    TaskEditScreen(taskId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
-                }
-                composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                    HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
-                }
-                composable("reminders") {
-                    RemindersScreen(onBack = { nav.popBackStack() })
-                }
-                composable("stats") {
-                    StatsScreen(onBack = { nav.popBackStack() })
-                }
-                composable("backup") {
-                    BackupScreen(onBack = { nav.popBackStack() })
-                }
-                composable("credits") {
-                    CreditsScreen(onBack = { nav.popBackStack() })
+                // Sur tablette ou en paysage, le contenu reste centré et lisible au lieu de s'étirer.
+                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
+                    Box(Modifier.widthIn(max = MAX_CONTENT_WIDTH).fillMaxSize()) {
+                        val openTask = { id: Long -> nav.navigate("task/$id") }
+                        val openHabit = { id: Long -> nav.navigate("habit/$id") }
+                        val openHabitsTab = { goTo(Tab.HABITS) }
+                        val openProgressTab = { goTo(Tab.PROGRESS) }
+                        val tabModifier = Modifier.padding(padding).consumeWindowInsets(padding)
+                        NavHost(nav, startDestination = Tab.TODAY.route) {
+                            composable(Tab.TODAY.route) {
+                                TodayScreen(
+                                    snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
+                                    onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
+                                )
+                            }
+                            composable(Tab.TASKS.route) {
+                                TasksScreen(snackbar, onOpenTask = openTask, modifier = tabModifier)
+                            }
+                            composable(Tab.HABITS.route) {
+                                HabitsScreen(onOpenHabit = openHabit, modifier = tabModifier)
+                            }
+                            composable(Tab.JOURNEY.route) {
+                                JourneyScreen(modifier = tabModifier)
+                            }
+                            composable(Tab.PROGRESS.route) {
+                                Box(tabModifier) {
+                                    ProgressScreen(
+                                        onOpenCredits = { nav.navigate("credits") },
+                                        onOpenBackup = { nav.navigate("backup") },
+                                        onOpenStats = { nav.navigate("stats") },
+                                    )
+                                }
+                            }
+                            composable("task/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                                TaskEditScreen(taskId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+                            }
+                            composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                                HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+                            }
+                            composable("reminders") {
+                                RemindersScreen(onBack = { nav.popBackStack() })
+                            }
+                            composable("stats") {
+                                StatsScreen(onBack = { nav.popBackStack() })
+                            }
+                            composable("backup") {
+                                BackupScreen(onBack = { nav.popBackStack() })
+                            }
+                            composable("credits") {
+                                CreditsScreen(onBack = { nav.popBackStack() })
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -5,4 +5,18 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/background</item>
     </style>
+
+    <!-- Ligne « à faire » de l'aperçu du widget « Aujourd'hui ». -->
+    <style name="WidgetPreviewItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:drawableStart">@drawable/widget_preview_check</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/widget_preview_text</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

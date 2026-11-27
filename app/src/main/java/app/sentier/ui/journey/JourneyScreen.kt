@@ -220,6 +220,7 @@ private fun StopCard(stop: Stop, modifier: Modifier = Modifier) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         modifier = modifier.fillMaxWidth(),
     ) {
+        StopIllustration(WorldTour.stops.indexOf(stop))
         Column(Modifier.padding(16.dp)) {
             StopHeader(stop)
             StopDetails(stop, Modifier.padding(top = 12.dp))
@@ -320,6 +321,10 @@ private fun StopDialog(stop: Stop, title: String, footer: String?, onDismiss: ()
         title = { Text(title) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
+                StopIllustration(
+                    WorldTour.stops.indexOf(stop),
+                    Modifier.padding(bottom = 12.dp).clip(MaterialTheme.shapes.medium),
+                )
                 StopDetails(stop)
                 footer?.let {
                     Text(
