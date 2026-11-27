@@ -19,6 +19,9 @@ Sentier (French for *path*) brings what matters in a day onto a single screen: t
 and steps to walk. Every small win shows up right away, and a missed day never wipes out weeks of effort:
 rest days and streak freezes protect your streak, and nothing you earn is ever taken away.
 
+Every Sunday, a weekly review sums up your highlights and sets a slightly higher goal for the week ahead; a year heatmap
+and a daily note per habit help you see how far you have come.
+
 It works on phones, tablets and foldables, in portrait or landscape, and takes you on an illustrated walk around the world.
 
 No account, no ads, no tracking: your data stays on your phone. The app's interface is in French.
