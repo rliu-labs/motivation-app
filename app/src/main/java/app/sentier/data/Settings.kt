@@ -105,7 +105,13 @@ class Settings(private val context: Context) {
         val autoBackupFolder = stringPreferencesKey("auto_backup_folder")
         val autoBackupLast = longPreferencesKey("auto_backup_last")
         val autoBackupError = stringPreferencesKey("auto_backup_error")
+        val healthAuto = booleanPreferencesKey("health_sleep_sport")
     }
+
+    /** Sommeil et sport lus dans Health Connect pour cocher les habitudes (propre à ce téléphone). */
+    val healthAuto: Flow<Boolean> = context.dataStore.data.map { it[Keys.healthAuto] ?: false }
+
+    suspend fun setHealthAuto(on: Boolean) = context.dataStore.edit { it[Keys.healthAuto] = on }
 
     /** Sauvegarde automatique : propre à ce téléphone (le dossier choisi n'a pas de sens ailleurs), donc jamais exportée. */
     val autoBackup: Flow<AutoBackupSettings> = context.dataStore.data.map { p ->

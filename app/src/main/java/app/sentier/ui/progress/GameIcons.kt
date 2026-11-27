@@ -25,6 +25,15 @@ import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.BeachAccess
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.Park
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /** Icônes des badges et des récompenses (icônes Material). */
@@ -48,6 +57,16 @@ object GameIcons {
         "bolt" to Icons.Filled.Bolt,
         "explore" to Icons.Filled.Explore,
         "sport" to Icons.Filled.FitnessCenter,
+        // Défis saisonniers.
+        "celebration" to Icons.Filled.Celebration,
+        "heart" to Icons.Filled.Favorite,
+        "flower" to Icons.Filled.LocalFlorist,
+        "sun" to Icons.Filled.WbSunny,
+        "beach" to Icons.Filled.BeachAccess,
+        "leaf" to Icons.Filled.Eco,
+        "moon" to Icons.Filled.DarkMode,
+        "tree" to Icons.Filled.Park,
+        "snow" to Icons.Filled.AcUnit,
     )
 
     fun of(name: String): ImageVector = byName[name] ?: Icons.Filled.Redeem

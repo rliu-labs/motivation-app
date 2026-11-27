@@ -43,7 +43,7 @@ interface GameDao {
     suspend fun gold(): Int
 
     /** Jours avec au moins une action (les achats, les gels et les bonus de défi ne comptent pas). */
-    @Query("SELECT DISTINCT day FROM game_event WHERE kind NOT IN (4, 6, 7) ORDER BY day")
+    @Query("SELECT DISTINCT day FROM game_event WHERE kind NOT IN (4, 6, 7, 8) ORDER BY day")
     fun observeActiveDays(): Flow<List<Long>>
 
     /** Jours d'achat des gels de série (un par gel). */
@@ -52,6 +52,10 @@ interface GameDao {
 
     @Query("SELECT * FROM game_event WHERE day >= :fromDay ORDER BY day")
     fun observeEventsSince(fromDay: Long): Flow<List<GameEvent>>
+
+    /** Clés gagnées d'un type (escales, défis saisonniers…), avec le premier jour où chacune l'a été. */
+    @Query("SELECT ref_id, MIN(day) AS day FROM game_event WHERE kind = :kind GROUP BY ref_id ORDER BY day, ref_id")
+    fun observeRefDays(kind: Int): Flow<List<RefDay>>
 
     @Query("SELECT kind, COUNT(*) AS count FROM game_event GROUP BY kind")
     fun observeCounts(): Flow<List<KindCount>>

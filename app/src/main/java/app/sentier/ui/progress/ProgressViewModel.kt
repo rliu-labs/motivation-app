@@ -12,9 +12,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.sentier.data.ChallengeRepository
 import app.sentier.data.GameRepository
 import app.sentier.data.GameState
+import app.sentier.data.SeasonRepository
 import app.sentier.data.Reward
 import app.sentier.data.Settings
 import app.sentier.data.ThemeMode
+import app.sentier.domain.SeasonsState
 import app.sentier.domain.WeekChallenges
 import app.sentier.ui.common.app
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,7 +28,12 @@ class ProgressViewModel(
     private val game: GameRepository,
     challenges: ChallengeRepository,
     private val settings: Settings,
+    seasons: SeasonRepository? = null,
 ) : ViewModel() {
+
+    /** Le défi saisonnier en cours, ou le prochain. */
+    val seasons: StateFlow<SeasonsState?> = (seasons?.observe() ?: kotlinx.coroutines.flow.flowOf(null))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val state: StateFlow<GameState> = game.observe()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GameState())
@@ -51,6 +58,6 @@ class ProgressViewModel(
     fun delete(reward: Reward) = viewModelScope.launch { game.deleteReward(reward) }
 
     companion object {
-        val Factory = viewModelFactory { initializer { ProgressViewModel(app().game, app().challenges, app().settings) } }
+        val Factory = viewModelFactory { initializer { ProgressViewModel(app().game, app().challenges, app().settings, app().seasons) } }
     }
 }

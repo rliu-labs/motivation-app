@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.sentier.data.ChallengeRepository
 import app.sentier.data.GameRepository
+import app.sentier.data.SeasonRepository
 import app.sentier.data.Settings
 import app.sentier.domain.Challenge
 import app.sentier.domain.Treasure
@@ -36,6 +37,7 @@ class RewardsViewModel(
     private val gameRepo: GameRepository,
     private val challenges: ChallengeRepository,
     private val settings: Settings,
+    private val seasons: SeasonRepository? = null,
 ) : ViewModel() {
 
     private val _challengeDone = MutableSharedFlow<Challenge>(extraBufferCapacity = 8)
@@ -50,7 +52,7 @@ class RewardsViewModel(
     /** Niveau ou badge à fêter (null s'il n'y a rien de nouveau). */
     val celebration: StateFlow<Celebration?> =
         combine(gameRepo.observe(), settings.celebrated) { g, done ->
-            val unlocked = g.badges.filter { it.unlocked }
+            val unlocked = (g.badges + g.rareBadges).filter { it.unlocked }
             if (done == null) {
                 // Premier lancement avec cette version : rien de ce qui est déjà acquis n'est refêté.
                 settings.setCelebrated(g.level.level, unlocked.map { it.id }.toSet())
@@ -67,7 +69,7 @@ class RewardsViewModel(
                 )
                 badge != null -> Celebration(
                     key = "badge-${badge.id}",
-                    title = "Badge obtenu : ${badge.title}",
+                    title = (if (badge.rare) "Badge rare obtenu : " else "Badge obtenu : ") + badge.title,
                     text = badge.description + ".",
                     icon = GameIcons.of(badge.icon),
                 )
@@ -95,11 +97,19 @@ class RewardsViewModel(
                 }
             }
         }
+        seasons?.let { repo ->
+            viewModelScope.launch {
+                repo.observe().collect { s ->
+                    val c = s.active
+                    if (c != null && c.done && !c.rewarded) runCatching { repo.sync() }
+                }
+            }
+        }
     }
 
     fun markSeen(treasures: List<Treasure>) = viewModelScope.launch { settings.addTreasuresSeen(treasures.map { it.id }) }
 
     companion object {
-        val Factory = viewModelFactory { initializer { RewardsViewModel(app().game, app().challenges, app().settings) } }
+        val Factory = viewModelFactory { initializer { RewardsViewModel(app().game, app().challenges, app().settings, app().seasons) } }
     }
 }

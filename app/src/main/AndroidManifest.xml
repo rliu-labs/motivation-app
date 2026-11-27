@@ -3,6 +3,9 @@
 
     <!-- Lecture des pas dans Health Connect -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <!-- Sommeil et séances de sport, pour cocher les habitudes correspondantes (réglage facultatif) -->
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <!-- Capteur de pas du téléphone (secours) -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
