@@ -4,6 +4,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
@@ -143,7 +145,8 @@ class AppSmokeTest {
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Défis de la semaine (0 sur 6)")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Défis de la semaine (0 sur 6)").performScrollTo().assertIsDisplayed()
         rule.onNodeWithText("La route de la soie").performScrollTo().assertIsDisplayed()
-        rule.onNodeWithText("Ajoute l'habitude « Faire du sport » pour relever ce défi.").assertExists()
+        // Le défi saisonnier en cours peut afficher le même conseil, selon la date.
+        rule.onAllNodesWithText("Ajoute l'habitude « Faire du sport » pour relever ce défi.").onFirst().assertExists()
 
         rule.onNodeWithText("Voyage").performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasTextExactly("Tour du monde")).fetchSemanticsNodes().isNotEmpty() }
