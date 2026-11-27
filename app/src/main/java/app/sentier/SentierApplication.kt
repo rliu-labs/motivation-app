@@ -12,10 +12,13 @@ import app.sentier.data.ChallengeRepository
 import app.sentier.data.GameRepository
 import app.sentier.data.HabitRepository
 import app.sentier.data.JourneyRepository
+import app.sentier.data.PassportRepository
+import app.sentier.data.SeasonRepository
 import app.sentier.data.Settings
 import app.sentier.data.TaskRepository
 import app.sentier.data.WeeklyReviewRepository
 import app.sentier.steps.HealthConnectSource
+import app.sentier.steps.HealthSync
 import app.sentier.steps.SensorStepSource
 import app.sentier.steps.StepsRepository
 import app.sentier.widget.Widgets
@@ -35,9 +38,16 @@ class SentierApplication : Application() {
     val tasks: TaskRepository by lazy { TaskRepository(database.taskDao(), game = game) }
     val habits: HabitRepository by lazy { HabitRepository(database.habitDao(), game = game) }
     val challenges: ChallengeRepository by lazy { ChallengeRepository(database.gameDao(), database.habitDao(), game) }
+    val seasons: SeasonRepository by lazy { SeasonRepository(database.gameDao(), database.habitDao(), game) }
+    val passport: PassportRepository by lazy { PassportRepository(database.gameDao(), settings) }
     val journey: JourneyRepository by lazy { JourneyRepository(database.habitDao(), settings, game) }
+    val healthConnect: HealthConnectSource by lazy { HealthConnectSource(this) }
+    val health: HealthSync by lazy { HealthSync(database.habitDao(), habits, settings, healthConnect) }
     val steps: StepsRepository by lazy {
-        StepsRepository(database.habitDao(), settings, HealthConnectSource(this), SensorStepSource(this), game = game, journey = journey)
+        StepsRepository(
+            database.habitDao(), settings, healthConnect, SensorStepSource(this),
+            game = game, journey = journey, health = health,
+        )
     }
     val backup: BackupRepository by lazy { BackupRepository(database, settings) }
     val weekly: WeeklyReviewRepository by lazy { WeeklyReviewRepository(database.gameDao(), database.habitDao(), habits) }
@@ -47,6 +57,8 @@ class SentierApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // Dates et nombres à la française, même sur un téléphone réglé dans une autre langue.
+        java.util.Locale.setDefault(app.sentier.ui.common.French.locale)
         if (Widgets.anyPlaced(this)) startWidgetSync()
     }
 

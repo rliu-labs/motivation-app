@@ -77,6 +77,12 @@ class ScreenshotTest {
             rule.onNode(hasScrollAction()).performScrollToNode(hasText("Trésors rares", substring = true))
             waitFor("Trésors rares")
             save(scenario, "carnet")
+            rule.onNode(hasScrollAction()).performScrollToNode(hasText("Mon passeport"))
+            rule.onNodeWithText("Mon passeport").performClick()
+            waitFor("PASSEPORT DE VOYAGEUR")
+            save(scenario, "passeport")
+            rule.onAllNodes(hasContentDescription("Retour")).onFirst().performClick()
+            waitFor("Mon passeport")
 
             rule.onNodeWithText("Progrès").performClick()
             waitFor("Boutique de récompenses")

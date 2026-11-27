@@ -76,7 +76,11 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewModel(factory = JourneyViewModel.Factory)) {
+fun JourneyScreen(
+    modifier: Modifier = Modifier,
+    onOpenPassport: () -> Unit = {},
+    vm: JourneyViewModel = viewModel(factory = JourneyViewModel.Factory),
+) {
     val state by vm.state.collectAsStateWithLifecycle()
     val treasures by vm.treasures.collectAsStateWithLifecycle()
     var opened by remember { mutableStateOf<Stop?>(null) }
@@ -126,6 +130,7 @@ fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewMode
                 )
             }
         }
+        item { PassportEntry(onClick = onOpenPassport) }
         item {
             val owned = p.reached.size
             SectionHeader("Souvenirs ($owned sur ${journey.stops.size})")
@@ -203,7 +208,8 @@ fun JourneyScreen(modifier: Modifier = Modifier, vm: JourneyViewModel = viewMode
         val latest = state.unseen.last()
         val n = state.unseen.size
         val xp = WorldTour.STOP_XP * n
-        val gain = if (n > 1) "+$xp XP, +${xp / 5} or pour $n escales et leurs souvenirs" else "+$xp XP, +${xp / 5} or"
+        val gain = (if (n > 1) "+$xp XP, +${xp / 5} or pour $n escales et leurs souvenirs" else "+$xp XP, +${xp / 5} or") +
+            (if (n > 1) "\n$n tampons ajoutés à ton passeport." else "\nTampon ajouté à ton passeport.")
         val footer = if (latest.index == latest.journey.stops.lastIndex) {
             "$gain\n${latest.journey.title} bouclé ! Choisis ton prochain voyage sous la carte."
         } else gain
@@ -423,7 +429,7 @@ private fun SouvenirGrid(journey: Journey, currentIndex: Int, onOpen: (Stop) -> 
 }
 
 @Composable
-private fun StopDialog(journey: Journey, stop: Stop, title: String, footer: String?, onDismiss: () -> Unit) {
+internal fun StopDialog(journey: Journey, stop: Stop, title: String, footer: String?, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Place, contentDescription = null) },

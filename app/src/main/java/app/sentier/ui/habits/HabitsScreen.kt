@@ -64,6 +64,7 @@ import app.sentier.data.HabitWithStats
 import app.sentier.domain.HabitTemplates
 import app.sentier.domain.describeFrequency
 import app.sentier.domain.letterFr
+import app.sentier.steps.HealthConnectSource
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -75,6 +76,7 @@ fun HabitsScreen(
     vm: HabitsViewModel = viewModel(factory = HabitsViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val health by vm.healthState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var editing by remember { mutableStateOf<Pair<Habit, LocalDate>?>(null) }
 
@@ -114,6 +116,15 @@ fun HabitsScreen(
                             if (h.habit.isNumeric) editing = h.habit to day else vm.toggle(h.habit, day)
                         },
                         modifier = Modifier.animateItem(),
+                    )
+                }
+            }
+            if (state.steps.availability.healthConnect == HealthConnectSource.Status.AVAILABLE) {
+                item {
+                    HealthCard(
+                        state = health,
+                        onSetOn = vm::setHealthAuto,
+                        onAddTemplate = { name -> HabitTemplates.firstOrNull { it.name == name }?.let(vm::addTemplate) },
                     )
                 }
             }

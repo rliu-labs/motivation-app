@@ -36,6 +36,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
     <td align="center"><img src="docs/screenshots/habitudes.png" width="200" alt="Habits and steps" /><br /><sub>Habits and steps</sub></td>
     <td align="center"><img src="docs/screenshots/voyage.png" width="200" alt="Around-the-world journey powered by steps" /><br /><sub>World tour</sub></td>
     <td align="center"><img src="docs/screenshots/carnet.png" width="200" alt="Travel journal: souvenirs and rare treasures" /><br /><sub>Travel journal</sub></td>
+    <td align="center"><img src="docs/screenshots/passeport.png" width="200" alt="Travel passport with a stamp for every stop" /><br /><sub>Passport</sub></td>
     <td align="center"><img src="docs/screenshots/progres.png" width="200" alt="Progress: level, streak, reward shop and badges" /><br /><sub>Progress</sub></td>
     <td align="center"><img src="docs/screenshots/defis.png" width="200" alt="Weekly challenges" /><br /><sub>Weekly challenges</sub></td>
     <td align="center"><img src="docs/screenshots/statistiques.png" width="200" alt="Statistics: year heatmap, steps, habits and XP charts" /><br /><sub>Statistics</sub></td>
@@ -86,6 +87,9 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 - **Rare treasures** from the world's cultures, earned with levels, streaks, badges and challenges:
   a Portuguese compass, a raku tea bowl, a Murano glass, a Fabergé egg, a moai… Rare, epic or legendary,
   each comes with its story and a "did you know?" fact, kept in the travel journal next to your souvenirs.
+- **Seasonal challenges** that come back every year: New Year's resolutions, Valentine's Day, spring, summer, August,
+  autumn, Halloween, November and the Advent calendar, up to the holiday truce. Each earns a bonus and a **rare badge**;
+  when none is running, the next one is announced.
 
 **Journeys**
 - Your steps take you around the world, eastward from Paris: Marrakech, Rome, Istanbul, Petra, Lalibela, Isfahan,
@@ -97,6 +101,7 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
   by Strasbourg, Chamonix, Avignon, Carcassonne, Biarritz, Chambord, Carnac and Mont-Saint-Michel (about 210 km).
 - After France, pick the next country yourself: Italy, Spain, Portugal, the United Kingdom or Germany
   (8 to 9 stops each, 70 to 120 km). Steps walked after finishing a journey already count for the next one.
+- A **travel passport**: a dated stamp in the country's ink for every stop reached, across all journeys, one page per journey.
 - "My journeys" lists every journey: finished ones can be opened again with their stops and souvenirs.
 - A dotted map drawn by the app shows the legs travelled and where you are, the whole world or a detailed map of the country:
   no map service, works offline.
@@ -126,6 +131,8 @@ No account, no ads, no tracking: your data stays on your phone. The app's interf
 **Steps**
 - Step count from Health Connect, with the phone's step sensor as a fallback.
 - Adjustable daily goal, distance, last 7 days and total distance walked.
+- Optional **automatic sleep and workouts** from Health Connect: nights fill in the sleep habit and workouts tick the sport habit
+  (last 7 days, manual entries are never lowered).
 - Optional **adaptive goal**: it follows your real pace (median of the last two weeks, plus 10%) and moves gently, so it stays within reach.
 
 **Everywhere**: Material 3, dynamic color on Android 12+, light, dark or system theme, a side navigation rail on tablets
@@ -148,7 +155,7 @@ To update, install the new APK the same way: it replaces the previous version an
 |---|---|
 | Android version | **Android 9 (API 28) or later**, up to Android 15 (API 35, the target version) |
 | Devices | Any Android phone; no Google account or Play Store needed. On tablets, foldables and in landscape, navigation moves to a side rail and content stays centered |
-| Steps | **Health Connect** (built into Android 14+, a free app on Android 9 to 13) reads steps from Google Fit, Samsung Health, Fitbit and other apps. Without it, the phone's own **step sensor** is used, if the phone has one |
+| Steps, sleep, workouts | **Health Connect** (built into Android 14+, a free app on Android 9 to 13) reads steps from Google Fit, Samsung Health, Fitbit and other apps. Without it, the phone's own **step sensor** is used, if the phone has one |
 | Without steps | Everything else works: tasks, habits, game, challenges, statistics. Only the world tour and step goals wait for a step source |
 | Widgets | Any home screen (launcher) that supports Android widgets; resizable. Light and dark previews in the widget picker on Android 12+ |
 | Notifications | Reminders work on every supported version; Android 13+ asks for permission when you turn them on |
@@ -175,8 +182,9 @@ To update, install the new APK the same way: it replaces the previous version an
 | 12. Design | Tablet and landscape layout, world tour illustrations, haptics, dark widget previews | ✅ v0.12 |
 | 13. Looking back | Weekly review with highlights and goal, year heatmap, daily habit notes | ✅ v0.13 |
 | 14. Journeys by country | Tour de France, then Italy, Spain, Portugal, United Kingdom and Germany, with country maps | ✅ v0.14 |
-| 15. More of Europe | The other European countries | Planned |
-| 16. Themed journeys | Tour of Europe, the Silk Road… | Planned |
+| 15. Passport and seasons | Travel passport, seasonal challenges with rare badges, automatic sleep and workouts | ✅ v0.15 |
+| 16. More of Europe | The other European countries | Planned |
+| 17. Themed journeys | Tour of Europe, the Silk Road… | Planned |
 
 Release notes are in the [changelog](CHANGELOG.md).
 
@@ -224,7 +232,7 @@ Without a signing key, the APK is signed with the local debug key. In CI, the ke
 Sentier works fully offline and requires no account. Tasks, habits, notes and steps are stored on the phone,
 and the app itself never sends them anywhere. If Android backup is turned on, the phone's own backup may include
 Sentier's data in your Google account, like other apps' data, so it survives a phone change; you can turn this off
-in Android settings. Step access (Health Connect or sensor) and notifications can be revoked at any time in Android settings.
+in Android settings. Step, sleep and workout access (Health Connect or sensor) and notifications can be revoked at any time in Android settings.
 Reminders and the weekly review are computed on the phone; no push service is involved. The automatic backup only writes to the folder you choose; if that folder is synced
 (Google Drive, Nextcloud…), the sync app, not Sentier, sends the file.
 

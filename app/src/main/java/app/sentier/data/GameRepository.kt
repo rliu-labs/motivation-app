@@ -11,6 +11,8 @@ import app.sentier.domain.GameRules
 import app.sentier.domain.WorldTour
 import app.sentier.domain.GameStats
 import app.sentier.domain.LevelInfo
+import app.sentier.domain.RareBadges
+import app.sentier.domain.Seasons
 import app.sentier.domain.StreakInfo
 import app.sentier.domain.Treasure
 import app.sentier.domain.Treasures
@@ -32,6 +34,8 @@ data class GameState(
     val rewards: List<Reward> = emptyList(),
     /** Objets rares du carnet. */
     val treasures: List<Treasure> = Treasures.of(GameStats(), 0),
+    /** Badges rares des défis saisonniers (à part : ils ne comptent pas pour les trésors). */
+    val rareBadges: List<Badge> = RareBadges.of(emptyMap()),
 )
 
 class GameRepository(
@@ -47,8 +51,8 @@ class GameRepository(
             dao.observeActiveDays(),
             dao.observeCounts(),
             dao.observeRewards(),
-            dao.observeFreezeDays(),
-        ) { totals, days, counts, rewards, freezes ->
+            combine(dao.observeFreezeDays(), dao.observeRefDays(GameEvent.SEASON)) { f, s -> f to s },
+        ) { totals, days, counts, rewards, (freezes, seasons) ->
             val level = GameRules.levelOf(totals.xp)
             val streak = Streaks.compute(days.toSet(), today, freezes, gifts = true)
             val byKind = counts.associate { it.kind to it.count }
@@ -63,7 +67,10 @@ class GameRepository(
                 bestStreak = streak.best,
             )
             val badges = Badges.of(stats)
-            GameState(level, totals.xp, totals.gold, streak, badges, rewards, Treasures.of(stats, badges.count { it.unlocked }))
+            GameState(
+                level, totals.xp, totals.gold, streak, badges, rewards, Treasures.of(stats, badges.count { it.unlocked }),
+                rareBadges = RareBadges.of(Seasons.winsOf(seasons.map { it.refId })),
+            )
         }
     }
 
@@ -115,6 +122,14 @@ class GameRepository(
         if (dao.countEventsEver(GameEvent.CHALLENGE, key) > 0) return null
         val gain = Gain(xp, GameRules.goldFor(xp))
         dao.insertEvent(GameEvent(kind = GameEvent.CHALLENGE, refId = key, day = day, xp = gain.xp, gold = gain.gold))
+        return gain
+    }
+
+    /** Un défi saisonnier est réussi. Son bonus n'est versé qu'une fois ; renvoie null si déjà fait. */
+    suspend fun onSeasonDone(key: Long, xp: Int, day: Long = today().toEpochDay()): Gain? {
+        if (dao.countEventsEver(GameEvent.SEASON, key) > 0) return null
+        val gain = Gain(xp, GameRules.goldFor(xp))
+        dao.insertEvent(GameEvent(kind = GameEvent.SEASON, refId = key, day = day, xp = gain.xp, gold = gain.gold))
         return gain
     }
 

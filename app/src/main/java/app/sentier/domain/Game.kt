@@ -139,6 +139,8 @@ data class Badge(
     val icon: String,
     val current: Int,
     val goal: Int,
+    /** Badge rare d'un défi saisonnier : [current] est le nombre de fois où il a été gagné. */
+    val rare: Boolean = false,
 ) {
     val unlocked: Boolean get() = current >= goal
 }

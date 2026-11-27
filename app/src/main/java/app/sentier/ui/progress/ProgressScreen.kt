@@ -94,6 +94,7 @@ fun ProgressScreen(
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val challenges by vm.challenges.collectAsStateWithLifecycle()
+    val seasons by vm.seasons.collectAsStateWithLifecycle()
     val theme by vm.theme.collectAsStateWithLifecycle()
     var choosingTheme by remember { mutableStateOf(false) }
     var buying by remember { mutableStateOf<Reward?>(null) }
@@ -139,6 +140,8 @@ fun ProgressScreen(
             for (c in week.list) ChallengeCard(c)
         }
 
+        seasons?.let { SeasonSection(it) }
+
         SectionHeader("Boutique de récompenses")
         Text(
             "Échange ton or contre de vrais petits plaisirs, choisis par toi.",
@@ -163,6 +166,8 @@ fun ProgressScreen(
         val unlocked = state.badges.count { it.unlocked }
         SectionHeader("Badges ($unlocked sur ${state.badges.size})")
         for (badge in state.badges) BadgeRow(badge)
+
+        RareBadgesSection(state.rareBadges)
 
         ListItem(
             headlineContent = { Text("Thème") },

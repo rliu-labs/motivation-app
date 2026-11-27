@@ -36,9 +36,11 @@ data class GameEvent(
         const val CHALLENGE = 6
         /** Gel de série acheté dans la boutique (or négatif). */
         const val FREEZE = 7
+        /** Défi saisonnier réussi (ref_id = année × 100 + code du défi). */
+        const val SEASON = 8
 
         /** Vrai pour les actions qui font avancer la série (pas les achats ni les bonus). */
-        fun isActivity(kind: Int): Boolean = kind != PURCHASE && kind != CHALLENGE && kind != FREEZE
+        fun isActivity(kind: Int): Boolean = kind != PURCHASE && kind != CHALLENGE && kind != FREEZE && kind != SEASON
     }
 }
 
@@ -56,3 +58,6 @@ data class Reward(
 data class GameTotals(val xp: Int, val gold: Int)
 
 data class KindCount(val kind: Int, val count: Int)
+
+/** Une clé (escale, défi…) et le premier jour où elle a été gagnée. */
+data class RefDay(@ColumnInfo(name = "ref_id") val refId: Long, val day: Long)
