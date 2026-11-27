@@ -53,6 +53,8 @@ import androidx.navigation.navArgument
 import app.sentier.ui.backup.BackupScreen
 import app.sentier.ui.edit.TaskEditScreen
 import app.sentier.ui.habits.HabitEditScreen
+import app.sentier.ui.habits.HabitNoteScreen
+import java.time.LocalDate
 import app.sentier.ui.habits.HabitsScreen
 import app.sentier.ui.journey.JourneyScreen
 import app.sentier.ui.journey.TreasureDialog
@@ -165,6 +167,7 @@ fun SentierRoot(
                                 TodayScreen(
                                     snackbar, onOpenTask = openTask, onOpenHabits = openHabitsTab, onOpenProgress = openProgressTab,
                                     onOpenReminders = { nav.navigate("reminders") }, modifier = tabModifier,
+                                    onOpenNote = { id -> nav.navigate("note/$id/${LocalDate.now().toEpochDay()}") },
                                 )
                             }
                             composable(Tab.TASKS.route) {
@@ -190,7 +193,21 @@ fun SentierRoot(
                                 TaskEditScreen(taskId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
                             }
                             composable("habit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                                HabitEditScreen(habitId = entry.arguments?.getLong("id") ?: 0L, onBack = { nav.popBackStack() })
+                                HabitEditScreen(
+                                    habitId = entry.arguments?.getLong("id") ?: 0L,
+                                    onBack = { nav.popBackStack() },
+                                    onOpenNote = { id, day -> nav.navigate("note/$id/${day.toEpochDay()}") },
+                                )
+                            }
+                            composable(
+                                "note/{id}/{day}",
+                                arguments = listOf(navArgument("id") { type = NavType.LongType }, navArgument("day") { type = NavType.LongType }),
+                            ) { entry ->
+                                HabitNoteScreen(
+                                    habitId = entry.arguments?.getLong("id") ?: 0L,
+                                    day = LocalDate.ofEpochDay(entry.arguments?.getLong("day") ?: LocalDate.now().toEpochDay()),
+                                    onBack = { nav.popBackStack() },
+                                )
                             }
                             composable("reminders") {
                                 RemindersScreen(onBack = { nav.popBackStack() })

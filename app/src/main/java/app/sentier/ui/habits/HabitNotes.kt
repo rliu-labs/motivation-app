@@ -10,14 +10,33 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import app.sentier.data.HabitRepository
+import app.sentier.ui.common.app
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -41,47 +60,84 @@ import app.sentier.data.HabitNote
 import app.sentier.ui.common.friendlyDate
 import java.time.LocalDate
 
-/** Fenêtre pour écrire (ou effacer) la note d'une habitude pour un jour. */
+/** Écran pour écrire (ou effacer) la note d'une habitude pour un jour. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitNoteDialog(
-    habitName: String,
+fun HabitNoteScreen(
+    habitId: Long,
     day: LocalDate,
-    today: LocalDate,
-    initial: String,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
+    onBack: () -> Unit,
+    vm: HabitNoteViewModel = viewModel(key = "note-$habitId-$day", factory = HabitNoteViewModel.factory(habitId, day)),
 ) {
-    var text by remember(habitName, day) { mutableStateOf(initial) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (day == today) "Note du jour" else "Note · ${friendlyDate(day, today).lowercase()}") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(habitName, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it.take(HabitNote.MAX_LENGTH) },
-                    placeholder = { Text("Comment ça s'est passé ? Ce que tu as ressenti, appris…") },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    // Hauteur fixe (environ 5 lignes) : le texte plus long défile dans le champ.
-                    modifier = Modifier.fillMaxWidth().height(140.dp).testTag("habitNote"),
-                )
-                Text(
-                    "Reste sur ton téléphone, comme le reste.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+    val state by vm.state.collectAsStateWithLifecycle()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (day == vm.today) "Note du jour" else "Note · ${friendlyDate(day, vm.today).lowercase()}") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") } },
+                actions = {
+                    if (state.hadNote) {
+                        IconButton(onClick = { vm.save("", onBack) }) { Icon(Icons.Filled.Delete, "Effacer la note") }
+                    }
+                },
+            )
         },
-        confirmButton = { TextButton(onClick = { onSave(text) }) { Text("Enregistrer") } },
-        dismissButton = {
-            if (initial.isNotEmpty()) {
-                TextButton(onClick = { onSave("") }) { Text("Effacer") }
-            } else {
-                TextButton(onClick = onDismiss) { Text("Annuler") }
-            }
-        },
-    )
+    ) { padding ->
+        val current = state
+        if (current.loading) return@Scaffold
+        var text by remember(current.initial) { mutableStateOf(current.initial) }
+        Column(
+            Modifier.padding(padding).fillMaxSize().imePadding().padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(current.habitName, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it.take(HabitNote.MAX_LENGTH) },
+                placeholder = { Text("Comment ça s'est passé ? Ce que tu as ressenti, appris…") },
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                modifier = Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(min = 160.dp).testTag("habitNote"),
+            )
+            Text(
+                "${text.length} / ${HabitNote.MAX_LENGTH} · la note reste sur ton téléphone, comme le reste.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(onClick = { vm.save(text, onBack) }, modifier = Modifier.fillMaxWidth()) { Text("Enregistrer") }
+        }
+    }
+}
+
+data class HabitNoteState(
+    val habitName: String = "",
+    val initial: String = "",
+    val hadNote: Boolean = false,
+    val loading: Boolean = true,
+)
+
+class HabitNoteViewModel(private val repo: HabitRepository, private val habitId: Long, private val day: LocalDate) : ViewModel() {
+    private val _state = MutableStateFlow(HabitNoteState())
+    val state: StateFlow<HabitNoteState> = _state
+
+    val today: LocalDate get() = repo.today()
+
+    init {
+        viewModelScope.launch {
+            val note = repo.getNote(habitId, day).orEmpty()
+            _state.value = HabitNoteState(repo.getHabit(habitId)?.name.orEmpty(), note, note.isNotEmpty(), loading = false)
+        }
+    }
+
+    fun save(text: String, onDone: () -> Unit) = viewModelScope.launch {
+        repo.setNote(habitId, day, text)
+        onDone()
+    }
+
+    companion object {
+        fun factory(habitId: Long, day: LocalDate) = viewModelFactory {
+            initializer { HabitNoteViewModel(app().habits, habitId, day) }
+        }
+    }
 }
 
 /** Journal d'une habitude : ses notes, la plus récente en premier. */
@@ -89,7 +145,7 @@ fun HabitNoteDialog(
 fun HabitJournal(
     notes: List<HabitNote>,
     today: LocalDate,
-    onWrite: (LocalDate, String) -> Unit,
+    onWrite: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showAll by remember { mutableStateOf(false) }
@@ -99,7 +155,7 @@ fun HabitJournal(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Outlined.Notes, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Text("Journal", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp).weight(1f))
-                TextButton(onClick = { onWrite(today, todayNote?.text.orEmpty()) }) {
+                TextButton(onClick = { onWrite(today) }) {
                     Icon(Icons.Outlined.EditNote, contentDescription = null, modifier = Modifier.size(18.dp))
                     Text(if (todayNote == null) "Note du jour" else "Modifier", modifier = Modifier.padding(start = 4.dp))
                 }
@@ -115,7 +171,7 @@ fun HabitJournal(
             shown.forEachIndexed { i, note ->
                 if (i > 0) HorizontalDivider()
                 val day = LocalDate.ofEpochDay(note.day)
-                Column(Modifier.fillMaxWidth().clickable { onWrite(day, note.text) }.padding(vertical = 6.dp)) {
+                Column(Modifier.fillMaxWidth().clickable { onWrite(day) }.padding(vertical = 6.dp)) {
                     Text(
                         friendlyDate(day, today),
                         style = MaterialTheme.typography.labelMedium,

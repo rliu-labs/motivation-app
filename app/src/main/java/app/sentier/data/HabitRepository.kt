@@ -101,6 +101,8 @@ class HabitRepository(
     fun observeNotesOn(day: LocalDate = today()): Flow<Map<Long, String>> =
         dao.observeNotesOn(day.toEpochDay()).map { notes -> notes.associate { it.habitId to it.text } }
 
+    suspend fun getNote(habitId: Long, day: LocalDate): String? = dao.getNote(habitId, day.toEpochDay())?.text
+
     /** Écrit la note du jour d'une habitude ; un texte vide l'efface. */
     suspend fun setNote(habitId: Long, day: LocalDate, text: String) {
         val clean = text.trim().take(HabitNote.MAX_LENGTH)

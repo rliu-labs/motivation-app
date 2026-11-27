@@ -28,7 +28,6 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.sentier.data.Habit
 import app.sentier.data.HabitWithStats
 import app.sentier.ui.habits.HabitIcons
-import app.sentier.ui.habits.HabitNoteDialog
 import androidx.compose.ui.text.style.TextOverflow
 import app.sentier.ui.habits.HabitsViewModel
 import app.sentier.ui.habits.NumericValueDialog
@@ -82,6 +81,7 @@ fun TodayScreen(
     onOpenProgress: () -> Unit,
     onOpenReminders: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenNote: (Long) -> Unit = {},
     vm: TodayViewModel = viewModel(factory = TodayViewModel.Factory),
     habitsVm: HabitsViewModel = viewModel(factory = HabitsViewModel.Factory),
     gameVm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory),
@@ -90,7 +90,6 @@ fun TodayScreen(
     val state by vm.state.collectAsStateWithLifecycle()
     val habits by habitsVm.state.collectAsStateWithLifecycle()
     var editingHabit by remember { mutableStateOf<Habit?>(null) }
-    var notingHabit by remember { mutableStateOf<Habit?>(null) }
     val notes by habitsVm.notes.collectAsStateWithLifecycle()
 
     LifecycleResumeEffect(habitsVm) {
@@ -135,7 +134,7 @@ fun TodayScreen(
                         today = habits.today.toEpochDay(),
                         note = notes[h.habit.id],
                         onClick = { if (h.habit.isNumeric) editingHabit = h.habit else habitsVm.toggle(h.habit) },
-                        onNote = { notingHabit = h.habit },
+                        onNote = { onOpenNote(h.habit.id) },
                     )
                 }
             }
@@ -171,14 +170,6 @@ fun TodayScreen(
             habit = habit, day = habits.today, today = habits.today, initial = current,
             onDismiss = { editingHabit = null },
             onSave = { v -> habitsVm.setValue(habit, habits.today, v); editingHabit = null },
-        )
-    }
-
-    notingHabit?.let { habit ->
-        HabitNoteDialog(
-            habitName = habit.name, day = habits.today, today = habits.today, initial = notes[habit.id].orEmpty(),
-            onDismiss = { notingHabit = null },
-            onSave = { t -> habitsVm.setNote(habit, t); notingHabit = null },
         )
     }
 }

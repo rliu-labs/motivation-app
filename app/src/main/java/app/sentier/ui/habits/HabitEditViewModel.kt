@@ -52,10 +52,6 @@ class HabitEditViewModel(
 
     val today: LocalDate get() = repo.today()
 
-    fun setNote(day: LocalDate, text: String) = viewModelScope.launch {
-        if (!isNew) repo.setNote(habitId, day, text)
-    }
-
     init {
         if (habitId != 0L) viewModelScope.launch { _draft.value = repo.getHabit(habitId) }
     }

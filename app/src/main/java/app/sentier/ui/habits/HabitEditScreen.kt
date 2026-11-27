@@ -89,12 +89,12 @@ private enum class FreqMode(val label: String) { DAILY("Chaque jour"), WEEK("Par
 fun HabitEditScreen(
     habitId: Long,
     onBack: () -> Unit,
+    onOpenNote: (Long, LocalDate) -> Unit = { _, _ -> },
     vm: HabitEditViewModel = viewModel(key = "habit-$habitId", factory = HabitEditViewModel.factory(habitId)),
 ) {
     val draft by vm.draft.collectAsStateWithLifecycle()
     val stats by vm.stats.collectAsStateWithLifecycle()
     val notes by vm.notes.collectAsStateWithLifecycle()
-    var writing by remember { mutableStateOf<Pair<LocalDate, String>?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     var pickingTime by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -147,7 +147,7 @@ fun HabitEditScreen(
             }
 
             if (stats != null) {
-                HabitJournal(notes, vm.today, onWrite = { day, text -> writing = day to text })
+                HabitJournal(notes, vm.today, onWrite = { day -> onOpenNote(habitId, day) })
             }
 
             if (vm.isNew) {
@@ -336,14 +336,6 @@ fun HabitEditScreen(
                     askNotifications()
                     pickingTime = false
                 },
-            )
-        }
-
-        writing?.let { (day, text) ->
-            HabitNoteDialog(
-                habitName = h.name, day = day, today = vm.today, initial = text,
-                onDismiss = { writing = null },
-                onSave = { t -> vm.setNote(day, t); writing = null },
             )
         }
 

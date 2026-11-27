@@ -68,6 +68,9 @@ interface HabitDao {
     @Query("SELECT * FROM habit_note WHERE day = :day")
     fun observeNotesOn(day: Long): Flow<List<HabitNote>>
 
+    @Query("SELECT * FROM habit_note WHERE habit_id = :habitId AND day = :day")
+    suspend fun getNote(habitId: Long, day: Long): HabitNote?
+
     @Upsert
     suspend fun putNote(note: HabitNote)
 
