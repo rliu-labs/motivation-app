@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
@@ -63,9 +63,8 @@ fun HabitNoteDialog(
                     onValueChange = { text = it.take(HabitNote.MAX_LENGTH) },
                     placeholder = { Text("Comment ça s'est passé ? Ce que tu as ressenti, appris…") },
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    minLines = 3,
-                    maxLines = 8,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp).testTag("habitNote"),
+                    // Hauteur fixe (environ 5 lignes) : le texte plus long défile dans le champ.
+                    modifier = Modifier.fillMaxWidth().height(140.dp).testTag("habitNote"),
                 )
                 Text(
                     "Reste sur ton téléphone, comme le reste.",
